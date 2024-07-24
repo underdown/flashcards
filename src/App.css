@@ -8,7 +8,7 @@
   flex-direction: column;
   align-items: center;
   margin-top: 20px;
-  height: 100vh;
+  height: 70vh;
   position: relative;
 }
 
@@ -17,17 +17,18 @@
   border: 1px solid #ccc;
   border-radius: 8px;
   width: 80vw;
+  max-width: 500px;
   height: 60vh;
   display: flex;
   justify-content: center;
   align-items: center;
   cursor: pointer;
   transition: transform 0.2s;
-  position: absolute;
+  position: relative;
 }
 
 .content {
-  font-size: 28px;
+  font-size: 20px;
 }
 
 .flag-icon {
@@ -40,35 +41,23 @@
 
 .navigation {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   width: 100%;
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
+  margin-top: 20px;
 }
 
 .nav-button {
-  background-color: transparent;
+  background-color: #007bff;
+  color: white;
   border: none;
-  font-size: 2em;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-size: 1em;
   cursor: pointer;
   outline: none;
+  transition: background-color 0.2s;
 }
 
-@media (min-width: 600px) {
-  .flashcard-container {
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-
-  .flashcard {
-    width: 150px;
-    height: 100px;
-    position: static;
-  }
-
-  .navigation {
-    display: none;
-  }
+.nav-button:hover {
+  background-color: #0056b3;
 }

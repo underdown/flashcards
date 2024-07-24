@@ -32,7 +32,7 @@ const App = () => {
 
   return (
     <div className="App">
-      <h1>русские карточки</h1>
+      <h1>Flashcard App</h1>
       <div className="flashcard-container">
         {currentWord && <Flashcard word={currentWord} />}
       </div>

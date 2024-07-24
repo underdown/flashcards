@@ -32,12 +32,15 @@ const App = () => {
 
   return (
     <div className="App">
-      <h1>Kartochki App</h1>
+      <h1>карточки</h1>
       <div className="flashcard-container">
         {currentWord && <Flashcard word={currentWord} />}
       </div>
       <div className="navigation">
         <button className="nav-button" onClick={nextRandomWord}>Next Random Word</button>
+        <a href="https://x.com/youlikeryan" target="_blank" rel="noopener noreferrer" className="twitter-link">
+          @youlikeryan
+        </a>
       </div>
     </div>
   );

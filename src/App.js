@@ -5,7 +5,7 @@ import './App.css';
 
 const App = () => {
   const [words, setWords] = useState([]);
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [currentWord, setCurrentWord] = useState(null);
 
   useEffect(() => {
     const fetchWords = async () => {
@@ -20,23 +20,24 @@ const App = () => {
     fetchWords();
   }, []);
 
-  const nextCard = () => {
-    setCurrentIndex((prevIndex) => (prevIndex + 1) % words.length);
-  };
+  useEffect(() => {
+    if (words.length > 0) {
+      setCurrentWord(words[Math.floor(Math.random() * words.length)]);
+    }
+  }, [words]);
 
-  const prevCard = () => {
-    setCurrentIndex((prevIndex) => (prevIndex - 1 + words.length) % words.length);
+  const nextRandomWord = () => {
+    setCurrentWord(words[Math.floor(Math.random() * words.length)]);
   };
 
   return (
     <div className="App">
-      <h1>Flashcard App</h1>
+      <h1>русские карточки</h1>
       <div className="flashcard-container">
-        {words.length > 0 && <Flashcard word={words[currentIndex]} />}
+        {currentWord && <Flashcard word={currentWord} />}
       </div>
       <div className="navigation">
-        <button className="nav-button" onClick={prevCard}>◀</button>
-        <button className="nav-button" onClick={nextCard}>▶</button>
+        <button className="nav-button" onClick={nextRandomWord}>Next Random Word</button>
       </div>
     </div>
   );

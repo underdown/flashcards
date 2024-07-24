@@ -5,6 +5,7 @@ import './App.css';
 
 const App = () => {
   const [words, setWords] = useState([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
     const fetchWords = async () => {
@@ -19,13 +20,23 @@ const App = () => {
     fetchWords();
   }, []);
 
+  const nextCard = () => {
+    setCurrentIndex((prevIndex) => (prevIndex + 1) % words.length);
+  };
+
+  const prevCard = () => {
+    setCurrentIndex((prevIndex) => (prevIndex - 1 + words.length) % words.length);
+  };
+
   return (
     <div className="App">
       <h1>Flashcard App</h1>
       <div className="flashcard-container">
-        {words.map((word, index) => (
-          <Flashcard key={index} word={word} />
-        ))}
+        {words.length > 0 && <Flashcard word={words[currentIndex]} />}
+      </div>
+      <div className="navigation">
+        <button className="nav-button" onClick={prevCard}>◀</button>
+        <button className="nav-button" onClick={nextCard}>▶</button>
       </div>
     </div>
   );

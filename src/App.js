@@ -1,25 +1,34 @@
-import logo from './logo.svg';
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import Flashcard from './Flashcard';
 import './App.css';
 
-function App() {
+const App = () => {
+  const [words, setWords] = useState([]);
+
+  useEffect(() => {
+    const fetchWords = async () => {
+      try {
+        const response = await axios.get('/data.json');
+        setWords(response.data.common_words);
+      } catch (error) {
+        console.error('Error fetching the words:', error);
+      }
+    };
+
+    fetchWords();
+  }, []);
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <h1>Flashcard App</h1>
+      <div className="flashcard-container">
+        {words.map((word, index) => (
+          <Flashcard key={index} word={word} />
+        ))}
+      </div>
     </div>
   );
-}
+};
 
 export default App;

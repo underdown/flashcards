@@ -1,6 +1,27 @@
+/* Reset body margins and apply default background color */
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #ffffff; /* Default light mode background color */
+  color: #000000; /* Default light mode text color */
+  height: 100%;
+}
+
+/* Ensure the App component takes the full height of the viewport */
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
 .App {
   text-align: center;
   font-family: Arial, sans-serif;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
 .flashcard-container {
@@ -49,7 +70,8 @@
   margin-top: 20px;
 }
 
-.nav-button {
+.nav-button,
+.toggle-button {
   background-color: #007bff;
   color: white;
   border: none;
@@ -59,19 +81,110 @@
   cursor: pointer;
   outline: none;
   transition: background-color 0.2s;
+  margin: 5px 0;
 }
 
-.nav-button:hover {
+.nav-button:hover,
+.toggle-button:hover {
   background-color: #0056b3;
 }
 
 .twitter-link {
   margin-top: 10px;
-  font-size: 0.7em;
+  font-size: 0.8em;
   color: #1da1f2;
   text-decoration: none;
 }
 
 .twitter-link:hover {
   text-decoration: underline;
+}
+
+/* Dark mode styles */
+.dark-mode {
+  background-color: #121212;
+  color: #e0e0e0;
+}
+
+.dark-mode body {
+  background-color: #121212; /* Apply dark mode background to body */
+  color: #e0e0e0; /* Apply dark mode text color */
+}
+
+.dark-mode .flashcard {
+  background-color: #333;
+  border-color: #555;
+}
+
+.dark-mode .nav-button,
+.dark-mode .toggle-button {
+  background-color: #1e88e5;
+}
+
+.dark-mode .nav-button:hover,
+.dark-mode .toggle-button:hover {
+  background-color: #1565c0;
+}
+
+.dark-mode .twitter-link {
+  color: #90caf9;
+}
+
+.dark-mode .twitter-link:hover {
+  color: #bbdefb;
+}
+
+/* Toggle switch styles */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+  margin-top: 10px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: .4s;
+  border-radius: 34px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  transition: .4s;
+  border-radius: 50%;
+}
+
+input:checked + .slider {
+  background-color: #2196F3;
+}
+
+input:checked + .slider:before {
+  transform: translateX(26px);
+}
+
+.slider.round {
+  border-radius: 34px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
 }

@@ -6,6 +6,7 @@ import './App.css';
 const App = () => {
   const [words, setWords] = useState([]);
   const [currentWord, setCurrentWord] = useState(null);
+  const [darkMode, setDarkMode] = useState(false);
 
   useEffect(() => {
     const fetchWords = async () => {
@@ -30,17 +31,25 @@ const App = () => {
     setCurrentWord(words[Math.floor(Math.random() * words.length)]);
   };
 
+  const toggleDarkMode = () => {
+    setDarkMode(!darkMode);
+  };
+
   return (
-    <div className="App">
+    <div className={`App ${darkMode ? 'dark-mode' : ''}`}>
       <h1>карточки</h1>
       <div className="flashcard-container">
         {currentWord && <Flashcard word={currentWord} />}
       </div>
       <div className="navigation">
         <button className="nav-button" onClick={nextRandomWord}>Next Random Word</button>
-        <a href="https://x.com/youlikeryan" target="_blank" rel="noopener noreferrer" className="twitter-link">
+        <a href="https://twitter.com/youlikeryan" target="_blank" rel="noopener noreferrer" className="twitter-link">
           @youlikeryan
         </a>
+        <label className="switch">
+          <input type="checkbox" checked={darkMode} onChange={toggleDarkMode} />
+          <span className="slider round"></span>
+        </label>
       </div>
     </div>
   );

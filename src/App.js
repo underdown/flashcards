@@ -43,13 +43,13 @@ const App = () => {
       </div>
       <div className="navigation">
         <button className="nav-button" onClick={nextRandomWord}>Next Random Word</button>
-        <a href="https://twitter.com/youlikeryan" target="_blank" rel="noopener noreferrer" className="twitter-link">
-          @youlikeryan
-        </a>
         <label className="switch">
           <input type="checkbox" checked={darkMode} onChange={toggleDarkMode} />
           <span className="slider round"></span>
         </label>
+        <a href="https://x.com/youlikeryan" target="_blank" rel="noopener noreferrer" className="twitter-link">
+          @youlikeryan
+        </a>
       </div>
     </div>
   );

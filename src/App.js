@@ -44,7 +44,12 @@ const App = () => {
   }, []);
 
   const nextRandomWord = () => {
-    setCurrentWord(words[Math.floor(Math.random() * words.length)]);
+    console.log('Skip button clicked');
+    let newWord;
+    do {
+      newWord = words[Math.floor(Math.random() * words.length)];
+    } while (newWord === currentWord);
+    setCurrentWord(newWord);
   };
 
   const toggleDarkMode = () => {
@@ -57,6 +62,7 @@ const App = () => {
   }, []);
 
   const startListening = () => {
+    console.log('Test button clicked');
     if (recognition) {
       let resultReceived = false;
 
@@ -106,20 +112,27 @@ const App = () => {
   };
 
   return (
-    <div className={`App ${darkMode ? 'dark-mode' : ''}`}>
-      <h1>Russian Flashcards</h1>
+    <div className={`App ${darkMode ? 'dark-mode' : ''}`} style={{ position: 'relative', zIndex: 1 }}>
+      <h1>карточки</h1>
       <div className="flashcard-container">
         {currentWord && <Flashcard word={currentWord} />}
       </div>
-      <div className="button-container">
+      <div className="button-container" style={{ position: 'relative', zIndex: 2 }}>
         <button
-          onClick={startListening}
-          disabled={listening}
+          onClick={() => {
+            console.log('Test button clicked');
+            startListening();
+          }}
+          disabled={false}
           className="nav-button"
+          style={{ cursor: 'pointer', pointerEvents: 'auto' }}
         >
           {listening ? 'Listening...' : 'Test'}
         </button>
-        <button className="nav-button" onClick={nextRandomWord}>Skip</button>
+        <button className="nav-button" onClick={() => {
+          console.log('Skip button clicked');
+          nextRandomWord();
+        }} disabled={false} style={{ cursor: 'pointer', pointerEvents: 'auto' }}>Skip</button>
       </div>
       <div className="navigation">
         <label className="switch">

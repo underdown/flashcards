@@ -28,9 +28,10 @@ html, body, #root {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-top: 20px;
+  margin-top: 10px;
   height: 70vh;
   position: relative;
+  margin-bottom: -180px; /* Reduce this value */
 }
 
 .flashcard {
@@ -39,7 +40,7 @@ html, body, #root {
   border-radius: 8px;
   width: 80vw;
   max-width: 500px;
-  height: 60vh;
+  height: 50vh;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -50,7 +51,7 @@ html, body, #root {
 }
 
 .content {
-  font-size: 3em; /* Increased font size */
+  font-size: 2em; /* Increased font size */
 }
 
 .flag-icon {
@@ -65,7 +66,7 @@ html, body, #root {
   display: flex;
   justify-content: center;
   gap: 10px;
-  margin-top: 20px;
+  margin-top: 20px; /* Reduce this value */
 }
 
 .nav-button {
@@ -87,18 +88,6 @@ html, body, #root {
   background-color: #cccccc;
   cursor: not-allowed;
 }
-
-.twitter-link {
-  margin-top: 10px;
-  font-size: 0.8em;
-  color: #1da1f2;
-  text-decoration: none;
-}
-
-.twitter-link:hover {
-  text-decoration: underline;
-}
-
 /* Dark mode styles */
 .dark-mode {
   background-color: #121212;
@@ -137,7 +126,7 @@ html, body, #root {
 .switch {
   position: relative;
   display: inline-block;
-  width: 60px;
+  width: 90px;
   height: 34px;
   margin-top: 10px;
 }

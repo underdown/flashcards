@@ -28,10 +28,9 @@ html, body, #root {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-top: 10px;
+  margin-top: 20px;
   height: 70vh;
   position: relative;
-  margin-bottom: -140px; /* Reduce this value */
 }
 
 .flashcard {
@@ -40,18 +39,18 @@ html, body, #root {
   border-radius: 8px;
   width: 80vw;
   max-width: 500px;
-  height: 40vh;
+  height: 50vh;
   display: flex;
   justify-content: center;
   align-items: center;
   cursor: pointer;
-  transition: transform 0.3s;
+  transition: transform 0.2s;
   position: relative;
   flex-direction: column;
 }
 
 .content {
-  font-size: 2em; /* Increased font size */
+  font-size: 3em; /* Increased font size */
 }
 
 .flag-icon {
@@ -66,7 +65,13 @@ html, body, #root {
   display: flex;
   justify-content: center;
   gap: 10px;
-  margin-top: 0; /* Reduce this value */
+  margin-top: 20px; /* Reduce this value */
+}
+
+.detected-speech {
+  margin-bottom: 10px;
+  min-height: 20px;
+  font-style: italic;
 }
 
 .nav-button {
@@ -126,7 +131,7 @@ html, body, #root {
 .switch {
   position: relative;
   display: inline-block;
-  width: 90px;
+  width: 60px;
   height: 34px;
   margin-top: 10px;
 }

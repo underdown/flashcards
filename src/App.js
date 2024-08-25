@@ -13,6 +13,7 @@ const App = () => {
   const [darkMode, setDarkMode] = useState(false);
   const [listening, setListening] = useState(false);
   const [recognition, setRecognition] = useState(null);
+  const [detectedSpeech, setDetectedSpeech] = useState('');
 
   useEffect(() => {
     const fetchWords = async () => {
@@ -42,6 +43,11 @@ const App = () => {
       setRecognition(newRecognition);
     }
   }, []);
+
+  useEffect(() => {
+    document.documentElement.style.backgroundColor = darkMode ? '#333' : '#fff';
+    document.body.style.backgroundColor = darkMode ? '#333' : '#fff';
+  }, [darkMode]);
 
   const nextRandomWord = () => {
     console.log('Skip button clicked');
@@ -90,15 +96,15 @@ const App = () => {
       recognition.onresult = (event) => {
         resultReceived = true;
         const transcript = event.results[0][0].transcript.toLowerCase();
+        setDetectedSpeech(transcript);
         console.log('Recognized:', transcript);
         console.log('Expected:', currentWord.russian.toLowerCase());
         if (transcript === currentWord.russian.toLowerCase()) {
           console.log('Success');
           playSound(successSound);
           setTimeout(() => {
-            alert('Success!');
             nextRandomWord();
-          }, 500);
+          }, 2000);
         } else {
           console.log('Fail');
           playSound(failSound);
@@ -116,6 +122,9 @@ const App = () => {
       <h1>карточки</h1>
       <div className="flashcard-container">
         {currentWord && <Flashcard word={currentWord} />}
+      </div>
+      <div className="detected-speech">
+        <p>Detected: {detectedSpeech || 'No speech detected yet'}</p>
       </div>
       <div className="button-container" style={{ position: 'relative', zIndex: 2 }}>
         <button

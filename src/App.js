@@ -124,7 +124,7 @@ const App = () => {
         {currentWord && <Flashcard word={currentWord} />}
       </div>
       <div className="detected-speech">
-        <p>Detected: {detectedSpeech || 'No speech detected yet'}</p>
+        <p>{detectedSpeech || 'No speech detected yet'}</p>
       </div>
       <div className="button-container" style={{ position: 'relative', zIndex: 2 }}>
         <button

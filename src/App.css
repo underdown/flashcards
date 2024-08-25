@@ -29,7 +29,7 @@ html, body, #root {
   flex-direction: column;
   align-items: center;
   margin-top: 20px;
-  height: 60vh;
+  height: 70vh;
   position: relative;
 }
 
@@ -50,7 +50,7 @@ html, body, #root {
 }
 
 .content {
-  font-size: 2em; /* Increased font size */
+  font-size: 3em; /* Increased font size */
 }
 
 .flag-icon {
@@ -61,32 +61,31 @@ html, body, #root {
   right: 10px;
 }
 
-.navigation {
+.button-container {
   display: flex;
-  flex-direction: column;
   justify-content: center;
-  align-items: center;
-  width: 100%;
+  gap: 10px;
   margin-top: 20px;
 }
 
-.nav-button,
-.toggle-button {
-  background-color: #007bff;
+.nav-button {
+  padding: 10px 15px;
+  font-size: 16px;
+  background-color: #4CAF50;
   color: white;
   border: none;
-  border-radius: 8px;
-  padding: 10px 20px;
-  font-size: 1em;
+  border-radius: 5px;
   cursor: pointer;
-  outline: none;
-  transition: background-color 0.2s;
-  margin: 5px 0;
+  transition: background-color 0.3s;
 }
 
-.nav-button:hover,
-.toggle-button:hover {
-  background-color: #0056b3;
+.nav-button:hover {
+  background-color: #45a049;
+}
+
+.nav-button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
 }
 
 .twitter-link {
@@ -187,4 +186,15 @@ input:checked + .slider:before {
 
 .slider.round:before {
   border-radius: 50%;
+}
+
+/* Mode icon styles */
+.mode-icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
 }

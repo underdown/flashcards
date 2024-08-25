@@ -39,7 +39,7 @@ const App = () => {
       const newRecognition = new window.webkitSpeechRecognition();
       newRecognition.lang = 'ru-RU';
       newRecognition.continuous = false;
-      newRecognition.interimResults = false;
+      newRecognition.interimResults = true; // Added for real-time speech detection
       setRecognition(newRecognition);
     }
   }, []);
@@ -94,24 +94,49 @@ const App = () => {
       };
 
       recognition.onresult = (event) => {
-        resultReceived = true;
-        const transcript = event.results[0][0].transcript.toLowerCase();
-        setDetectedSpeech(transcript);
-        console.log('Recognized:', transcript);
-        console.log('Expected:', currentWord.russian.toLowerCase());
-        if (transcript === currentWord.russian.toLowerCase()) {
-          console.log('Success');
-          playSound(successSound);
-          setTimeout(() => {
-            nextRandomWord();
-          }, 2000);
-        } else {
-          console.log('Fail');
-          playSound(failSound);
+        const transcript = Array.from(event.results)
+          .map(result => result[0].transcript)
+          .join('');
+        
+        setDetectedSpeech(transcript.toLowerCase());
+        
+        // Check for final result
+        if (event.results[0].isFinal) {
+          if (transcript.toLowerCase() === currentWord.russian.toLowerCase()) {
+            console.log('Success');
+            playSound(successSound);
+            setTimeout(nextRandomWord, 2000);
+          } else {
+            console.log('Fail');
+            playSound(failSound);
+          }
         }
       };
 
-      recognition.start();
+      // Set a timeout to stop recognition if it takes too long
+      const timeout = setTimeout(() => {
+        if (recognition.state === 'running') {
+          recognition.stop();
+          console.log('Speech recognition timed out');
+          playSound(failSound);
+        }
+      }, 10000); // 10 seconds timeout
+
+      try {
+        recognition.start();
+      } catch (error) {
+        console.error('Error starting speech recognition:', error);
+        setListening(false);
+        playSound(failSound);
+      }
+
+      // Clean up function
+      return () => {
+        clearTimeout(timeout);
+        if (recognition.state === 'running') {
+          recognition.stop();
+        }
+      };
     } else {
       alert('Web Speech API is not supported in this browser.');
     }

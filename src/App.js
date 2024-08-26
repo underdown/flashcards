@@ -16,6 +16,7 @@ const App = () => {
   const [recognition, setRecognition] = useState(null);
   const [detectedSpeech, setDetectedSpeech] = useState('');
   const [showSuccessGif, setShowSuccessGif] = useState(false);
+  const [speechStatus, setSpeechStatus] = useState('idle');
 
   useEffect(() => {
     const fetchWords = async () => {
@@ -37,18 +38,13 @@ const App = () => {
   }, [words]);
 
   useEffect(() => {
-    const newRecognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-    newRecognition.continuous = false;
-    newRecognition.interimResults = true;
-    newRecognition.lang = 'ru-RU';
-
-    setRecognition(newRecognition);
-
-    return () => {
-      if (newRecognition) {
-        newRecognition.abort();
-      }
-    };
+    if ('webkitSpeechRecognition' in window) {
+      const newRecognition = new window.webkitSpeechRecognition();
+      newRecognition.lang = 'ru-RU';
+      newRecognition.continuous = false;
+      newRecognition.interimResults = true; // Added for real-time speech detection
+      setRecognition(newRecognition);
+    }
   }, []);
 
   useEffect(() => {
@@ -76,33 +72,51 @@ const App = () => {
 
   const startListening = () => {
     if (recognition) {
-      // Stop any ongoing recognition
       recognition.abort();
 
       recognition.onstart = () => {
         console.log('Speech recognition started');
+        setSpeechStatus('listening');
         setListening(true);
+      };
+
+      recognition.onaudiostart = () => {
+        console.log('Audio capturing started');
+        setSpeechStatus('ready');
+      };
+
+      recognition.onspeechstart = () => {
+        console.log('Speech started');
+        setSpeechStatus('speaking');
+      };
+
+      recognition.onspeechend = () => {
+        console.log('Speech ended');
+        setSpeechStatus('processing');
       };
 
       recognition.onend = () => {
         console.log('Speech recognition ended');
         setListening(false);
+        setSpeechStatus('idle');
       };
 
       recognition.onerror = (event) => {
         console.error('Speech recognition error', event.error);
         setListening(false);
+        setSpeechStatus('error');
       };
 
       recognition.onresult = (event) => {
         const transcript = Array.from(event.results)
           .map(result => result[0].transcript)
-          .join('').toLowerCase();
-
-        setDetectedSpeech(transcript);
-
+          .join('');
+        
+        setDetectedSpeech(transcript.toLowerCase());
+        
+        // Check for final result
         if (event.results[0].isFinal) {
-          if (transcript === currentWord.russian.toLowerCase()) {
+          if (transcript.toLowerCase() === currentWord.russian.toLowerCase()) {
             console.log('Success');
             playSound(successSound);
             setShowSuccessGif(true);
@@ -114,7 +128,6 @@ const App = () => {
             console.log('Fail');
             playSound(failSound);
           }
-          recognition.stop();
         }
       };
 
@@ -122,7 +135,10 @@ const App = () => {
         recognition.start();
       } catch (error) {
         console.error('Error starting speech recognition:', error);
+        setSpeechStatus('error');
       }
+    } else {
+      alert('Web Speech API is not supported in this browser.');
     }
   };
 
@@ -143,6 +159,13 @@ const App = () => {
       </div>
       <div className="detected-speech">
         <p>{detectedSpeech || 'No speech detected yet'}</p>
+      </div>
+      <div className="speech-status">
+        {speechStatus === 'listening' && <p>Preparing to listen...</p>}
+        {speechStatus === 'ready' && <p>Ready! Please speak now.</p>}
+        {speechStatus === 'speaking' && <p>Listening...</p>}
+        {speechStatus === 'processing' && <p>Processing your speech...</p>}
+        {speechStatus === 'error' && <p>Error occurred. Please try again.</p>}
       </div>
       <div className="button-container" style={{ position: 'relative', zIndex: 2 }}>
         <button

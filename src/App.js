@@ -146,10 +146,8 @@ const App = () => {
         if (event.results[0].isFinal) {
           const cleanTranscript = transcript.toLowerCase().trim();
           const cleanExpected = currentWord.russian.toLowerCase().trim();
-          const distance = levenshteinDistance(cleanTranscript, cleanExpected);
-          const similarity = 1 - distance / Math.max(cleanTranscript.length, cleanExpected.length);
 
-          if (similarity > 0.8) { // 80% similarity threshold
+          if (cleanTranscript === cleanExpected || cleanTranscript.includes(cleanExpected)) {
             console.log('Success');
             playSound(successSound);
             setShowSuccessGif(true);

@@ -8,6 +8,34 @@ import successSound from './assets/success.wav';
 import failSound from './assets/fail.wav';
 import successGif from './assets/success.gif';
 
+function levenshteinDistance(a, b) {
+  const matrix = [];
+
+  for (let i = 0; i <= b.length; i++) {
+    matrix[i] = [i];
+  }
+
+  for (let j = 0; j <= a.length; j++) {
+    matrix[0][j] = j;
+  }
+
+  for (let i = 1; i <= b.length; i++) {
+    for (let j = 1; j <= a.length; j++) {
+      if (b.charAt(i - 1) === a.charAt(j - 1)) {
+        matrix[i][j] = matrix[i - 1][j - 1];
+      } else {
+        matrix[i][j] = Math.min(
+          matrix[i - 1][j - 1] + 1,
+          matrix[i][j - 1] + 1,
+          matrix[i - 1][j] + 1
+        );
+      }
+    }
+  }
+
+  return matrix[b.length][a.length];
+}
+
 const App = () => {
   const [words, setWords] = useState([]);
   const [currentWord, setCurrentWord] = useState(null);
@@ -116,7 +144,12 @@ const App = () => {
         
         // Check for final result
         if (event.results[0].isFinal) {
-          if (transcript.toLowerCase() === currentWord.russian.toLowerCase()) {
+          const cleanTranscript = transcript.toLowerCase().trim();
+          const cleanExpected = currentWord.russian.toLowerCase().trim();
+          const distance = levenshteinDistance(cleanTranscript, cleanExpected);
+          const similarity = 1 - distance / Math.max(cleanTranscript.length, cleanExpected.length);
+
+          if (similarity > 0.8) { // 80% similarity threshold
             console.log('Success');
             playSound(successSound);
             setShowSuccessGif(true);

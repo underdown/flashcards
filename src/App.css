@@ -75,24 +75,24 @@ html, body, #root {
 
 .detected-speech {
   background-color: rgba(0, 255, 0, 0.1); /* Light green */
-  margin-top: 10px;
+  margin-top: 0;
   margin-bottom: 10px;
   padding-left: 10px;
   padding-right: 10px;
-  min-height: 20px;
+  min-height: 14px;
   font-style: italic;
 }
 
 .button-container {
-  background-color: rgba(0, 0, 255, 0.1); /* Light blue */
-  margin-top: 10px;
   display: flex;
   justify-content: center;
-  gap: 10px;
+  gap: 10px; /* Adds space between buttons */
+  margin-top: 20px;
+  background-color: transparent; /* Ensure no background color */
 }
 
 .nav-button {
-  padding: 10px 15px;
+  padding: 10px 20px;
   font-size: 16px;
   background-color: #4CAF50;
   color: white;
@@ -150,7 +150,7 @@ html, body, #root {
   display: inline-block;
   width: 90px;
   height: 34px;
-  margin-top: 10px;
+  margin-top: 40px;
 }
 
 .switch input {

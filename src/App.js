@@ -150,6 +150,14 @@ const App = () => {
     };
   }, [recognition]);
 
+  const speakWord = useCallback(() => {
+    if (currentWord && currentWord.russian) {
+      const utterance = new SpeechSynthesisUtterance(currentWord.russian);
+      utterance.lang = 'ru-RU';
+      window.speechSynthesis.speak(utterance);
+    }
+  }, [currentWord]);
+
   return (
     <div className={`App ${darkMode ? 'dark-mode' : ''}`} style={{ position: 'relative', zIndex: 1 }}>
       <h1>карточки</h1>
@@ -168,6 +176,7 @@ const App = () => {
         {speechStatus === 'error' && <p>Error occurred. Please try again.</p>}
       </div>
       <div className="button-container" style={{ position: 'relative', zIndex: 2 }}>
+        <button className="nav-button" onClick={speakWord}>Listen</button>
         <button
           onClick={() => {
             console.log('Test button clicked');
@@ -184,7 +193,7 @@ const App = () => {
           nextRandomWord();
         }} disabled={false} style={{ cursor: 'pointer', pointerEvents: 'auto' }}>Skip</button>
       </div>
-      <div className="navigation">
+      <div className="dark-mode-toggle" style={{ paddingTop: '20px' }}>
         <label className="switch">
           <input type="checkbox" checked={darkMode} onChange={toggleDarkMode} />
           <span className="slider round">

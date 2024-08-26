@@ -9,6 +9,8 @@ import failSound from './assets/fail.wav';
 import successGif from './assets/success.gif';
 import { openDB } from 'idb';
 
+const DB_VERSION = 1; // Increment this when changing DB schema
+
 function levenshteinDistance(a, b) {
   const matrix = [];
 
@@ -206,18 +208,32 @@ const App = () => {
 
   useEffect(() => {
     const initDB = async () => {
-      const db = await openDB('flashcards', 1, {
-        upgrade(db) {
-          db.createObjectStore('wordStats', { keyPath: 'word' });
+      const db = await openDB('flashcards', DB_VERSION, {
+        upgrade(db, oldVersion, newVersion, transaction) {
+          if (!db.objectStoreNames.contains('wordStats')) {
+            db.createObjectStore('wordStats', { keyPath: 'word' });
+          }
+          // Add more upgrade steps for future versions
         },
       });
       return db;
     };
     initDB();
+
+    const loadTotalStats = async () => {
+      const db = await openDB('flashcards', DB_VERSION);
+      const allStats = await db.getAll('wordStats');
+      const totalStats = allStats.reduce((acc, curr) => ({
+        successes: acc.successes + (curr.successes || 0),
+        failures: acc.failures + (curr.failures || 0)
+      }), { successes: 0, failures: 0 });
+      setWordStats(totalStats);
+    };
+    loadTotalStats();
   }, []);
 
   const updateWordStats = useCallback(async (word, isSuccess) => {
-    const db = await openDB('flashcards', 1);
+    const db = await openDB('flashcards', DB_VERSION);
     const tx = db.transaction('wordStats', 'readwrite');
     const store = tx.objectStore('wordStats');
     const item = await store.get(word);
@@ -230,6 +246,16 @@ const App = () => {
       await store.add({ word, successes: isSuccess ? 1 : 0, failures: isSuccess ? 0 : 1 });
     }
     await tx.done;
+  
+    // Update the state after modifying the database
+    setWordStats(prev => {
+      const newStats = {
+        successes: prev.successes + (isSuccess ? 1 : 0),
+        failures: prev.failures + (isSuccess ? 0 : 1)
+      };
+      console.log('Updated stats:', newStats);
+      return newStats;
+    });
   }, []);
 
   return (

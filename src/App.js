@@ -7,6 +7,7 @@ import moonIcon from './assets/moon.svg';
 import successSound from './assets/success.wav';
 import failSound from './assets/fail.wav';
 import successGif from './assets/success.gif';
+import { openDB } from 'idb';
 
 function levenshteinDistance(a, b) {
   const matrix = [];
@@ -36,6 +37,10 @@ function levenshteinDistance(a, b) {
   return matrix[b.length][a.length];
 }
 
+function normalizeRussian(text) {
+  return text.toLowerCase().replace(/ё/g, 'е');
+}
+
 const App = () => {
   const [words, setWords] = useState([]);
   const [currentWord, setCurrentWord] = useState(null);
@@ -45,12 +50,17 @@ const App = () => {
   const [detectedSpeech, setDetectedSpeech] = useState('');
   const [showSuccessGif, setShowSuccessGif] = useState(false);
   const [speechStatus, setSpeechStatus] = useState('idle');
+  const [wordStats, setWordStats] = useState({successes: 0, failures: 0});
 
   useEffect(() => {
     const fetchWords = async () => {
       try {
         const response = await axios.get('/data.json');
-        setWords(response.data.common_words);
+        const wordsWithIds = response.data.common_words.map((word, index) => ({
+          ...word,
+          id: word.id || index + 1
+        }));
+        setWords(wordsWithIds);
       } catch (error) {
         console.error('Error fetching the words:', error);
       }
@@ -147,10 +157,17 @@ const App = () => {
           const cleanTranscript = transcript.toLowerCase().trim();
           const cleanExpected = currentWord.russian.toLowerCase().trim();
 
-          if (cleanTranscript === cleanExpected || cleanTranscript.includes(cleanExpected)) {
+          // Use levenshteinDistance here
+          const distance = levenshteinDistance(cleanTranscript, cleanExpected);
+          const similarity = 1 - distance / Math.max(cleanTranscript.length, cleanExpected.length);
+
+          if (similarity > 0.8) { // 80% similarity threshold
             console.log('Success');
             playSound(successSound);
             setShowSuccessGif(true);
+            setDetectedSpeech(''); // Reset detected speech on success
+            setWordStats(prev => ({...prev, successes: prev.successes + 1}));
+            updateWordStats(currentWord.russian, true);
             setTimeout(() => {
               setShowSuccessGif(false);
               nextRandomWord();
@@ -158,6 +175,8 @@ const App = () => {
           } else {
             console.log('Fail');
             playSound(failSound);
+            setWordStats(prev => ({...prev, failures: prev.failures + 1}));
+            updateWordStats(currentWord.russian, false);
           }
         }
       };
@@ -189,6 +208,34 @@ const App = () => {
     }
   }, [currentWord]);
 
+  useEffect(() => {
+    const initDB = async () => {
+      const db = await openDB('flashcards', 1, {
+        upgrade(db) {
+          db.createObjectStore('wordStats', { keyPath: 'word' });
+        },
+      });
+      return db;
+    };
+    initDB();
+  }, []);
+
+  const updateWordStats = useCallback(async (word, isSuccess) => {
+    const db = await openDB('flashcards', 1);
+    const tx = db.transaction('wordStats', 'readwrite');
+    const store = tx.objectStore('wordStats');
+    const item = await store.get(word);
+    if (item) {
+      await store.put({
+        ...item,
+        [isSuccess ? 'successes' : 'failures']: item[isSuccess ? 'successes' : 'failures'] + 1,
+      });
+    } else {
+      await store.add({ word, successes: isSuccess ? 1 : 0, failures: isSuccess ? 0 : 1 });
+    }
+    await tx.done;
+  }, []);
+
   return (
     <div className={`App ${darkMode ? 'dark-mode' : ''}`} style={{ position: 'relative', zIndex: 1 }}>
       <h1>карточки</h1>
@@ -197,7 +244,16 @@ const App = () => {
         <Flashcard word={currentWord} />
       </div>
       <div className="detected-speech">
-        <p>{detectedSpeech || 'No speech detected yet'}</p>
+        <p>
+          {detectedSpeech || 'No speech detected yet'}
+          {showSuccessGif && (
+            <img 
+              src={successGif} 
+              alt="Success" 
+              style={{ width: '16px', height: '16px', marginLeft: '5px', verticalAlign: 'middle' }}
+            />
+          )}
+        </p>
       </div>
       <div className="speech-status">
         {speechStatus === 'listening' && <p>Preparing to listen...</p>}
@@ -231,6 +287,9 @@ const App = () => {
             <img src={darkMode ? moonIcon : sunIcon} alt="mode icon" className="mode-icon" />
           </span>
         </label>
+      </div>
+      <div className="stats" style={{ marginTop: '20px' }}>
+        Successes: {wordStats.successes}, Failures: {wordStats.failures}
       </div>
     </div>
   );

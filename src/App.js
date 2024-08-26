@@ -37,13 +37,18 @@ const App = () => {
   }, [words]);
 
   useEffect(() => {
-    if ('webkitSpeechRecognition' in window) {
-      const newRecognition = new window.webkitSpeechRecognition();
-      newRecognition.lang = 'ru-RU';
-      newRecognition.continuous = false;
-      newRecognition.interimResults = true; // Added for real-time speech detection
-      setRecognition(newRecognition);
-    }
+    const newRecognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+    newRecognition.continuous = false;
+    newRecognition.interimResults = true;
+    newRecognition.lang = 'ru-RU';
+
+    setRecognition(newRecognition);
+
+    return () => {
+      if (newRecognition) {
+        newRecognition.abort();
+      }
+    };
   }, []);
 
   useEffect(() => {
@@ -70,41 +75,34 @@ const App = () => {
   }, []);
 
   const startListening = () => {
-    console.log('Test button clicked');
     if (recognition) {
-      let resultReceived = false;
+      // Stop any ongoing recognition
+      recognition.abort();
 
       recognition.onstart = () => {
         console.log('Speech recognition started');
         setListening(true);
-        resultReceived = false;
       };
 
       recognition.onend = () => {
         console.log('Speech recognition ended');
         setListening(false);
-        if (!resultReceived) {
-          console.log('No speech detected');
-          playSound(failSound);
-        }
       };
 
       recognition.onerror = (event) => {
         console.error('Speech recognition error', event.error);
         setListening(false);
-        playSound(failSound);
       };
 
       recognition.onresult = (event) => {
         const transcript = Array.from(event.results)
           .map(result => result[0].transcript)
-          .join('');
-        
-        setDetectedSpeech(transcript.toLowerCase());
-        
-        // Check for final result
+          .join('').toLowerCase();
+
+        setDetectedSpeech(transcript);
+
         if (event.results[0].isFinal) {
-          if (transcript.toLowerCase() === currentWord.russian.toLowerCase()) {
+          if (transcript === currentWord.russian.toLowerCase()) {
             console.log('Success');
             playSound(successSound);
             setShowSuccessGif(true);
@@ -116,42 +114,22 @@ const App = () => {
             console.log('Fail');
             playSound(failSound);
           }
+          recognition.stop();
         }
       };
-
-      // Set a timeout to stop recognition if it takes too long
-      const timeout = setTimeout(() => {
-        if (recognition.state === 'running') {
-          recognition.stop();
-          console.log('Speech recognition timed out');
-          playSound(failSound);
-        }
-      }, 10000); // 10 seconds timeout
 
       try {
         recognition.start();
       } catch (error) {
         console.error('Error starting speech recognition:', error);
-        setListening(false);
-        playSound(failSound);
       }
-
-      // Clean up function
-      return () => {
-        clearTimeout(timeout);
-        if (recognition.state === 'running') {
-          recognition.stop();
-        }
-      };
-    } else {
-      alert('Web Speech API is not supported in this browser.');
     }
   };
 
   useEffect(() => {
     return () => {
       if (recognition) {
-        recognition.stop();
+        recognition.abort();
       }
     };
   }, [recognition]);
@@ -161,7 +139,7 @@ const App = () => {
       <h1>карточки</h1>
       <div className="flashcard-container">
         {showSuccessGif && <img src={successGif} alt="Success GIF" className="success-gif" />}
-        {currentWord && <Flashcard word={currentWord} />}
+        <Flashcard word={currentWord} />
       </div>
       <div className="detected-speech">
         <p>{detectedSpeech || 'No speech detected yet'}</p>

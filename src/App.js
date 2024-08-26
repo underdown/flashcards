@@ -6,6 +6,7 @@ import sunIcon from './assets/sun.svg';
 import moonIcon from './assets/moon.svg';
 import successSound from './assets/success.wav';
 import failSound from './assets/fail.wav';
+import successGif from './assets/success.gif';
 
 const App = () => {
   const [words, setWords] = useState([]);
@@ -14,6 +15,7 @@ const App = () => {
   const [listening, setListening] = useState(false);
   const [recognition, setRecognition] = useState(null);
   const [detectedSpeech, setDetectedSpeech] = useState('');
+  const [showSuccessGif, setShowSuccessGif] = useState(false);
 
   useEffect(() => {
     const fetchWords = async () => {
@@ -105,7 +107,11 @@ const App = () => {
           if (transcript.toLowerCase() === currentWord.russian.toLowerCase()) {
             console.log('Success');
             playSound(successSound);
-            setTimeout(nextRandomWord, 2000);
+            setShowSuccessGif(true);
+            setTimeout(() => {
+              setShowSuccessGif(false);
+              nextRandomWord();
+            }, 1000);
           } else {
             console.log('Fail');
             playSound(failSound);
@@ -142,10 +148,19 @@ const App = () => {
     }
   };
 
+  useEffect(() => {
+    return () => {
+      if (recognition) {
+        recognition.stop();
+      }
+    };
+  }, [recognition]);
+
   return (
     <div className={`App ${darkMode ? 'dark-mode' : ''}`} style={{ position: 'relative', zIndex: 1 }}>
       <h1>карточки</h1>
       <div className="flashcard-container">
+        {showSuccessGif && <img src={successGif} alt="Success GIF" className="success-gif" />}
         {currentWord && <Flashcard word={currentWord} />}
       </div>
       <div className="detected-speech">

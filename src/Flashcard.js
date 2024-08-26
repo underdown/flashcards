@@ -1,41 +1,24 @@
-import React, { useState } from 'react';
-import usFlag from './assets/us-flag.svg';
-import ruFlag from './assets/ru-flag.svg';
-
-// TTS Function
-const speak = (text, lang = 'en-US') => {
-  if ('speechSynthesis' in window) {
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = lang;
-    window.speechSynthesis.speak(utterance);
-  } else {
-    console.error('Your browser does not support the Web Speech API');
-  }
-};
+import React from 'react';
 
 const Flashcard = ({ word }) => {
-  const [isRussian, setIsRussian] = useState(false);
-
-  const flagIcon = isRussian ? ruFlag : usFlag;
-
-  const handleSpeak = (event) => {
-    event.stopPropagation();
-    if (isRussian) {
-      speak(word.russian, 'ru-RU');
-    } else {
-      speak(word.english, 'en-US');
+  const speakWord = () => {
+    if (word && word.russian) {
+      const utterance = new SpeechSynthesisUtterance(word.russian);
+      utterance.lang = 'ru-RU';
+      window.speechSynthesis.speak(utterance);
     }
   };
 
-  const toggleLanguage = () => {
-    setIsRussian(!isRussian);
-  };
+  if (!word) {
+    return <div className="flashcard">Loading...</div>;
+  }
 
   return (
-    <div className="flashcard" onClick={toggleLanguage}>
-      <div className="content">{isRussian ? word.russian : word.english}</div>
-      <img src={flagIcon} alt="flag" className="flag-icon" />
-      <button onClick={handleSpeak}>Speak</button>
+    <div className="flashcard" onClick={speakWord}>
+      <div className="content">
+        <h2>{word.russian}</h2>
+        <p>{word.english}</p>
+      </div>
     </div>
   );
 };

@@ -176,7 +176,7 @@ const App = () => {
         {speechStatus === 'error' && <p>Error occurred. Please try again.</p>}
       </div>
       <div className="button-container" style={{ position: 'relative', zIndex: 2 }}>
-        <button className="nav-button" onClick={speakWord}>Listen</button>
+        <button className="nav-button" onClick={speakWord}>Play</button>
         <button
           onClick={() => {
             console.log('Test button clicked');
@@ -186,7 +186,7 @@ const App = () => {
           className="nav-button"
           style={{ cursor: 'pointer', pointerEvents: 'auto' }}
         >
-          {listening ? 'Listening...' : 'Test'}
+          {listening ? 'Listening...' : 'Speak'}
         </button>
         <button className="nav-button" onClick={() => {
           console.log('Skip button clicked');

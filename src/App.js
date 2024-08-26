@@ -37,10 +37,6 @@ function levenshteinDistance(a, b) {
   return matrix[b.length][a.length];
 }
 
-function normalizeRussian(text) {
-  return text.toLowerCase().replace(/ё/g, 'е');
-}
-
 const App = () => {
   const [words, setWords] = useState([]);
   const [currentWord, setCurrentWord] = useState(null);
@@ -289,7 +285,9 @@ const App = () => {
         </label>
       </div>
       <div className="stats" style={{ marginTop: '20px' }}>
-        Successes: {wordStats.successes}, Failures: {wordStats.failures}
+        <span style={{ color: 'green' }}>{wordStats.successes}</span>
+        {' / '}
+        <span style={{ color: 'red' }}>{wordStats.failures}</span>
       </div>
     </div>
   );

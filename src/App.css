@@ -63,6 +63,28 @@ html, body, #root {
 
 .content {
   font-size: 1.33em; /* Reduced by roughly 33% from 2em */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.english {
+  font-size: 1.3em;
+  margin-bottom: 10px;
+}
+
+.russian {
+  font-size: 1.8em;
+  font-weight: bold;
+  margin: 5px 0;
+}
+
+.phonetic {
+  font-style: italic;
+  color: #666;
+  margin: 5px 0;
+  font-size: 0.9em;
 }
 
 .flag-icon {

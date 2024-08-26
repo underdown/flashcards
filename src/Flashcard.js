@@ -8,8 +8,9 @@ const Flashcard = ({ word }) => {
   return (
     <div className="flashcard">
       <div className="content">
-        <h2>{word.russian}</h2>
-        <p>{word.english}</p>
+        <p className="english">{word.english}</p>
+        <h2 className="russian">{word.russian}</h2>
+        <p className="phonetic">{word.phonetic}</p>
       </div>
     </div>
   );

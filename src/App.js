@@ -39,6 +39,10 @@ function levenshteinDistance(a, b) {
   return matrix[b.length][a.length];
 }
 
+function normalizeLanguage(text) {
+  return text.toLowerCase().replace(/ё/g, 'е');
+}
+
 const App = () => {
   const [words, setWords] = useState([]);
   const [currentWord, setCurrentWord] = useState(null);
@@ -148,14 +152,12 @@ const App = () => {
           .map(result => result[0].transcript)
           .join('');
         
-        setDetectedSpeech(transcript.toLowerCase());
+        const cleanTranscript = normalizeLanguage(transcript.toLowerCase().trim());
+        setDetectedSpeech(cleanTranscript);
         
-        // Check for final result
         if (event.results[0].isFinal && currentWord && currentWord.russian) {
-          const cleanTranscript = normalizeRussian(transcript.toLowerCase().trim());
-          const cleanExpected = normalizeRussian(currentWord.russian.toLowerCase().trim());
+          const cleanExpected = normalizeLanguage(currentWord.russian.toLowerCase().trim());
 
-          // Use levenshteinDistance here
           const distance = levenshteinDistance(cleanTranscript, cleanExpected);
           const similarity = 1 - distance / Math.max(cleanTranscript.length, cleanExpected.length);
 
@@ -164,10 +166,10 @@ const App = () => {
             recognition.abort(); // Stop recognition immediately
             playSound(successSound);
             setShowSuccessGif(true);
-            setDetectedSpeech(''); // Reset detected speech on success
             updateWordStats(currentWord.russian, true);
             setTimeout(() => {
               setShowSuccessGif(false);
+              setDetectedSpeech(''); // Reset detected speech after animation
               nextRandomWord();
             }, 1000);
           } else {
@@ -256,11 +258,6 @@ const App = () => {
       return newStats;
     });
   }, []);
-
-  // Helper function to normalize Russian text (handle 'ё', etc.)
-  function normalizeRussian(text) {
-    return text.replace(/ё/g, 'е');
-  }
 
   return (
     <div className={`App ${darkMode ? 'dark-mode' : ''}`} style={{ position: 'relative', zIndex: 1 }}>

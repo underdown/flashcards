@@ -151,9 +151,9 @@ const App = () => {
         setDetectedSpeech(transcript.toLowerCase());
         
         // Check for final result
-        if (event.results[0].isFinal) {
-          const cleanTranscript = transcript.toLowerCase().trim();
-          const cleanExpected = currentWord.russian.toLowerCase().trim();
+        if (event.results[0].isFinal && currentWord && currentWord.russian) {
+          const cleanTranscript = normalizeRussian(transcript.toLowerCase().trim());
+          const cleanExpected = normalizeRussian(currentWord.russian.toLowerCase().trim());
 
           // Use levenshteinDistance here
           const distance = levenshteinDistance(cleanTranscript, cleanExpected);
@@ -161,10 +161,10 @@ const App = () => {
 
           if (similarity > 0.8) { // 80% similarity threshold
             console.log('Success');
+            recognition.abort(); // Stop recognition immediately
             playSound(successSound);
             setShowSuccessGif(true);
             setDetectedSpeech(''); // Reset detected speech on success
-            setWordStats(prev => ({...prev, successes: prev.successes + 1}));
             updateWordStats(currentWord.russian, true);
             setTimeout(() => {
               setShowSuccessGif(false);
@@ -173,7 +173,6 @@ const App = () => {
           } else {
             console.log('Fail');
             playSound(failSound);
-            setWordStats(prev => ({...prev, failures: prev.failures + 1}));
             updateWordStats(currentWord.russian, false);
           }
         }
@@ -258,9 +257,13 @@ const App = () => {
     });
   }, []);
 
+  // Helper function to normalize Russian text (handle 'ё', etc.)
+  function normalizeRussian(text) {
+    return text.replace(/ё/g, 'е');
+  }
+
   return (
     <div className={`App ${darkMode ? 'dark-mode' : ''}`} style={{ position: 'relative', zIndex: 1 }}>
-      <h1>карточки</h1>
       <div className="flashcard-container">
         {showSuccessGif && <img src={successGif} alt="Success GIF" className="success-gif" />}
         <Flashcard word={currentWord} />

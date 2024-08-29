@@ -205,7 +205,7 @@ const App = () => {
   const speakWord = useCallback(() => {
     if (currentWord && currentWord.russian) {
       const utterance = new SpeechSynthesisUtterance(currentWord.russian);
-      utterance.lang = 'es-ES';
+      utterance.lang = 'ru-RU';
       window.speechSynthesis.speak(utterance);
     }
   }, [currentWord]);

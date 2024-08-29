@@ -5,7 +5,6 @@ import './App.css';
 import sunIcon from './assets/sun.svg';
 import moonIcon from './assets/moon.svg';
 import successSound from './assets/success.wav';
-import failSound from './assets/fail.wav';
 import successGif from './assets/success.gif';
 import { openDB } from 'idb';
 
@@ -39,10 +38,6 @@ function levenshteinDistance(a, b) {
   return matrix[b.length][a.length];
 }
 
-function normalizeLanguage(text) {
-  return text.toLowerCase().replace(/ё/g, 'е');
-}
-
 const App = () => {
   const [words, setWords] = useState([]);
   const [currentWord, setCurrentWord] = useState(null);
@@ -53,6 +48,24 @@ const App = () => {
   const [showSuccessGif, setShowSuccessGif] = useState(false);
   const [speechStatus, setSpeechStatus] = useState('idle');
   const [wordStats, setWordStats] = useState({successes: 0, failures: 0});
+  const [audioContext, setAudioContext] = useState(null);
+
+  const ensureAudioContextRunning = useCallback(async () => {
+    if (audioContext && audioContext.state !== 'running') {
+      try {
+        await audioContext.resume();
+      } catch (error) {
+        console.error('Failed to resume AudioContext:', error);
+      }
+    }
+  }, [audioContext]);
+
+  const playSound = useCallback((sound) => {
+    ensureAudioContextRunning().then(() => {
+      const audio = new Audio(sound);
+      audio.play().catch(error => console.error('Error playing sound:', error));
+    });
+  }, [ensureAudioContextRunning]);
 
   useEffect(() => {
     const fetchWords = async () => {
@@ -105,11 +118,6 @@ const App = () => {
     setDarkMode(!darkMode);
   };
 
-  const playSound = useCallback((sound) => {
-    const audio = new Audio(sound);
-    audio.play().catch(error => console.error('Error playing sound:', error));
-  }, []);
-
   const startListening = () => {
     if (recognition) {
       recognition.abort();
@@ -152,31 +160,26 @@ const App = () => {
           .map(result => result[0].transcript)
           .join('');
         
-        const cleanTranscript = normalizeLanguage(transcript.toLowerCase().trim());
+        const cleanTranscript = transcript.toLowerCase().trim();
+        const cleanExpected = currentWord.russian.toLowerCase().trim();
         setDetectedSpeech(cleanTranscript);
         
-        if (event.results[0].isFinal && currentWord && currentWord.russian) {
-          const cleanExpected = normalizeLanguage(currentWord.russian.toLowerCase().trim());
+        // Check for match immediately
+        const distance = levenshteinDistance(cleanTranscript, cleanExpected);
+        const similarity = 1 - distance / Math.max(cleanTranscript.length, cleanExpected.length);
 
-          const distance = levenshteinDistance(cleanTranscript, cleanExpected);
-          const similarity = 1 - distance / Math.max(cleanTranscript.length, cleanExpected.length);
-
-          if (similarity > 0.8) { // 80% similarity threshold
-            console.log('Success');
-            recognition.abort(); // Stop recognition immediately
-            playSound(successSound);
-            setShowSuccessGif(true);
-            updateWordStats(currentWord.russian, true);
-            setTimeout(() => {
-              setShowSuccessGif(false);
-              setDetectedSpeech(''); // Reset detected speech after animation
-              nextRandomWord();
-            }, 1000);
-          } else {
-            console.log('Fail');
-            playSound(failSound);
-            updateWordStats(currentWord.russian, false);
-          }
+        if (similarity > 0.8) { // 80% similarity threshold
+          console.log('Success');
+          recognition.abort(); // Stop listening immediately
+          playSound(successSound);
+          setShowSuccessGif(true);
+          setWordStats(prev => ({...prev, successes: prev.successes + 1}));
+          updateWordStats(currentWord.russian, true);
+          setTimeout(() => {
+            setDetectedSpeech('');
+            setShowSuccessGif(false);
+            nextRandomWord();
+          }, 1000);
         }
       };
 
@@ -202,7 +205,7 @@ const App = () => {
   const speakWord = useCallback(() => {
     if (currentWord && currentWord.russian) {
       const utterance = new SpeechSynthesisUtterance(currentWord.russian);
-      utterance.lang = 'ru-RU';
+      utterance.lang = 'es-ES';
       window.speechSynthesis.speak(utterance);
     }
   }, [currentWord]);
@@ -258,6 +261,23 @@ const App = () => {
       return newStats;
     });
   }, []);
+
+  useEffect(() => {
+    const initAudioContext = () => {
+      const context = new (window.AudioContext || window.webkitAudioContext)();
+      setAudioContext(context);
+    };
+
+    if (!audioContext) {
+      initAudioContext();
+    }
+
+    return () => {
+      if (audioContext) {
+        audioContext.close();
+      }
+    };
+  }, [audioContext]);
 
   return (
     <div className={`App ${darkMode ? 'dark-mode' : ''}`} style={{ position: 'relative', zIndex: 1 }}>

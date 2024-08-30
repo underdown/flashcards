@@ -56,6 +56,7 @@ const App = () => {
   const [wordStats, setWordStats] = useState({ successes: 0, failures: 0 });
   const [audioContext, setAudioContext] = useState(null);
   const audioBuffersRef = useRef({});
+  const [currentWordStats, setCurrentWordStats] = useState(null);
 
   const ensureAudioContextRunning = useCallback(async () => {
     if (audioContext && audioContext.state !== 'running') {
@@ -104,13 +105,28 @@ const App = () => {
     document.body.style.backgroundColor = darkMode ? '#333' : '#fff';
   }, [darkMode]);
 
-  const nextRandomWord = () => {
+  useEffect(() => {
+    if (currentWord) {
+      updateCurrentWordStats(currentWord.foreign);
+    }
+  }, [currentWord]);
+
+  const updateCurrentWordStats = useCallback(async (word) => {
+    const db = await openDB('flashcards', DB_VERSION);
+    const tx = db.transaction('wordStats', 'readonly');
+    const store = tx.objectStore('wordStats');
+    const stats = await store.get(word) || { word, successes: 0, failures: 0 };
+    setCurrentWordStats(stats);
+    await tx.done;
+  }, []);
+
+  const nextRandomWord = useCallback(() => {
     let newWord;
     do {
       newWord = words[Math.floor(Math.random() * words.length)];
     } while (newWord === currentWord);
     setCurrentWord(newWord);
-  };
+  }, [words, currentWord]);
 
   const toggleDarkMode = () => {
     setDarkMode(!darkMode);
@@ -207,7 +223,6 @@ const App = () => {
     }
   }, [currentWord, currentLanguage]);
 
-  const [currentWordStats, setCurrentWordStats] = useState(null);
   useEffect(() => {
     const initDB = async () => {
       const db = await openDB('flashcards', DB_VERSION, {

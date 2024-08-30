@@ -57,6 +57,7 @@ const App = () => {
   const [audioContext, setAudioContext] = useState(null);
   const audioBuffersRef = useRef({});
   const [currentWordStats, setCurrentWordStats] = useState(null);
+  const [attemptTimeout, setAttemptTimeout] = useState(null);
 
   const ensureAudioContextRunning = useCallback(async () => {
     if (audioContext && audioContext.state !== 'running') {
@@ -105,21 +106,6 @@ const App = () => {
     document.body.style.backgroundColor = darkMode ? '#333' : '#fff';
   }, [darkMode]);
 
-  useEffect(() => {
-    if (currentWord) {
-      updateCurrentWordStats(currentWord.foreign);
-    }
-  }, [currentWord]);
-
-  const updateCurrentWordStats = useCallback(async (word) => {
-    const db = await openDB('flashcards', DB_VERSION);
-    const tx = db.transaction('wordStats', 'readonly');
-    const store = tx.objectStore('wordStats');
-    const stats = await store.get(word) || { word, successes: 0, failures: 0 };
-    setCurrentWordStats(stats);
-    await tx.done;
-  }, []);
-
   const nextRandomWord = useCallback(() => {
     let newWord;
     do {
@@ -140,6 +126,13 @@ const App = () => {
         console.log('Speech recognition started');
         setSpeechStatus('listening');
         setListening(true);
+        
+        // Set a timeout for the attempt
+        const timeout = setTimeout(() => {
+          recognition.stop();
+          handleFailure();
+        }, 5000); // 5 seconds timeout
+        setAttemptTimeout(timeout);
       };
 
       recognition.onaudiostart = () => {
@@ -161,6 +154,7 @@ const App = () => {
         console.log('Speech recognition ended');
         setListening(false);
         setSpeechStatus('idle');
+        clearTimeout(attemptTimeout);
       };
 
       recognition.onerror = (event) => {
@@ -170,6 +164,7 @@ const App = () => {
       };
 
       recognition.onresult = (event) => {
+        clearTimeout(attemptTimeout);
         const transcript = Array.from(event.results)
           .map(result => result[0].transcript)
           .join('');
@@ -182,19 +177,10 @@ const App = () => {
         const distance = levenshteinDistance(cleanTranscript, cleanExpected);
         const similarity = 1 - distance / Math.max(cleanTranscript.length, cleanExpected.length);
 
-        if (similarity > 0.8) { // 80% similarity threshold
-          console.log('Success');
-          recognition.abort(); // Stop listening immediately
-          playSound(successSound);
-          setShowSuccessGif(true);
-          setWordStats(prev => ({ ...prev, successes: prev.successes + 1 }));
-          updateWordStats(currentWord.foreign, true, similarity);
-
-          setTimeout(() => {
-            setDetectedSpeech('');
-            setShowSuccessGif(false);
-            nextRandomWord();
-          }, 1000);
+        if (similarity > 0.6) {
+          handleSuccess(similarity);
+        } else {
+          handleFailure();
         }
       };
 
@@ -216,10 +202,42 @@ const App = () => {
   }, [recognition]);
 
   const speakWord = useCallback(() => {
+    console.log('speakWord called');
     if (currentWord && currentWord.foreign) {
-      const utterance = new SpeechSynthesisUtterance(currentWord.foreign);
-      utterance.lang = languageCodes[currentLanguage] || 'en-US';
-      window.speechSynthesis.speak(utterance);
+      console.log('Current word:', currentWord);
+      
+      return new Promise((resolve, reject) => {
+        const utterance = new SpeechSynthesisUtterance(currentWord.foreign);
+        utterance.lang = languageCodes[currentLanguage] || 'en-US';
+        
+        utterance.onend = () => {
+          console.log('Speech finished');
+          resolve();
+        };
+        utterance.onerror = (event) => {
+          console.error('Speech error:', event);
+          reject(event);
+        };
+
+        // Log available voices
+        const voices = window.speechSynthesis.getVoices();
+        console.log('Available voices:', voices);
+
+        // Try to set a specific voice
+        const voice = voices.find(v => v.lang === utterance.lang);
+        if (voice) {
+          utterance.voice = voice;
+          console.log('Using voice:', voice.name);
+        } else {
+          console.log('No matching voice found for', utterance.lang);
+        }
+
+        window.speechSynthesis.speak(utterance);
+        console.log('Speech synthesis called');
+      });
+    } else {
+      console.log('No current word or foreign text');
+      return Promise.reject('No word to speak');
     }
   }, [currentWord, currentLanguage]);
 
@@ -265,6 +283,10 @@ const App = () => {
     await tx.done;
   
     setCurrentWordStats(updatedStats);
+    setWordStats(prev => ({
+      successes: prev.successes + (isSuccess ? 1 : 0),
+      failures: prev.failures + (isSuccess ? 0 : 1)
+    }));
   }, []);
 
   useEffect(() => {
@@ -289,6 +311,45 @@ const App = () => {
   const handleLanguageChange = (event) => {
     setCurrentLanguage(event.target.value);
   };
+
+  const handleSuccess = (similarity) => {
+    console.log('Success');
+    playSound(successSound);
+    setShowSuccessGif(true);
+    updateWordStats(currentWord.foreign, true, similarity);
+
+    setTimeout(() => {
+      setDetectedSpeech('');
+      setShowSuccessGif(false);
+      nextRandomWord();
+    }, 1000);
+  };
+
+  const handleFailure = () => {
+    console.log('Failure');
+    playSound(failSound);
+    updateWordStats(currentWord.foreign, false, 0);
+    setDetectedSpeech('Try again');
+
+    setTimeout(() => {
+      setDetectedSpeech('');
+    }, 1000);
+  };
+
+  useEffect(() => {
+    if (currentWord) {
+      updateCurrentWordStats(currentWord.foreign);
+    }
+  }, [currentWord]);
+
+  const updateCurrentWordStats = useCallback(async (word) => {
+    const db = await openDB('flashcards', DB_VERSION);
+    const tx = db.transaction('wordStats', 'readonly');
+    const store = tx.objectStore('wordStats');
+    const stats = await store.get(word) || { word, successes: 0, failures: 0 };
+    setCurrentWordStats(stats);
+    await tx.done;
+  }, []);
 
   return (
     <div className={`App ${darkMode ? 'dark-mode' : ''}`} style={{ position: 'relative', zIndex: 1 }}>
@@ -320,7 +381,14 @@ const App = () => {
         {speechStatus === 'error' && <p>Error occurred. Please try again.</p>}
       </div>
       <div className="button-container" style={{ position: 'relative', zIndex: 2 }}>
-        <button className="nav-button" onClick={speakWord}>Play</button>
+        <button 
+          className="nav-button" 
+          onClick={() => {
+            speakWord().catch(error => console.error('Failed to speak word:', error));
+          }}
+        >
+          Play
+        </button>
         <button
           onClick={startListening}
           disabled={listening}

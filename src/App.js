@@ -1,5 +1,4 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
-import axios from 'axios';
 import Flashcard from './Flashcard';
 import './App.css';
 import sunIcon from './assets/sun.svg';
@@ -39,8 +38,14 @@ function levenshteinDistance(a, b) {
   return matrix[b.length][a.length];
 }
 
+const languageCodes = {
+  russian: 'ru-RU',
+  spanish: 'es-ES'
+};
+
 const App = () => {
   const [words, setWords] = useState([]);
+  const [currentLanguage, setCurrentLanguage] = useState('russian');
   const [currentWord, setCurrentWord] = useState(null);
   const [darkMode, setDarkMode] = useState(false);
   const [listening, setListening] = useState(false);
@@ -70,21 +75,13 @@ const App = () => {
   }, [ensureAudioContextRunning]);
 
   useEffect(() => {
-    const fetchWords = async () => {
-      try {
-        const response = await axios.get('/data.json');
-        const wordsWithIds = response.data.common_words.map((word, index) => ({
-          ...word,
-          id: word.id || index + 1,
-        }));
-        setWords(wordsWithIds);
-      } catch (error) {
-        console.error('Error fetching the words:', error);
-      }
-    };
-
-    fetchWords();
-  }, []);
+    fetch('/data.json')
+      .then(response => response.json())
+      .then(data => {
+        setWords(data[currentLanguage].words || []);
+      })
+      .catch(error => console.error('Error loading words:', error));
+  }, [currentLanguage]);
 
   useEffect(() => {
     if (words.length > 0) {
@@ -95,12 +92,12 @@ const App = () => {
   useEffect(() => {
     if ('webkitSpeechRecognition' in window) {
       const newRecognition = new window.webkitSpeechRecognition();
-      newRecognition.lang = 'ru-RU';
+      newRecognition.lang = languageCodes[currentLanguage] || 'en-US';
       newRecognition.continuous = false;
       newRecognition.interimResults = true;
       setRecognition(newRecognition);
     }
-  }, []);
+  }, [currentLanguage]);
 
   useEffect(() => {
     document.documentElement.style.backgroundColor = darkMode ? '#333' : '#fff';
@@ -162,7 +159,7 @@ const App = () => {
           .join('');
 
         const cleanTranscript = transcript.toLowerCase().trim();
-        const cleanExpected = currentWord.russian.toLowerCase().trim();
+        const cleanExpected = currentWord.foreign.toLowerCase().trim();
         setDetectedSpeech(cleanTranscript);
 
         // Check for match immediately
@@ -175,7 +172,7 @@ const App = () => {
           playSound(successSound);
           setShowSuccessGif(true);
           setWordStats(prev => ({ ...prev, successes: prev.successes + 1 }));
-          updateWordStats(currentWord.russian, true, similarity);
+          updateWordStats(currentWord.foreign, true, similarity);
 
           setTimeout(() => {
             setDetectedSpeech('');
@@ -203,12 +200,13 @@ const App = () => {
   }, [recognition]);
 
   const speakWord = useCallback(() => {
-    if (currentWord && currentWord.russian) {
-      const utterance = new SpeechSynthesisUtterance(currentWord.russian);
-      utterance.lang = 'ru-RU';
+    if (currentWord && currentWord.foreign) {
+      const utterance = new SpeechSynthesisUtterance(currentWord.foreign);
+      utterance.lang = languageCodes[currentLanguage] || 'en-US';
       window.speechSynthesis.speak(utterance);
     }
-  }, [currentWord]);
+  }, [currentWord, currentLanguage]);
+
   const [currentWordStats, setCurrentWordStats] = useState(null);
   useEffect(() => {
     const initDB = async () => {
@@ -273,8 +271,16 @@ const App = () => {
     };
   }, []);
 
+  const handleLanguageChange = (event) => {
+    setCurrentLanguage(event.target.value);
+  };
+
   return (
     <div className={`App ${darkMode ? 'dark-mode' : ''}`} style={{ position: 'relative', zIndex: 1 }}>
+      <select value={currentLanguage} onChange={handleLanguageChange} className="language-selector">
+        <option value="russian">Russian</option>
+        <option value="spanish">Spanish</option>
+      </select>
       <div className="flashcard-container">
         {showSuccessGif && <img src={successGif} alt="Success GIF" className="success-gif" />}
         <Flashcard word={currentWord} />
@@ -332,7 +338,7 @@ const App = () => {
             <tbody>
               <tr>
                 <td>Word:</td>
-                <td><strong>{currentWord?.russian}</strong></td>
+                <td><strong>{currentWord?.foreign}</strong></td>
               </tr>
               <tr>
                 <td>Successes:</td>

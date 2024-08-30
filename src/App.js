@@ -48,10 +48,9 @@ const App = () => {
   const [detectedSpeech, setDetectedSpeech] = useState('');
   const [showSuccessGif, setShowSuccessGif] = useState(false);
   const [speechStatus, setSpeechStatus] = useState('idle');
-  const [wordStats, setWordStats] = useState({successes: 0, failures: 0});
+  const [wordStats, setWordStats] = useState({ successes: 0, failures: 0 });
   const [audioContext, setAudioContext] = useState(null);
   const audioBuffersRef = useRef({});
-  const [currentWordStats, setCurrentWordStats] = useState({ successes: 0, failures: 0, totalAttempts: 0, lastAttempted: null, streak: 0, averageSimilarity: 0 });
 
   const ensureAudioContextRunning = useCallback(async () => {
     if (audioContext && audioContext.state !== 'running') {
@@ -63,14 +62,12 @@ const App = () => {
     }
   }, [audioContext]);
 
-  const playSound = useCallback((soundName) => {
-    if (audioContext && audioBuffersRef.current[soundName]) {
-      const source = audioContext.createBufferSource();
-      source.buffer = audioBuffersRef.current[soundName];
-      source.connect(audioContext.destination);
-      source.start(0);
-    }
-  }, [audioContext]);
+  const playSound = useCallback((sound) => {
+    ensureAudioContextRunning().then(() => {
+      const audio = new Audio(sound);
+      audio.play().catch(error => console.error('Error playing sound:', error));
+    });
+  }, [ensureAudioContextRunning]);
 
   useEffect(() => {
     const fetchWords = async () => {
@@ -78,7 +75,7 @@ const App = () => {
         const response = await axios.get('/data.json');
         const wordsWithIds = response.data.common_words.map((word, index) => ({
           ...word,
-          id: word.id || index + 1
+          id: word.id || index + 1,
         }));
         setWords(wordsWithIds);
       } catch (error) {
@@ -100,7 +97,7 @@ const App = () => {
       const newRecognition = new window.webkitSpeechRecognition();
       newRecognition.lang = 'ru-RU';
       newRecognition.continuous = false;
-      newRecognition.interimResults = true; // Added for real-time speech detection
+      newRecognition.interimResults = true;
       setRecognition(newRecognition);
     }
   }, []);
@@ -111,7 +108,6 @@ const App = () => {
   }, [darkMode]);
 
   const nextRandomWord = () => {
-    console.log('Skip button clicked');
     let newWord;
     do {
       newWord = words[Math.floor(Math.random() * words.length)];
@@ -164,32 +160,28 @@ const App = () => {
         const transcript = Array.from(event.results)
           .map(result => result[0].transcript)
           .join('');
-        
+
         const cleanTranscript = transcript.toLowerCase().trim();
         const cleanExpected = currentWord.russian.toLowerCase().trim();
         setDetectedSpeech(cleanTranscript);
-        
+
         // Check for match immediately
         const distance = levenshteinDistance(cleanTranscript, cleanExpected);
         const similarity = 1 - distance / Math.max(cleanTranscript.length, cleanExpected.length);
 
-        const startTime = Date.now();
-
         if (similarity > 0.8) { // 80% similarity threshold
           console.log('Success');
-          const timeToPronounce = Date.now() - startTime;
-          playSound('success');
+          recognition.abort(); // Stop listening immediately
+          playSound(successSound);
           setShowSuccessGif(true);
-          setDetectedSpeech('');
-          updateWordStats(currentWord.russian, true, similarity, timeToPronounce);
+          setWordStats(prev => ({ ...prev, successes: prev.successes + 1 }));
+          updateWordStats(currentWord.russian, true, similarity);
+
           setTimeout(() => {
+            setDetectedSpeech('');
             setShowSuccessGif(false);
             nextRandomWord();
           }, 1000);
-        } else {
-          console.log('Fail');
-          playSound('fail');
-          updateWordStats(currentWord.russian, false, similarity);
         }
       };
 
@@ -199,8 +191,6 @@ const App = () => {
         console.error('Error starting speech recognition:', error);
         setSpeechStatus('error');
       }
-    } else {
-      alert('Web Speech API is not supported in this browser.');
     }
   };
 
@@ -219,15 +209,14 @@ const App = () => {
       window.speechSynthesis.speak(utterance);
     }
   }, [currentWord]);
-
+  const [currentWordStats, setCurrentWordStats] = useState(null);
   useEffect(() => {
     const initDB = async () => {
       const db = await openDB('flashcards', DB_VERSION, {
-        upgrade(db, oldVersion, newVersion, transaction) {
+        upgrade(db, oldVersion) {
           if (!db.objectStoreNames.contains('wordStats')) {
             db.createObjectStore('wordStats', { keyPath: 'word' });
           }
-          // Add more upgrade steps for future versions
         },
       });
       return db;
@@ -239,43 +228,31 @@ const App = () => {
       const allStats = await db.getAll('wordStats');
       const totalStats = allStats.reduce((acc, curr) => ({
         successes: acc.successes + (curr.successes || 0),
-        failures: acc.failures + (curr.failures || 0)
+        failures: acc.failures + (curr.failures || 0),
       }), { successes: 0, failures: 0 });
       setWordStats(totalStats);
     };
     loadTotalStats();
   }, []);
 
-  const updateWordStats = async (word, isSuccess, similarity, timeToPronounce) => {
+  const updateWordStats = useCallback(async (word, isSuccess, similarity) => {
     const db = await openDB('flashcards', DB_VERSION);
     const tx = db.transaction('wordStats', 'readwrite');
     const store = tx.objectStore('wordStats');
-    const now = new Date().toISOString();
-    const item = await store.get(word) || {
-      word,
-      successes: 0,
-      failures: 0,
-      totalAttempts: 0,
-      lastAttempted: null,
-      streak: 0,
-      averageSimilarity: 0,
-    };
-
-    const updatedItem = {
+    const item = await store.get(word) || { word, successes: 0, failures: 0 };
+    
+    const updatedStats = {
       ...item,
       successes: isSuccess ? item.successes + 1 : item.successes,
       failures: isSuccess ? item.failures : item.failures + 1,
-      totalAttempts: item.totalAttempts + 1,
-      lastAttempted: now,
-      streak: isSuccess ? item.streak + 1 : 0,
-      averageSimilarity: (item.averageSimilarity * item.totalAttempts + similarity) / (item.totalAttempts + 1),
+      lastAttempt: { success: isSuccess, similarity }
     };
-
-    await store.put(updatedItem);
+    
+    await store.put(updatedStats);
     await tx.done;
-
-    setCurrentWordStats(updatedItem);
-  };
+  
+    setCurrentWordStats(updatedStats);
+  }, []);
 
   useEffect(() => {
     const ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -296,22 +273,6 @@ const App = () => {
     };
   }, []);
 
-  useEffect(() => {
-    if (currentWord) {
-      getWordStats(currentWord.russian);
-    }
-  }, [currentWord]);
-
-  const getWordStats = async (word) => {
-    const db = await openDB('flashcards', DB_VERSION);
-    const stats = await db.get('wordStats', word);
-    if (stats) {
-      setCurrentWordStats({ successes: stats.successes || 0, failures: stats.failures || 0, totalAttempts: stats.totalAttempts || 0, lastAttempted: stats.lastAttempted || null, streak: stats.streak || 0, averageSimilarity: stats.averageSimilarity || 0 });
-    } else {
-      setCurrentWordStats({ successes: 0, failures: 0, totalAttempts: 0, lastAttempted: null, streak: 0, averageSimilarity: 0 });
-    }
-  };
-
   return (
     <div className={`App ${darkMode ? 'dark-mode' : ''}`} style={{ position: 'relative', zIndex: 1 }}>
       <div className="flashcard-container">
@@ -322,9 +283,9 @@ const App = () => {
         <p>
           {detectedSpeech || 'No speech detected yet'}
           {showSuccessGif && (
-            <img 
-              src={successGif} 
-              alt="Success" 
+            <img
+              src={successGif}
+              alt="Success"
               style={{ width: '16px', height: '16px', marginLeft: '5px', verticalAlign: 'middle' }}
             />
           )}
@@ -340,20 +301,21 @@ const App = () => {
       <div className="button-container" style={{ position: 'relative', zIndex: 2 }}>
         <button className="nav-button" onClick={speakWord}>Play</button>
         <button
-          onClick={() => {
-            console.log('Test button clicked');
-            startListening();
-          }}
-          disabled={false}
+          onClick={startListening}
+          disabled={listening}
           className="nav-button"
           style={{ cursor: 'pointer', pointerEvents: 'auto' }}
         >
           {listening ? 'Listening...' : 'Speak'}
         </button>
-        <button className="nav-button" onClick={() => {
-          console.log('Skip button clicked');
-          nextRandomWord();
-        }} disabled={false} style={{ cursor: 'pointer', pointerEvents: 'auto' }}>Skip</button>
+        <button
+          className="nav-button"
+          onClick={nextRandomWord}
+          disabled={false}
+          style={{ cursor: 'pointer', pointerEvents: 'auto' }}
+        >
+          Skip
+        </button>
       </div>
       <div className="dark-mode-toggle" style={{ paddingTop: '20px' }}>
         <label className="switch">
@@ -363,13 +325,61 @@ const App = () => {
           </span>
         </label>
       </div>
-      <div className="stats" style={{ marginTop: '20px' }}>
-        <p>Successes: <span style={{ color: 'green' }}>{currentWordStats.successes}</span></p>
-        <p>Failures: <span style={{ color: 'red' }}>{currentWordStats.failures}</span></p>
-        <p>Success Rate: {((currentWordStats.successes / currentWordStats.totalAttempts) * 100).toFixed(2)}%</p>
-        <p>Current Streak: {currentWordStats.streak}</p>
-        <p>Average Similarity: {currentWordStats.averageSimilarity.toFixed(2)}</p>
-        <p>Last Attempted: {new Date(currentWordStats.lastAttempted).toLocaleString()}</p>
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '20px', fontSize: '11px' }}>
+        <div className="stats" style={{ flex: 1, marginRight: '10px' }}>
+          <h3>Current Word</h3>
+          <table>
+            <tbody>
+              <tr>
+                <td>Word:</td>
+                <td><strong>{currentWord?.russian}</strong></td>
+              </tr>
+              <tr>
+                <td>Successes:</td>
+                <td><span style={{ color: 'green' }}>{currentWordStats?.successes || 0}</span></td>
+              </tr>
+              <tr>
+                <td>Failures:</td>
+                <td><span style={{ color: 'red' }}>{currentWordStats?.failures || 0}</span></td>
+              </tr>
+              <tr>
+                <td>Success Rate:</td>
+                <td><strong>
+                  {currentWordStats ? 
+                    ((currentWordStats.successes / (currentWordStats.successes + currentWordStats.failures)) * 100).toFixed(2) : 0}%
+                </strong></td>
+              </tr>
+
+            </tbody>
+          </table>
+        </div>
+
+        <div className="stats" style={{ flex: 1, marginLeft: '10px' }}>
+          <h3>Overall Statistics</h3>
+          <table>
+            <tbody>
+              <tr>
+                <td>Words:</td>
+                <td><strong>{words.length}</strong></td>
+              </tr>
+              <tr>
+                <td>Successes:</td>
+                <td><span style={{ color: 'green' }}>{wordStats.successes}</span></td>
+              </tr>
+              <tr>
+                <td>Failures:</td>
+                <td><span style={{ color: 'red' }}>{wordStats.failures}</span></td>
+              </tr>
+              <tr>
+                <td>Success Rate:</td>
+                <td><strong>
+                  {wordStats.successes + wordStats.failures > 0 ? 
+                    ((wordStats.successes / (wordStats.successes + wordStats.failures)) * 100).toFixed(2) : 0}%
+                </strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );

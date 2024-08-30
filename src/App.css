@@ -245,3 +245,7 @@ input:checked + .slider:before {
   background-color: #f0f0f0;
   display: inline-block;
 }
+
+.small-text {
+  font-size: 8px;
+}

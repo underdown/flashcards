@@ -9,7 +9,7 @@ const Flashcard = ({ word }) => {
     <div className="flashcard">
       <div className="content">
         <p className="english">{word.english}</p>
-        <h2 className="foreign">{word.foreign}</h2>
+        <h2 className="russian">{word.russian}</h2>
         <p className="phonetic">{word.phonetic}</p>
       </div>
     </div>

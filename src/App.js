@@ -58,6 +58,7 @@ const App = () => {
   const audioBuffersRef = useRef({});
   const [currentWordStats, setCurrentWordStats] = useState(null);
   const [attemptTimeout, setAttemptTimeout] = useState(null);
+  const [hasTriggeredSuccess, setHasTriggeredSuccess] = useState(false); // Added flag
 
   const ensureAudioContextRunning = useCallback(async () => {
     if (audioContext && audioContext.state !== 'running') {
@@ -96,7 +97,7 @@ const App = () => {
       const newRecognition = new window.webkitSpeechRecognition();
       newRecognition.lang = languageCodes[currentLanguage] || 'en-US';
       newRecognition.continuous = false;
-      newRecognition.interimResults = true;
+      newRecognition.interimResults = false;
       setRecognition(newRecognition);
     }
   }, [currentLanguage]);
@@ -126,7 +127,8 @@ const App = () => {
         console.log('Speech recognition started');
         setSpeechStatus('listening');
         setListening(true);
-        
+        setHasTriggeredSuccess(false); // Reset the success flag
+
         // Set a timeout for the attempt
         const timeout = setTimeout(() => {
           recognition.stop();
@@ -177,9 +179,9 @@ const App = () => {
         const distance = levenshteinDistance(cleanTranscript, cleanExpected);
         const similarity = 1 - distance / Math.max(cleanTranscript.length, cleanExpected.length);
 
-        if (similarity > 0.6) {
+        if (similarity > 0.6 && !hasTriggeredSuccess) { // Check if success hasn't been triggered yet
           handleSuccess(similarity);
-        } else {
+        } else if (!hasTriggeredSuccess) {
           handleFailure();
         }
       };
@@ -202,42 +204,10 @@ const App = () => {
   }, [recognition]);
 
   const speakWord = useCallback(() => {
-    console.log('speakWord called');
     if (currentWord && currentWord.foreign) {
-      console.log('Current word:', currentWord);
-      
-      return new Promise((resolve, reject) => {
-        const utterance = new SpeechSynthesisUtterance(currentWord.foreign);
-        utterance.lang = languageCodes[currentLanguage] || 'en-US';
-        
-        utterance.onend = () => {
-          console.log('Speech finished');
-          resolve();
-        };
-        utterance.onerror = (event) => {
-          console.error('Speech error:', event);
-          reject(event);
-        };
-
-        // Log available voices
-        const voices = window.speechSynthesis.getVoices();
-        console.log('Available voices:', voices);
-
-        // Try to set a specific voice
-        const voice = voices.find(v => v.lang === utterance.lang);
-        if (voice) {
-          utterance.voice = voice;
-          console.log('Using voice:', voice.name);
-        } else {
-          console.log('No matching voice found for', utterance.lang);
-        }
-
-        window.speechSynthesis.speak(utterance);
-        console.log('Speech synthesis called');
-      });
-    } else {
-      console.log('No current word or foreign text');
-      return Promise.reject('No word to speak');
+      const utterance = new SpeechSynthesisUtterance(currentWord.foreign);
+      utterance.lang = languageCodes[currentLanguage] || 'en-US';
+      window.speechSynthesis.speak(utterance);
     }
   }, [currentWord, currentLanguage]);
 
@@ -271,17 +241,17 @@ const App = () => {
     const tx = db.transaction('wordStats', 'readwrite');
     const store = tx.objectStore('wordStats');
     const item = await store.get(word) || { word, successes: 0, failures: 0 };
-    
+
     const updatedStats = {
       ...item,
       successes: isSuccess ? item.successes + 1 : item.successes,
       failures: isSuccess ? item.failures : item.failures + 1,
       lastAttempt: { success: isSuccess, similarity }
     };
-    
+
     await store.put(updatedStats);
     await tx.done;
-  
+
     setCurrentWordStats(updatedStats);
     setWordStats(prev => ({
       successes: prev.successes + (isSuccess ? 1 : 0),
@@ -317,6 +287,7 @@ const App = () => {
     playSound(successSound);
     setShowSuccessGif(true);
     updateWordStats(currentWord.foreign, true, similarity);
+    setHasTriggeredSuccess(true); // Set the success flag to true
 
     setTimeout(() => {
       setDetectedSpeech('');
@@ -381,14 +352,7 @@ const App = () => {
         {speechStatus === 'error' && <p>Error occurred. Please try again.</p>}
       </div>
       <div className="button-container" style={{ position: 'relative', zIndex: 2 }}>
-        <button 
-          className="nav-button" 
-          onClick={() => {
-            speakWord().catch(error => console.error('Failed to speak word:', error));
-          }}
-        >
-          Play
-        </button>
+        <button className="nav-button" onClick={speakWord}>Play</button>
         <button
           onClick={startListening}
           disabled={listening}
@@ -438,7 +402,6 @@ const App = () => {
                     ((currentWordStats.successes / (currentWordStats.successes + currentWordStats.failures)) * 100).toFixed(2) : 0}%
                 </strong></td>
               </tr>
-
             </tbody>
           </table>
         </div>

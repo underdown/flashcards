@@ -57,8 +57,21 @@ const App = () => {
   const [audioContext, setAudioContext] = useState(null);
   const audioBuffersRef = useRef({});
   const [currentWordStats, setCurrentWordStats] = useState(null);
-  const [attemptTimeout, setAttemptTimeout] = useState(null);
-  const [hasTriggeredSuccess, setHasTriggeredSuccess] = useState(false); // Added flag
+
+  const updateCurrentWordStats = useCallback(async (word) => {
+    const db = await openDB('flashcards', DB_VERSION);
+    const tx = db.transaction('wordStats', 'readonly');
+    const store = tx.objectStore('wordStats');
+    const stats = await store.get(word) || { word, successes: 0, failures: 0 };
+    setCurrentWordStats(stats);
+    await tx.done;
+  }, []);
+
+  useEffect(() => {
+    if (currentWord) {
+      updateCurrentWordStats(currentWord.foreign);
+    }
+  }, [currentWord, updateCurrentWordStats]);
 
   const ensureAudioContextRunning = useCallback(async () => {
     if (audioContext && audioContext.state !== 'running') {
@@ -97,7 +110,7 @@ const App = () => {
       const newRecognition = new window.webkitSpeechRecognition();
       newRecognition.lang = languageCodes[currentLanguage] || 'en-US';
       newRecognition.continuous = false;
-      newRecognition.interimResults = false;
+      newRecognition.interimResults = true;
       setRecognition(newRecognition);
     }
   }, [currentLanguage]);
@@ -127,14 +140,6 @@ const App = () => {
         console.log('Speech recognition started');
         setSpeechStatus('listening');
         setListening(true);
-        setHasTriggeredSuccess(false); // Reset the success flag
-
-        // Set a timeout for the attempt
-        const timeout = setTimeout(() => {
-          recognition.stop();
-          handleFailure();
-        }, 5000); // 5 seconds timeout
-        setAttemptTimeout(timeout);
       };
 
       recognition.onaudiostart = () => {
@@ -156,7 +161,6 @@ const App = () => {
         console.log('Speech recognition ended');
         setListening(false);
         setSpeechStatus('idle');
-        clearTimeout(attemptTimeout);
       };
 
       recognition.onerror = (event) => {
@@ -166,7 +170,6 @@ const App = () => {
       };
 
       recognition.onresult = (event) => {
-        clearTimeout(attemptTimeout);
         const transcript = Array.from(event.results)
           .map(result => result[0].transcript)
           .join('');
@@ -179,10 +182,19 @@ const App = () => {
         const distance = levenshteinDistance(cleanTranscript, cleanExpected);
         const similarity = 1 - distance / Math.max(cleanTranscript.length, cleanExpected.length);
 
-        if (similarity > 0.6 && !hasTriggeredSuccess) { // Check if success hasn't been triggered yet
-          handleSuccess(similarity);
-        } else if (!hasTriggeredSuccess) {
-          handleFailure();
+        if (similarity > 0.8) { // 80% similarity threshold
+          console.log('Success');
+          recognition.abort(); // Stop listening immediately
+          playSound(successSound);
+          setShowSuccessGif(true);
+          setWordStats(prev => ({ ...prev, successes: prev.successes + 1 }));
+          updateWordStats(currentWord.foreign, true, similarity);
+
+          setTimeout(() => {
+            setDetectedSpeech('');
+            setShowSuccessGif(false);
+            nextRandomWord();
+          }, 1000);
         }
       };
 
@@ -241,22 +253,18 @@ const App = () => {
     const tx = db.transaction('wordStats', 'readwrite');
     const store = tx.objectStore('wordStats');
     const item = await store.get(word) || { word, successes: 0, failures: 0 };
-
+    
     const updatedStats = {
       ...item,
       successes: isSuccess ? item.successes + 1 : item.successes,
       failures: isSuccess ? item.failures : item.failures + 1,
       lastAttempt: { success: isSuccess, similarity }
     };
-
+    
     await store.put(updatedStats);
     await tx.done;
-
+  
     setCurrentWordStats(updatedStats);
-    setWordStats(prev => ({
-      successes: prev.successes + (isSuccess ? 1 : 0),
-      failures: prev.failures + (isSuccess ? 0 : 1)
-    }));
   }, []);
 
   useEffect(() => {
@@ -281,46 +289,6 @@ const App = () => {
   const handleLanguageChange = (event) => {
     setCurrentLanguage(event.target.value);
   };
-
-  const handleSuccess = (similarity) => {
-    console.log('Success');
-    playSound(successSound);
-    setShowSuccessGif(true);
-    updateWordStats(currentWord.foreign, true, similarity);
-    setHasTriggeredSuccess(true); // Set the success flag to true
-
-    setTimeout(() => {
-      setDetectedSpeech('');
-      setShowSuccessGif(false);
-      nextRandomWord();
-    }, 1000);
-  };
-
-  const handleFailure = () => {
-    console.log('Failure');
-    playSound(failSound);
-    updateWordStats(currentWord.foreign, false, 0);
-    setDetectedSpeech('Try again');
-
-    setTimeout(() => {
-      setDetectedSpeech('');
-    }, 1000);
-  };
-
-  useEffect(() => {
-    if (currentWord) {
-      updateCurrentWordStats(currentWord.foreign);
-    }
-  }, [currentWord]);
-
-  const updateCurrentWordStats = useCallback(async (word) => {
-    const db = await openDB('flashcards', DB_VERSION);
-    const tx = db.transaction('wordStats', 'readonly');
-    const store = tx.objectStore('wordStats');
-    const stats = await store.get(word) || { word, successes: 0, failures: 0 };
-    setCurrentWordStats(stats);
-    await tx.done;
-  }, []);
 
   return (
     <div className={`App ${darkMode ? 'dark-mode' : ''}`} style={{ position: 'relative', zIndex: 1 }}>
@@ -402,6 +370,7 @@ const App = () => {
                     ((currentWordStats.successes / (currentWordStats.successes + currentWordStats.failures)) * 100).toFixed(2) : 0}%
                 </strong></td>
               </tr>
+
             </tbody>
           </table>
         </div>

@@ -96,7 +96,7 @@ const App = () => {
     if ('webkitSpeechRecognition' in window) {
       const newRecognition = new window.webkitSpeechRecognition();
       newRecognition.lang = languageCodes[currentLanguage] || 'en-US';
-      newRecognition.continuous = false;
+      newRecognition.continuous = true;
       newRecognition.interimResults = true;
       setRecognition(newRecognition);
     }

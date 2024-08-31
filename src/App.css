@@ -263,7 +263,32 @@ input:checked + .slider:before {
 }
 
 .language-links {
+  display: flex;
+  gap: 10px;
+}
+
+.language-link.button {
+  display: inline-block;
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: white;
+  text-decoration: none;
+  border-radius: 5px;
+  text-align: center;
+}
+
+.language-link.button:hover {
+  background-color: #0056b3;
+}
+
+.footer {
   margin-top: 20px;
+  text-align: center;
+}
+
+.footer-logo {
+  width: 50px;
+  height: auto;
 }
 
 .language-link {

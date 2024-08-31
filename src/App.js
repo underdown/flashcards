@@ -40,7 +40,8 @@ function levenshteinDistance(a, b) {
 
 const languageCodes = {
   russian: 'ru-RU',
-  spanish: 'es-ES'
+  spanish: 'es-ES',
+  chinese: 'zh-CN'
 };
 
 const App = () => {
@@ -133,7 +134,7 @@ const App = () => {
   };
 
   const startListening = () => {
-    if (recognition) {
+    if (recognition && currentWord) {
       recognition.abort();
 
       recognition.onstart = () => {
@@ -295,6 +296,7 @@ const App = () => {
       <select value={currentLanguage} onChange={handleLanguageChange} className="language-selector">
         <option value="russian">Russian</option>
         <option value="spanish">Spanish</option>
+        <option value="chinese">Chinese</option>
       </select>
       <div className="flashcard-container">
         {showSuccessGif && <img src={successGif} alt="Success GIF" className="success-gif" />}

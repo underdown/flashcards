@@ -7,36 +7,9 @@ import successSound from './assets/success.wav';
 import failSound from './assets/fail.wav';
 import successGif from './assets/success.gif';
 import { openDB } from 'idb';
+import { levenshteinDistance } from './utils';
 
 const DB_VERSION = 1; // Increment this when changing DB schema
-
-function levenshteinDistance(a, b) {
-  const matrix = [];
-
-  for (let i = 0; i <= b.length; i++) {
-    matrix[i] = [i];
-  }
-
-  for (let j = 0; j <= a.length; j++) {
-    matrix[0][j] = j;
-  }
-
-  for (let i = 1; i <= b.length; i++) {
-    for (let j = 1; j <= a.length; j++) {
-      if (b.charAt(i - 1) === a.charAt(j - 1)) {
-        matrix[i][j] = matrix[i - 1][j - 1];
-      } else {
-        matrix[i][j] = Math.min(
-          matrix[i - 1][j - 1] + 1,
-          matrix[i][j - 1] + 1,
-          matrix[i - 1][j] + 1
-        );
-      }
-    }
-  }
-
-  return matrix[b.length][a.length];
-}
 
 const languageCodes = {
   russian: 'ru-RU',
@@ -92,7 +65,7 @@ const App = () => {
     if (pathLanguage && languageCodes[pathLanguage]) {
       setCurrentLanguage(pathLanguage);
     } else {
-      setCurrentLanguage('russian'); // Default to Russian if no valid path language
+      setCurrentLanguage('spanish'); 
     }
   }, []);
 

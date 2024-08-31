@@ -46,7 +46,7 @@ const languageCodes = {
 
 const App = () => {
   const [words, setWords] = useState([]);
-  const [currentLanguage, setCurrentLanguage] = useState('russian');
+  const [currentLanguage, setCurrentLanguage] = useState('');
   const [currentWord, setCurrentWord] = useState(null);
   const [darkMode, setDarkMode] = useState(false);
   const [listening, setListening] = useState(false);
@@ -59,6 +59,25 @@ const App = () => {
   const audioBuffersRef = useRef({});
   const [currentWordStats, setCurrentWordStats] = useState(null);
 
+  const updateWordStats = useCallback(async (word, isSuccess, similarity) => {
+    const db = await openDB('flashcards', DB_VERSION);
+    const tx = db.transaction('wordStats', 'readwrite');
+    const store = tx.objectStore('wordStats');
+    const item = await store.get(word) || { word, successes: 0, failures: 0 };
+    
+    const updatedStats = {
+      ...item,
+      successes: isSuccess ? item.successes + 1 : item.successes,
+      failures: isSuccess ? item.failures : item.failures + 1,
+      lastAttempt: { success: isSuccess, similarity }
+    };
+    
+    await store.put(updatedStats);
+    await tx.done;
+  
+    setCurrentWordStats(updatedStats);
+  }, []);
+
   const updateCurrentWordStats = useCallback(async (word) => {
     const db = await openDB('flashcards', DB_VERSION);
     const tx = db.transaction('wordStats', 'readonly');
@@ -69,36 +88,30 @@ const App = () => {
   }, []);
 
   useEffect(() => {
+    const pathLanguage = window.location.pathname.split('/')[1];
+    if (pathLanguage && languageCodes[pathLanguage]) {
+      setCurrentLanguage(pathLanguage);
+    } else {
+      setCurrentLanguage('russian'); // Default to Russian if no valid path language
+    }
+  }, []);
+
+  useEffect(() => {
+    if (currentLanguage) {
+      fetch('/data.json')
+        .then(response => response.json())
+        .then(data => {
+          setWords(data[currentLanguage].words || []);
+        })
+        .catch(error => console.error('Error loading words:', error));
+    }
+  }, [currentLanguage]);
+
+  useEffect(() => {
     if (currentWord) {
       updateCurrentWordStats(currentWord.foreign);
     }
   }, [currentWord, updateCurrentWordStats]);
-
-  const ensureAudioContextRunning = useCallback(async () => {
-    if (audioContext && audioContext.state !== 'running') {
-      try {
-        await audioContext.resume();
-      } catch (error) {
-        console.error('Failed to resume AudioContext:', error);
-      }
-    }
-  }, [audioContext]);
-
-  const playSound = useCallback((sound) => {
-    ensureAudioContextRunning().then(() => {
-      const audio = new Audio(sound);
-      audio.play().catch(error => console.error('Error playing sound:', error));
-    });
-  }, [ensureAudioContextRunning]);
-
-  useEffect(() => {
-    fetch('/data.json')
-      .then(response => response.json())
-      .then(data => {
-        setWords(data[currentLanguage].words || []);
-      })
-      .catch(error => console.error('Error loading words:', error));
-  }, [currentLanguage]);
 
   useEffect(() => {
     if (words.length > 0) {
@@ -121,6 +134,23 @@ const App = () => {
     document.body.style.backgroundColor = darkMode ? '#333' : '#fff';
   }, [darkMode]);
 
+  const ensureAudioContextRunning = useCallback(async () => {
+    if (audioContext && audioContext.state !== 'running') {
+      try {
+        await audioContext.resume();
+      } catch (error) {
+        console.error('Failed to resume AudioContext:', error);
+      }
+    }
+  }, [audioContext]);
+
+  const playSound = useCallback((sound) => {
+    ensureAudioContextRunning().then(() => {
+      const audio = new Audio(sound);
+      audio.play().catch(error => console.error('Error playing sound:', error));
+    });
+  }, [ensureAudioContextRunning]);
+
   const nextRandomWord = useCallback(() => {
     let newWord;
     do {
@@ -133,8 +163,8 @@ const App = () => {
     setDarkMode(!darkMode);
   };
 
-  const startListening = () => {
-    if (recognition && currentWord) {
+  const startListening = useCallback(() => {
+    if (recognition) {
       recognition.abort();
 
       recognition.onstart = () => {
@@ -206,7 +236,7 @@ const App = () => {
         setSpeechStatus('error');
       }
     }
-  };
+  }, [recognition, currentWord, playSound, nextRandomWord, updateWordStats]);
 
   useEffect(() => {
     return () => {
@@ -237,175 +267,155 @@ const App = () => {
     };
     initDB();
 
-    const loadTotalStats = async () => {
-      const db = await openDB('flashcards', DB_VERSION);
-      const allStats = await db.getAll('wordStats');
-      const totalStats = allStats.reduce((acc, curr) => ({
-        successes: acc.successes + (curr.successes || 0),
-        failures: acc.failures + (curr.failures || 0),
-      }), { successes: 0, failures: 0 });
-      setWordStats(totalStats);
-    };
-    loadTotalStats();
-  }, []);
-
-  const updateWordStats = useCallback(async (word, isSuccess, similarity) => {
+  const loadTotalStats = async () => {
     const db = await openDB('flashcards', DB_VERSION);
-    const tx = db.transaction('wordStats', 'readwrite');
-    const store = tx.objectStore('wordStats');
-    const item = await store.get(word) || { word, successes: 0, failures: 0 };
-    
-    const updatedStats = {
-      ...item,
-      successes: isSuccess ? item.successes + 1 : item.successes,
-      failures: isSuccess ? item.failures : item.failures + 1,
-      lastAttempt: { success: isSuccess, similarity }
-    };
-    
-    await store.put(updatedStats);
-    await tx.done;
-  
-    setCurrentWordStats(updatedStats);
-  }, []);
+    const allStats = await db.getAll('wordStats');
+    const totalStats = allStats.reduce((acc, curr) => ({
+      successes: acc.successes + (curr.successes || 0),
+      failures: acc.failures + (curr.failures || 0),
+    }), { successes: 0, failures: 0 });
+    setWordStats(totalStats);
+  };
+  loadTotalStats();
+}, []);
 
-  useEffect(() => {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    setAudioContext(ctx);
+useEffect(() => {
+  const ctx = new (window.AudioContext || window.webkitAudioContext)();
+  setAudioContext(ctx);
 
-    const loadAudio = async (url, name) => {
-      const response = await fetch(url);
-      const arrayBuffer = await response.arrayBuffer();
-      const audioBuffer = await ctx.decodeAudioData(arrayBuffer);
-      audioBuffersRef.current[name] = audioBuffer;
-    };
-
-    loadAudio(successSound, 'success');
-    loadAudio(failSound, 'fail');
-
-    return () => {
-      ctx.close();
-    };
-  }, []);
-
-  const handleLanguageChange = (event) => {
-    setCurrentLanguage(event.target.value);
+  const loadAudio = async (url, name) => {
+    const response = await fetch(url);
+    const arrayBuffer = await response.arrayBuffer();
+    const audioBuffer = await ctx.decodeAudioData(arrayBuffer);
+    audioBuffersRef.current[name] = audioBuffer;
   };
 
-  return (
-    <div className={`App ${darkMode ? 'dark-mode' : ''}`} style={{ position: 'relative', zIndex: 1 }}>
-      <select value={currentLanguage} onChange={handleLanguageChange} className="language-selector">
-        <option value="russian">Russian</option>
-        <option value="spanish">Spanish</option>
-        <option value="chinese">Chinese</option>
-      </select>
-      <div className="flashcard-container">
-        {showSuccessGif && <img src={successGif} alt="Success GIF" className="success-gif" />}
-        <Flashcard word={currentWord} />
-      </div>
-      <div className="detected-speech">
-        <p>
-          {detectedSpeech || 'No speech detected yet'}
-          {showSuccessGif && (
-            <img
-              src={successGif}
-              alt="Success"
-              style={{ width: '16px', height: '16px', marginLeft: '5px', verticalAlign: 'middle' }}
-            />
-          )}
-        </p>
-      </div>
-      <div className="speech-status">
-        {speechStatus === 'listening' && <p>Preparing to listen...</p>}
-        {speechStatus === 'ready' && <p>Ready! Please speak now.</p>}
-        {speechStatus === 'speaking' && <p>Listening...</p>}
-        {speechStatus === 'processing' && <p>Processing your speech...</p>}
-        {speechStatus === 'error' && <p>Error occurred. Please try again.</p>}
-      </div>
-      <div className="button-container" style={{ position: 'relative', zIndex: 2 }}>
-        <button className="nav-button" onClick={speakWord}>Play</button>
-        <button
-          onClick={startListening}
-          disabled={listening}
-          className="nav-button"
-          style={{ cursor: 'pointer', pointerEvents: 'auto' }}
-        >
-          {listening ? 'Listening...' : 'Speak'}
-        </button>
-        <button
-          className="nav-button"
-          onClick={nextRandomWord}
-          disabled={false}
-          style={{ cursor: 'pointer', pointerEvents: 'auto' }}
-        >
-          Skip
-        </button>
-      </div>
-      <div className="dark-mode-toggle" style={{ paddingTop: '20px' }}>
-        <label className="switch">
-          <input type="checkbox" checked={darkMode} onChange={toggleDarkMode} />
-          <span className="slider round">
-            <img src={darkMode ? moonIcon : sunIcon} alt="mode icon" className="mode-icon" />
-          </span>
-        </label>
-      </div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '20px', fontSize: '11px' }}>
-        <div className="stats" style={{ flex: 1, marginRight: '10px' }}>
-          <h3>Current Word</h3>
-          <table>
-            <tbody>
-              <tr>
-                <td>Word:</td>
-                <td><strong>{currentWord?.foreign}</strong></td>
-              </tr>
-              <tr>
-                <td>Successes:</td>
-                <td><span style={{ color: 'green' }}>{currentWordStats?.successes || 0}</span></td>
-              </tr>
-              <tr>
-                <td>Failures:</td>
-                <td><span style={{ color: 'red' }}>{currentWordStats?.failures || 0}</span></td>
-              </tr>
-              <tr>
-                <td>Success Rate:</td>
-                <td><strong>
-                  {currentWordStats ? 
-                    ((currentWordStats.successes / (currentWordStats.successes + currentWordStats.failures)) * 100).toFixed(2) : 0}%
-                </strong></td>
-              </tr>
+  loadAudio(successSound, 'success');
+  loadAudio(failSound, 'fail');
 
-            </tbody>
-          </table>
-        </div>
+  return () => {
+    ctx.close();
+  };
+}, []);
 
-        <div className="stats" style={{ flex: 1, marginLeft: '10px' }}>
-          <h3>Overall Statistics</h3>
-          <table>
-            <tbody>
-              <tr>
-                <td>Words:</td>
-                <td><strong>{words.length}</strong></td>
-              </tr>
-              <tr>
-                <td>Successes:</td>
-                <td><span style={{ color: 'green' }}>{wordStats.successes}</span></td>
-              </tr>
-              <tr>
-                <td>Failures:</td>
-                <td><span style={{ color: 'red' }}>{wordStats.failures}</span></td>
-              </tr>
-              <tr>
-                <td>Success Rate:</td>
-                <td><strong>
-                  {wordStats.successes + wordStats.failures > 0 ? 
-                    ((wordStats.successes / (wordStats.successes + wordStats.failures)) * 100).toFixed(2) : 0}%
-                </strong></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+const handleLanguageChange = (event) => {
+  setCurrentLanguage(event.target.value);
+};
+
+return (
+  <div className={`App ${darkMode ? 'dark-mode' : ''}`} style={{ position: 'relative', zIndex: 1 }}>
+    <select value={currentLanguage} onChange={handleLanguageChange} className="language-selector">
+      <option value="russian">Russian</option>
+      <option value="spanish">Spanish</option>
+      <option value="chinese">Chinese</option>
+    </select>
+    <div className="flashcard-container">
+      {showSuccessGif && <img src={successGif} alt="Success GIF" className="success-gif" />}
+      <Flashcard word={currentWord} />
+    </div>
+    <div className="detected-speech">
+      <p>
+        {detectedSpeech || 'No speech detected yet'}
+        {showSuccessGif && (
+          <img
+            src={successGif}
+            alt="Success"
+            style={{ width: '16px', height: '16px', marginLeft: '5px', verticalAlign: 'middle' }}
+          />
+        )}
+      </p>
+    </div>
+    <div className="speech-status">
+      {speechStatus === 'listening' && <p>Preparing to listen...</p>}
+      {speechStatus === 'ready' && <p>Ready! Please speak now.</p>}
+      {speechStatus === 'speaking' && <p>Listening...</p>}
+      {speechStatus === 'processing' && <p>Processing your speech...</p>}
+      {speechStatus === 'error' && <p>Error occurred. Please try again.</p>}
+    </div>
+    <div className="button-container" style={{ position: 'relative', zIndex: 2 }}>
+      <button className="nav-button" onClick={speakWord}>Play</button>
+      <button
+        onClick={startListening}
+        disabled={listening}
+        className="nav-button"
+        style={{ cursor: 'pointer', pointerEvents: 'auto' }}
+      >
+        {listening ? 'Listening...' : 'Speak'}
+      </button>
+      <button
+        className="nav-button"
+        onClick={nextRandomWord}
+        disabled={false}
+        style={{ cursor: 'pointer', pointerEvents: 'auto' }}
+      >
+        Skip
+      </button>
+    </div>
+    <div className="dark-mode-toggle" style={{ paddingTop: '20px' }}>
+      <label className="switch">
+        <input type="checkbox" checked={darkMode} onChange={toggleDarkMode} />
+        <span className="slider round">
+          <img src={darkMode ? moonIcon : sunIcon} alt="mode icon" className="mode-icon" />
+        </span>
+      </label>
+    </div>
+    <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '20px', fontSize: '11px' }}>
+      <div className="stats" style={{ flex: 1, marginRight: '10px' }}>
+        <h3>Current Word</h3>
+        <table>
+          <tbody>
+            <tr>
+              <td>Word:</td>
+              <td><strong>{currentWord?.foreign}</strong></td>
+            </tr>
+            <tr>
+              <td>Successes:</td>
+              <td><span style={{ color: 'green' }}>{currentWordStats?.successes || 0}</span></td>
+            </tr>
+            <tr>
+              <td>Failures:</td>
+              <td><span style={{ color: 'red' }}>{currentWordStats?.failures || 0}</span></td>
+            </tr>
+            <tr>
+              <td>Success Rate:</td>
+              <td><strong>
+                {currentWordStats ? 
+                  ((currentWordStats.successes / (currentWordStats.successes + currentWordStats.failures)) * 100).toFixed(2) : 0}%
+              </strong></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div className="stats" style={{ flex: 1, marginLeft: '10px' }}>
+        <h3>Overall Statistics</h3>
+        <table>
+          <tbody>
+            <tr>
+              <td>Words:</td>
+              <td><strong>{words.length}</strong></td>
+            </tr>
+            <tr>
+              <td>Successes:</td>
+              <td><span style={{ color: 'green' }}>{wordStats.successes}</span></td>
+            </tr>
+            <tr>
+              <td>Failures:</td>
+              <td><span style={{ color: 'red' }}>{wordStats.failures}</span></td>
+            </tr>
+            <tr>
+              <td>Success Rate:</td>
+              <td><strong>
+                {wordStats.successes + wordStats.failures > 0 ? 
+                  ((wordStats.successes / (wordStats.successes + wordStats.failures)) * 100).toFixed(2) : 0}%
+              </strong></td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
-  );
+  </div>
+);
 };
 
 export default App;

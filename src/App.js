@@ -8,8 +8,9 @@ import failSound from './assets/fail.wav';
 import successGif from './assets/success.gif';
 import { openDB } from 'idb';
 import { levenshteinDistance } from './utils';
+import { useNavigate } from 'react-router-dom';
 
-const DB_VERSION = 1; // Increment this when changing DB schema
+const DB_VERSION = 1;
 
 const languageCodes = {
   russian: 'ru-RU',
@@ -18,6 +19,7 @@ const languageCodes = {
 };
 
 const App = () => {
+  const navigate = useNavigate();
   const [words, setWords] = useState([]);
   const [currentLanguage, setCurrentLanguage] = useState('');
   const [currentWord, setCurrentWord] = useState(null);
@@ -140,10 +142,29 @@ const App = () => {
     if (recognition) {
       recognition.abort();
 
+      let timeoutId;
+
       recognition.onstart = () => {
         console.log('Speech recognition started');
         setSpeechStatus('listening');
         setListening(true);
+
+        // Set a timeout to handle speech recognition timeout
+        timeoutId = setTimeout(() => {
+          console.log('Speech recognition timed out');
+          recognition.abort();
+          setListening(false);
+          setSpeechStatus('idle');
+          playSound(failSound);
+          setWordStats(prev => ({ ...prev, failures: prev.failures + 1 }));
+          updateWordStats(currentWord.foreign, false, 0); // 0% similarity
+
+          // Reset state after a short delay
+          setTimeout(() => {
+            setDetectedSpeech('');
+            setSpeechStatus('idle');
+          }, 1200);
+        }, 5000); // 5 seconds timeout
       };
 
       recognition.onaudiostart = () => {
@@ -165,12 +186,14 @@ const App = () => {
         console.log('Speech recognition ended');
         setListening(false);
         setSpeechStatus('idle');
+        clearTimeout(timeoutId); // Clear the timeout if recognition ends
       };
 
       recognition.onerror = (event) => {
         console.error('Speech recognition error', event.error);
         setListening(false);
         setSpeechStatus('error');
+        clearTimeout(timeoutId); // Clear the timeout on error
       };
 
       recognition.onresult = (event) => {
@@ -198,7 +221,18 @@ const App = () => {
             setDetectedSpeech('');
             setShowSuccessGif(false);
             nextRandomWord();
-          }, 1000);
+          }, 1200);
+        } else {
+          console.log('Failure');
+          playSound(failSound);
+          setWordStats(prev => ({ ...prev, failures: prev.failures + 1 }));
+          updateWordStats(currentWord.foreign, false, 0); // 0% similarity
+
+          // Reset state after a short delay
+          setTimeout(() => {
+            setDetectedSpeech('');
+            setSpeechStatus('idle');
+          }, 1200);
         }
       };
 
@@ -207,6 +241,7 @@ const App = () => {
       } catch (error) {
         console.error('Error starting speech recognition:', error);
         setSpeechStatus('error');
+        clearTimeout(timeoutId); // Clear the timeout on error
       }
     }
   }, [recognition, currentWord, playSound, nextRandomWord, updateWordStats]);
@@ -272,7 +307,9 @@ useEffect(() => {
 }, []);
 
 const handleLanguageChange = (event) => {
-  setCurrentLanguage(event.target.value);
+  const selectedLanguage = event.target.value;
+  setCurrentLanguage(selectedLanguage);
+  navigate(`/${selectedLanguage}`);
 };
 
 return (

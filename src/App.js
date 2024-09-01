@@ -387,7 +387,7 @@ const App = () => {
       </div>
       <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '20px', fontSize: '11px' }}>
         <div className="stats" style={{ flex: 1, marginRight: '10px' }}>
-          <h3>Current Word</h3>
+          <h3>Current</h3>
           <table>
             <tbody>
               <tr>

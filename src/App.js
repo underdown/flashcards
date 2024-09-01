@@ -35,6 +35,7 @@ const App = () => {
   const audioBuffersRef = useRef({});
   const [wordsInitialized, setWordsInitialized] = useState(false);
   const successHandledRef = useRef(false); // Ref to track if success has been handled
+  const nextWordRef = useRef(false); // Ref to ensure `nextRandomWord` only triggers once
 
   const updateWordStats = useCallback(async (word, isSuccess, similarity) => {
     const db = await openDB('flashcards', DB_VERSION);
@@ -74,21 +75,31 @@ const App = () => {
   };
 
   const nextRandomWord = useCallback(() => {
+    console.log('nextRandomWord called');
+    if (nextWordRef.current) return; // Prevent multiple calls
+    nextWordRef.current = true;
+
     const { learnedWords, unlearnedWords } = categorizeWords(words, wordStatsMap);
 
     let newWord;
     if (unlearnedWords.length > 0 && Math.random() < 0.5) {
       // 50% chance to pick an unlearned word
       newWord = unlearnedWords[Math.floor(Math.random() * unlearnedWords.length)];
+      console.log('Selected unlearned word:', newWord);
     } else if (learnedWords.length > 0) {
       // Otherwise, pick a learned word
       newWord = learnedWords[Math.floor(Math.random() * learnedWords.length)];
+      console.log('Selected learned word:', newWord);
     } else {
       // Fallback to any word if no learned/unlearned words are available
       newWord = words[Math.floor(Math.random() * words.length)];
+      console.log('Selected fallback word:', newWord);
     }
 
+    console.log('Setting currentWord to:', newWord);
     setCurrentWord(newWord);
+    nextWordRef.current = false; // Reset after selection
+    console.log("Next word selected:", newWord.foreign);
   }, [words, wordStatsMap]);
 
   useEffect(() => {
@@ -107,6 +118,7 @@ const App = () => {
         .then(data => {
           setWords(data[currentLanguage].words || []);
           setWordsInitialized(true); // Mark words as initialized
+          console.log('Words initialized:', data[currentLanguage].words);
         })
         .catch(error => console.error('Error loading words:', error));
     }
@@ -114,6 +126,7 @@ const App = () => {
 
   useEffect(() => {
     if (wordsInitialized && words.length > 0) {
+      console.log('Words initialized and available, calling nextRandomWord');
       nextRandomWord();
     }
   }, [wordsInitialized, words, nextRandomWord]);
@@ -125,6 +138,7 @@ const App = () => {
       newRecognition.continuous = true;
       newRecognition.interimResults = true;
       setRecognition(newRecognition);
+      console.log('Speech recognition initialized');
     }
   }, [currentLanguage]);
 
@@ -137,6 +151,7 @@ const App = () => {
     if (audioContext && audioContext.state !== 'running') {
       try {
         await audioContext.resume();
+        console.log('AudioContext resumed');
       } catch (error) {
         console.error('Failed to resume AudioContext:', error);
       }
@@ -166,7 +181,6 @@ const App = () => {
         setListening(true);
         successHandledRef.current = false; // Reset the success handled flag
 
-        // Set a timeout to handle speech recognition timeout
         timeoutId = setTimeout(() => {
           console.log('Speech recognition timed out');
           recognition.abort();
@@ -194,14 +208,12 @@ const App = () => {
         setSpeechStatus('idle');
         clearTimeout(timeoutId); // Clear the timeout if recognition ends
 
-        // Log failure if no success was detected
         if (!successHandledRef.current) {
           console.log('Failure');
           playSound(failSound);
           setWordStats(prev => ({ ...prev, failures: prev.failures + 1 }));
           updateWordStats(currentWord.foreign, false, 0); // 0% similarity
 
-          // Reset state after a short delay
           setTimeout(() => {
             setDetectedSpeech('');
             setSpeechStatus('idle');
@@ -225,11 +237,10 @@ const App = () => {
         const cleanExpected = currentWord.foreign.toLowerCase().trim();
         setDetectedSpeech(cleanTranscript);
 
-        // Check if detected speech contains the expected speech
         if (cleanTranscript.includes(cleanExpected) && !successHandledRef.current) {
-          console.log('Success');
-          successHandledRef.current = true; // Mark success as handled
-          recognition.abort(); // Stop listening immediately
+          console.log('Success detected');
+          successHandledRef.current = true;
+          recognition.abort();
           playSound(successSound);
           setShowSuccessGif(true);
           setWordStats(prev => ({ ...prev, successes: prev.successes + 1 }));
@@ -238,7 +249,8 @@ const App = () => {
           setTimeout(() => {
             setDetectedSpeech('');
             setShowSuccessGif(false);
-            nextRandomWord();
+          //  console.log('Calling nextRandomWord after success');
+           // nextRandomWord();
           }, 1200);
         }
       };
@@ -248,10 +260,10 @@ const App = () => {
       } catch (error) {
         console.error('Error starting speech recognition:', error);
         setSpeechStatus('error');
-        clearTimeout(timeoutId); // Clear the timeout on error
+        clearTimeout(timeoutId);
       }
     }
-  }, [recognition, currentWord, playSound, nextRandomWord, updateWordStats]);
+  }, [recognition, currentWord, playSound, updateWordStats]);
 
   useEffect(() => {
     return () => {
@@ -297,6 +309,7 @@ const App = () => {
 
       setWordStats(totalStats);
       setWordStatsMap(wordStatsMap);
+      console.log('Total stats loaded:', totalStats);
     };
     loadTotalStats();
   }, []);
@@ -352,10 +365,10 @@ const App = () => {
         </p>
       </div>
       <div className="speech-status">
-        {speechStatus === 'listening' && <p>Preparing to listen...</p>}
+        {speechStatus === 'listening' && <p>Feeding the gerbils that power the audio...</p>}
         {speechStatus === 'ready' && <p>Ready! Please speak now.</p>}
         {speechStatus === 'speaking' && <p>Listening...</p>}
-        {speechStatus === 'processing' && <p>Processing your speech...</p>}
+        {speechStatus === 'processing' && <p>Processing...</p>}
         {speechStatus === 'error' && <p>Error occurred. Please try again.</p>}
       </div>
       <div className="button-container" style={{ position: 'relative', zIndex: 2 }}>

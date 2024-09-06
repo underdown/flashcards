@@ -36,6 +36,7 @@ const App = () => {
   const [wordsInitialized, setWordsInitialized] = useState(false);
   const successHandledRef = useRef(false); // Ref to track if success has been handled
   const nextWordRef = useRef(false); // Ref to ensure `nextRandomWord` only triggers once
+  const autoPracticeActiveRef = useRef(false);
 
   const updateWordStats = useCallback(async (word, isSuccess, similarity) => {
     const db = await openDB('flashcards', DB_VERSION);
@@ -55,7 +56,7 @@ const App = () => {
   
     setWordStatsMap(prev => ({ ...prev, [word]: updatedStats }));
   }, []);
-
+  const nextWordTimeoutRef = useRef(null); // Add this line
   const categorizeWords = (words, wordStatsMap) => {
     const learnedWords = [];
     const unlearnedWords = [];
@@ -341,6 +342,99 @@ const App = () => {
 
   const currentWordStats = currentWord ? wordStatsMap[currentWord.foreign] : null;
 
+  const autoPractice = useCallback(() => {
+    if (!currentWord) return;
+
+    const readWord = (word, lang) => {
+      const utterance = new SpeechSynthesisUtterance(word);
+      utterance.lang = lang;
+      window.speechSynthesis.speak(utterance);
+    };
+
+    const handleRecognitionResult = (event) => {
+      const transcript = Array.from(event.results)
+        .map(result => result[0].transcript)
+        .join('')
+        .toLowerCase()
+        .trim();
+
+      const expected = currentWord.foreign.toLowerCase().trim();
+      setDetectedSpeech(transcript);
+
+      if (transcript.includes(expected)) {
+        console.log('Success detected');
+        successHandledRef.current = true;
+        recognition.abort();
+        playSound(successSound);
+        setShowSuccessGif(true);
+        setWordStats(prev => ({ ...prev, successes: prev.successes + 1 }));
+        updateWordStats(currentWord.foreign, true, 1); // 100% similarity
+
+        setTimeout(() => {
+          setDetectedSpeech('');
+          setShowSuccessGif(false);
+          if (autoPracticeActiveRef.current) {
+            nextRandomWord();
+          }
+        }, 1200);
+      }
+    };
+
+    const startRecognition = () => {
+      if (recognition) {
+        recognition.abort();
+        recognition.onresult = handleRecognitionResult;
+        recognition.start();
+
+        setTimeout(() => {
+          if (!successHandledRef.current) {
+            console.log('Failure');
+            recognition.abort();
+            playSound(failSound);
+            setWordStats(prev => ({ ...prev, failures: prev.failures + 1 }));
+            updateWordStats(currentWord.foreign, false, 0); // 0% similarity
+
+            setTimeout(() => {
+              setDetectedSpeech('');
+              if (autoPracticeActiveRef.current) {
+                nextWordTimeoutRef.current = setTimeout(() => {
+                  nextRandomWord();
+                }, 2000); // Wait 2 seconds before continuing the cycle
+              }
+            }, 1200);
+          }
+        }, 5000); // 5 seconds timeout
+      }
+    };
+
+    readWord(currentWord.english, 'en-US');
+    setTimeout(() => {
+      readWord(currentWord.foreign, languageCodes[currentLanguage]);
+      setTimeout(startRecognition, 2000); // Wait 2 seconds before starting recognition
+    }, 2000); // Wait 2 seconds after reading the English word
+  }, [currentWord, recognition, playSound, updateWordStats, nextRandomWord, currentLanguage]);
+
+  useEffect(() => {
+    if (autoPracticeActiveRef.current) {
+      nextWordTimeoutRef.current = setTimeout(() => {
+        autoPractice();
+      }, 2000); // Wait 2 seconds before continuing the cycle
+    }
+
+    return () => {
+      if (nextWordTimeoutRef.current) {
+        clearTimeout(nextWordTimeoutRef.current);
+      }
+    };
+  }, [currentWord, autoPractice]);
+
+  const toggleAutoPractice = () => {
+    autoPracticeActiveRef.current = !autoPracticeActiveRef.current;
+    if (autoPracticeActiveRef.current) {
+      autoPractice();
+    }
+  };
+
   return (
     <div className={`App ${darkMode ? 'dark-mode' : ''}`} style={{ position: 'relative', zIndex: 1 }}>
       <select value={currentLanguage} onChange={handleLanguageChange} className="language-selector">
@@ -388,6 +482,14 @@ const App = () => {
           style={{ cursor: 'pointer', pointerEvents: 'auto' }}
         >
           Skip
+        </button>
+        <button
+          className="nav-button"
+          onClick={toggleAutoPractice}
+          disabled={false}
+          style={{ cursor: 'pointer', pointerEvents: 'auto' }}
+        >
+          Auto
         </button>
       </div>
       <div className="dark-mode-toggle" style={{ paddingTop: '20px' }}>

@@ -390,7 +390,7 @@ const App = () => {
           setShowSuccessGif(false);
           setSpeechStatus('idle'); // Update speech status
           if (autoPracticeActiveRef.current) {
-            nextRandomWord();
+          //  nextRandomWord();
           }
         }, 1200);
       }
@@ -417,7 +417,7 @@ const App = () => {
               setSpeechStatus('idle'); // Update speech status
               if (autoPracticeActiveRef.current) {
                 nextWordTimeoutRef.current = setTimeout(() => {
-                  nextRandomWord();
+                //  nextRandomWord();
                 }, 2000); // Wait 2 seconds before continuing the cycle
               }
             }, 1200);
@@ -430,14 +430,14 @@ const App = () => {
     setTimeout(() => {
       readWord(currentWord.foreign, languageCodes[currentLanguage]);
       setTimeout(startRecognition, 2000); // Wait 2 seconds before starting recognition
-    }, 2000); // Wait 2 seconds after reading the English word
+    }, 1500); // Wait 2 seconds after reading the English word
   }, [currentWord, recognition, playSound, updateWordStats, nextRandomWord, currentLanguage]);
 
   useEffect(() => {
     if (autoPracticeActiveRef.current) {
       nextWordTimeoutRef.current = setTimeout(() => {
         autoPractice();
-      }, 2000); // Wait 2 seconds before continuing the cycle
+      }, 1500); // Wait 2 seconds before continuing the cycle
     }
 
     return () => {
@@ -478,7 +478,7 @@ const App = () => {
         </p>
       </div>
       <div className="speech-status">
-        {speechStatus === 'listening' && <p>Initializing audio...</p>}
+        {speechStatus === 'listening' && <p>LIstening...</p>}
         {speechStatus === 'ready' && <p>Ready! Please speak now.</p>}
         {speechStatus === 'speaking' && <p>Listening...</p>}
         {speechStatus === 'processing' && <p>Processing...</p>}

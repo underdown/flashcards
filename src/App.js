@@ -148,23 +148,38 @@ const App = () => {
     document.body.style.backgroundColor = darkMode ? '#333' : '#fff';
   }, [darkMode]);
 
-  const ensureAudioContextRunning = useCallback(async () => {
-    if (audioContext && audioContext.state !== 'running') {
-      try {
-        await audioContext.resume();
-        console.log('AudioContext resumed');
-      } catch (error) {
-        console.error('Failed to resume AudioContext:', error);
+  useEffect(() => {
+    const ensureAudioContextRunning = async () => {
+      if (audioContext && audioContext.state !== 'running') {
+        try {
+          await audioContext.resume();
+          console.log('AudioContext resumed');
+        } catch (error) {
+          console.error('Failed to resume AudioContext:', error);
+        }
       }
-    }
-  }, [audioContext]);
+    };
+
+    ensureAudioContextRunning();
+  }, [listening, audioContext]);
 
   const playSound = useCallback((sound) => {
+    const ensureAudioContextRunning = async () => {
+      if (audioContext && audioContext.state !== 'running') {
+        try {
+          await audioContext.resume();
+          console.log('AudioContext resumed');
+        } catch (error) {
+          console.error('Failed to resume AudioContext:', error);
+        }
+      }
+    };
+
     ensureAudioContextRunning().then(() => {
       const audio = new Audio(sound);
       audio.play().catch(error => console.error('Error playing sound:', error));
     });
-  }, [ensureAudioContextRunning]);
+  }, [audioContext]);
 
   const toggleDarkMode = () => {
     setDarkMode(!darkMode);
@@ -218,7 +233,7 @@ const App = () => {
           setTimeout(() => {
             setDetectedSpeech('');
             setSpeechStatus('idle');
-          }, 1200);
+          }, 100);
         }
       };
 
@@ -252,7 +267,7 @@ const App = () => {
             setShowSuccessGif(false);
           //  console.log('Calling nextRandomWord after success');
            // nextRandomWord();
-          }, 1200);
+          }, 100);
         }
       };
 
@@ -373,6 +388,7 @@ const App = () => {
         setTimeout(() => {
           setDetectedSpeech('');
           setShowSuccessGif(false);
+          setSpeechStatus('idle'); // Update speech status
           if (autoPracticeActiveRef.current) {
             nextRandomWord();
           }
@@ -386,6 +402,8 @@ const App = () => {
         recognition.onresult = handleRecognitionResult;
         recognition.start();
 
+        setSpeechStatus('listening'); // Update speech status
+
         setTimeout(() => {
           if (!successHandledRef.current) {
             console.log('Failure');
@@ -396,6 +414,7 @@ const App = () => {
 
             setTimeout(() => {
               setDetectedSpeech('');
+              setSpeechStatus('idle'); // Update speech status
               if (autoPracticeActiveRef.current) {
                 nextWordTimeoutRef.current = setTimeout(() => {
                   nextRandomWord();
@@ -459,7 +478,7 @@ const App = () => {
         </p>
       </div>
       <div className="speech-status">
-        {speechStatus === 'listening' && <p>Feeding the gerbils that power the audio...</p>}
+        {speechStatus === 'listening' && <p>Initializing audio...</p>}
         {speechStatus === 'ready' && <p>Ready! Please speak now.</p>}
         {speechStatus === 'speaking' && <p>Listening...</p>}
         {speechStatus === 'processing' && <p>Processing...</p>}

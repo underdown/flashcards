@@ -305,9 +305,49 @@ const App = () => {
     if (currentWord && currentWord.foreign) {
       const utterance = new SpeechSynthesisUtterance(currentWord.foreign);
       utterance.lang = languageCodes[currentLanguage] || 'en-US';
+      
+      // Get available voices and try to find a match for our language
+      const voices = window.speechSynthesis.getVoices();
+      const languageVoice = voices.find(voice => 
+        voice.lang.startsWith(languageCodes[currentLanguage].split('-')[0]) && !voice.lang.includes('en-')
+      );
+      
+      if (languageVoice) {
+        utterance.voice = languageVoice;
+        console.log('Using voice:', languageVoice.name);
+      } else {
+        console.log('No specific voice found for', languageCodes[currentLanguage]);
+      }
+
+      // Set other properties to improve quality
+      utterance.rate = 0.9; // Slightly slower
+      utterance.pitch = 1;
+      
       window.speechSynthesis.speak(utterance);
     }
   }, [currentWord, currentLanguage]);
+
+  // Add this effect to handle voice loading
+  useEffect(() => {
+    // Some browsers need a little time to load voices
+    const loadVoices = () => {
+      const voices = window.speechSynthesis.getVoices();
+      if (voices.length > 0) {
+        console.log('Available voices:', voices.map(v => `${v.name} (${v.lang})`));
+      }
+    };
+
+    loadVoices();
+    if ('onvoiceschanged' in window.speechSynthesis) {
+      window.speechSynthesis.onvoiceschanged = loadVoices;
+    }
+
+    return () => {
+      if ('onvoiceschanged' in window.speechSynthesis) {
+        window.speechSynthesis.onvoiceschanged = null;
+      }
+    };
+  }, []);
 
   useEffect(() => {
     const initDB = async () => {

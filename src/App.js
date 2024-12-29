@@ -9,7 +9,6 @@ import successGif from './assets/success.gif';
 import { openDB } from 'idb';
 import { levenshteinDistance } from './utils';
 import { useNavigate } from 'react-router-dom';
-import languageData from './assets/data.json';
 
 const DB_VERSION = 1;
 
@@ -115,9 +114,25 @@ const App = () => {
 
   useEffect(() => {
     if (currentLanguage) {
-      setWords(languageData[currentLanguage].words || []);
-      setWordsInitialized(true);
-      console.log('Words initialized:', languageData[currentLanguage].words);
+      // Try dynamic import first
+      import('./assets/data.json')
+        .then(data => {
+          setWords(data.default[currentLanguage].words || []);
+          setWordsInitialized(true);
+          console.log('Words initialized from import:', data.default[currentLanguage].words);
+        })
+        .catch(error => {
+          console.error('Error loading words from import:', error);
+          // Fallback to fetching from public folder
+          fetch('/data.json')
+            .then(response => response.json())
+            .then(data => {
+              setWords(data[currentLanguage].words || []);
+              setWordsInitialized(true);
+              console.log('Words initialized from fetch:', data[currentLanguage].words);
+            })
+            .catch(error => console.error('Error loading words from fetch:', error));
+        });
     }
   }, [currentLanguage]);
 

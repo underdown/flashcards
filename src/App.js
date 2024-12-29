@@ -9,6 +9,7 @@ import successGif from './assets/success.gif';
 import { openDB } from 'idb';
 import { levenshteinDistance } from './utils';
 import { useNavigate } from 'react-router-dom';
+import languageData from './assets/data.json';
 
 const DB_VERSION = 1;
 
@@ -114,14 +115,9 @@ const App = () => {
 
   useEffect(() => {
     if (currentLanguage) {
-      fetch('/data.json')
-        .then(response => response.json())
-        .then(data => {
-          setWords(data[currentLanguage].words || []);
-          setWordsInitialized(true); // Mark words as initialized
-          console.log('Words initialized:', data[currentLanguage].words);
-        })
-        .catch(error => console.error('Error loading words:', error));
+      setWords(languageData[currentLanguage].words || []);
+      setWordsInitialized(true);
+      console.log('Words initialized:', languageData[currentLanguage].words);
     }
   }, [currentLanguage]);
 

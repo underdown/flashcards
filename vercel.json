@@ -10,34 +10,10 @@
       }
     }
   ],
-  "routes": [
+  "rewrites": [
     {
-      "src": "^/static/(.*)",
-      "dest": "/static/$1"
-    },
-    {
-      "src": "^/data.json",
-      "dest": "/data.json"
-    },
-    {
-      "src": "^/favicon.ico",
-      "dest": "/favicon.ico"
-    },
-    {
-      "src": "^/manifest.json",
-      "dest": "/manifest.json"
-    },
-    {
-      "src": "^/(russian|spanish|chinese)/?$",
-      "dest": "/index.html"
-    },
-    {
-      "src": "^/(.*)\\.(js|css|json|png|jpg|svg|wav|gif)$",
-      "dest": "/$1.$2"
-    },
-    {
-      "src": "^/(.*)",
-      "dest": "/index.html"
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ]
 } 

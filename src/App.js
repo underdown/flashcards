@@ -37,6 +37,7 @@ const App = () => {
   const successHandledRef = useRef(false); // Ref to track if success has been handled
   const nextWordRef = useRef(false); // Ref to ensure `nextRandomWord` only triggers once
   const autoPracticeActiveRef = useRef(false);
+  const [isAutoPracticeActive, setIsAutoPracticeActive] = useState(false);
 
   const updateWordStats = useCallback(async (word, isSuccess, similarity) => {
     const db = await openDB('flashcards', DB_VERSION);
@@ -459,9 +460,22 @@ const App = () => {
   }, [currentWord, autoPractice]);
 
   const toggleAutoPractice = () => {
-    autoPracticeActiveRef.current = !autoPracticeActiveRef.current;
-    if (autoPracticeActiveRef.current) {
+    const newState = !isAutoPracticeActive;
+    setIsAutoPracticeActive(newState);
+    autoPracticeActiveRef.current = newState;
+    
+    if (newState) {
       autoPractice();
+    } else {
+      // Clean up when stopping auto practice
+      if (nextWordTimeoutRef.current) {
+        clearTimeout(nextWordTimeoutRef.current);
+      }
+      if (recognition) {
+        recognition.abort();
+      }
+      setSpeechStatus('idle');
+      setDetectedSpeech('');
     }
   };
 
@@ -514,12 +528,12 @@ const App = () => {
           Skip
         </button>
         <button
-          className="nav-button"
+          className={`nav-button ${isAutoPracticeActive ? 'active' : ''}`}
           onClick={toggleAutoPractice}
           disabled={false}
           style={{ cursor: 'pointer', pointerEvents: 'auto' }}
         >
-          Auto
+          {isAutoPracticeActive ? 'Stop' : 'Auto'}
         </button>
       </div>
       <div className="dark-mode-toggle" style={{ paddingTop: '20px' }}>

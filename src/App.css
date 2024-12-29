@@ -115,11 +115,11 @@ html, body, #root {
 
 .nav-button {
   padding: 10px 20px;
-  font-size: 16px;
-  background-color: #4CAF50;
-  color: white;
+  margin: 5px;
   border: none;
   border-radius: 5px;
+  background-color: #4CAF50;
+  color: white;
   cursor: pointer;
   transition: background-color 0.3s;
 }
@@ -132,6 +132,15 @@ html, body, #root {
   background-color: #cccccc;
   cursor: not-allowed;
 }
+
+.nav-button.active {
+  background-color: #f44336;
+}
+
+.nav-button.active:hover {
+  background-color: #da190b;
+}
+
 /* Dark mode styles */
 .dark-mode {
   background-color: #121212;

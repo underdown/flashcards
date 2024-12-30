@@ -9,6 +9,7 @@ import successGif from './assets/success.gif';
 import { openDB } from 'idb';
 import { levenshteinDistance } from './utils';
 import { useNavigate } from 'react-router-dom';
+import CategorySelector from './CategorySelector';
 
 const DB_VERSION = 1;
 
@@ -41,6 +42,9 @@ const App = () => {
   const [recentlyUsedWords, setRecentlyUsedWords] = useState([]);
   const RECENTLY_USED_LIMIT = 10; // How many recent words to remember
   const currentWordRef = useRef(null);
+  const [categories, setCategories] = useState({});
+  const [selectedCategories, setSelectedCategories] = useState([]);
+  const [showCategorySelector, setShowCategorySelector] = useState(false);
 
   const updateWordStats = useCallback(async (word, isSuccess, similarity) => {
     const db = await openDB('flashcards', DB_VERSION);
@@ -127,27 +131,49 @@ const App = () => {
 
   useEffect(() => {
     if (currentLanguage) {
-      // Try dynamic import first
       import('./assets/data.json')
         .then(data => {
-          setWords(data.default[currentLanguage].words || []);
+          const languageData = data.default[currentLanguage];
+          setCategories(languageData.categories || {});
+          
+          // If no categories are selected, select 'basics' by default
+          if (selectedCategories.length === 0) {
+            setSelectedCategories(['basics']);
+          }
+          
+          // Combine words from all selected categories
+          const selectedWords = selectedCategories.reduce((acc, categoryKey) => {
+            const categoryWords = languageData.categories[categoryKey]?.words || [];
+            return [...acc, ...categoryWords];
+          }, []);
+          
+          setWords(selectedWords);
           setWordsInitialized(true);
-          console.log('Words initialized from import:', data.default[currentLanguage].words);
         })
         .catch(error => {
-          console.error('Error loading words from import:', error);
-          // Fallback to fetching from public folder
+          console.error('Error loading words:', error);
           fetch('/data.json')
             .then(response => response.json())
             .then(data => {
-              setWords(data[currentLanguage].words || []);
+              const languageData = data[currentLanguage];
+              setCategories(languageData.categories || {});
+              
+              if (selectedCategories.length === 0) {
+                setSelectedCategories(['basics']);
+              }
+              
+              const selectedWords = selectedCategories.reduce((acc, categoryKey) => {
+                const categoryWords = languageData.categories[categoryKey]?.words || [];
+                return [...acc, ...categoryWords];
+              }, []);
+              
+              setWords(selectedWords);
               setWordsInitialized(true);
-              console.log('Words initialized from fetch:', data[currentLanguage].words);
             })
-            .catch(error => console.error('Error loading words from fetch:', error));
+            .catch(error => console.error('Error loading words:', error));
         });
     }
-  }, [currentLanguage]);
+  }, [currentLanguage, selectedCategories]);
 
   useEffect(() => {
     if (wordsInitialized && words.length > 0) {
@@ -611,6 +637,16 @@ const App = () => {
     }
   };
 
+  const handleCategoryToggle = (categoryKey) => {
+    setSelectedCategories(prev => {
+      if (prev.includes(categoryKey)) {
+        return prev.filter(key => key !== categoryKey);
+      } else {
+        return [...prev, categoryKey];
+      }
+    });
+  };
+
   return (
     <div className={`App ${darkMode ? 'dark-mode' : ''}`} style={{ position: 'relative', zIndex: 1 }}>
       <select value={currentLanguage} onChange={handleLanguageChange} className="language-selector">
@@ -618,6 +654,13 @@ const App = () => {
         <option value="spanish">Spanish</option>
         <option value="chinese">Chinese</option>
       </select>
+      {showCategorySelector && (
+        <CategorySelector
+          categories={categories}
+          selectedCategories={selectedCategories}
+          onCategoryToggle={handleCategoryToggle}
+        />
+      )}
       <div className="flashcard-container">
         {showSuccessGif && <img src={successGif} alt="Success GIF" className="success-gif" />}
         <Flashcard word={currentWord} />
@@ -666,6 +709,12 @@ const App = () => {
           style={{ cursor: 'pointer', pointerEvents: 'auto' }}
         >
           {isAutoPracticeActive ? 'Stop' : 'Auto'}
+        </button>
+        <button
+          className="nav-button"
+          onClick={() => setShowCategorySelector(!showCategorySelector)}
+        >
+          Categories
         </button>
       </div>
       <div className="dark-mode-toggle" style={{ paddingTop: '20px' }}>

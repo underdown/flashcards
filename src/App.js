@@ -659,6 +659,7 @@ const App = () => {
           categories={categories}
           selectedCategories={selectedCategories}
           onCategoryToggle={handleCategoryToggle}
+          onClose={() => setShowCategorySelector(false)}
         />
       )}
       <div className="flashcard-container">
@@ -725,8 +726,8 @@ const App = () => {
           </span>
         </label>
       </div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '20px', fontSize: '11px' }}>
-        <div className="stats" style={{ flex: 1, marginRight: '10px' }}>
+      <div className="stats-container">
+        <div className="stats">
           <h3>Current</h3>
           <table>
             <tbody>
@@ -736,11 +737,11 @@ const App = () => {
               </tr>
               <tr>
                 <td>Pass:</td>
-                <td><span style={{ color: 'green' }}>{currentWordStats?.successes || 0}</span></td>
+                <td><span className="success-text">{currentWordStats?.successes || 0}</span></td>
               </tr>
               <tr>
                 <td>Fail:</td>
-                <td><span style={{ color: 'red' }}>{currentWordStats?.failures || 0}</span></td>
+                <td><span className="failure-text">{currentWordStats?.failures || 0}</span></td>
               </tr>
               <tr>
                 <td>Rate:</td>
@@ -753,7 +754,7 @@ const App = () => {
           </table>
         </div>
 
-        <div className="stats" style={{ flex: 1, marginLeft: '10px' }}>
+        <div className="stats">
           <h3>Overall</h3>
           <table>
             <tbody>
@@ -763,11 +764,11 @@ const App = () => {
               </tr>
               <tr>
                 <td>Pass:</td>
-                <td><span style={{ color: 'green' }}>{wordStats.successes}</span></td>
+                <td><span className="success-text">{wordStats.successes}</span></td>
               </tr>
               <tr>
                 <td>Fail:</td>
-                <td><span style={{ color: 'red' }}>{wordStats.failures}</span></td>
+                <td><span className="failure-text">{wordStats.failures}</span></td>
               </tr>
               <tr>
                 <td>Rate:</td>

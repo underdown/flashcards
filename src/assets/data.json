@@ -81,7 +81,28 @@
            {"english": "I'm hot", "foreign": "мне жарко", "phonetic": "mne zharko"},
            {"english": "I'm sick", "foreign": "я болен", "phonetic": "ya bolen"},
            {"english": "I'm better", "foreign": "мне лучше", "phonetic": "mne luchshe"},
-           {"english": "get well", "foreign": "выздоравливай", "phonetic": "vyzdoravlivay"}
+           {"english": "get well", "foreign": "выздоравливай", "phonetic": "vyzdoravlivay"},
+           {"english": "I'm sorry", "foreign": "извините", "phonetic": "izvinite"},
+           {"english": "no worries", "foreign": "не беспокойтесь", "phonetic": "ne bespokoites'"},
+           {"english": "that's right", "foreign": "правильно", "phonetic": "pravil'no"},
+           {"english": "that's wrong", "foreign": "неправильно", "phonetic": "nepravil'no"},
+           {"english": "I know", "foreign": "я знаю", "phonetic": "ya znayu"},
+           {"english": "I don't know", "foreign": "я не знаю", "phonetic": "ya ne znayu"},
+           {"english": "I like it", "foreign": "мне нравится", "phonetic": "mne nravitsya"},
+           {"english": "I don't like it", "foreign": "мне не нравится", "phonetic": "mne ne nravitsya"},
+           {"english": "it's beautiful", "foreign": "это красиво", "phonetic": "eto krasivo"},
+           {"english": "it's ugly", "foreign": "это некрасиво", "phonetic": "eto nekrasivo"},
+           {"english": "it's big", "foreign": "это большое", "phonetic": "eto bol'shoe"},
+           {"english": "it's small", "foreign": "это маленькое", "phonetic": "eto malen'koe"},
+           {"english": "it's new", "foreign": "это новое", "phonetic": "eto novoe"},
+           {"english": "it's old", "foreign": "это старое", "phonetic": "eto staroe"},
+           {"english": "it's easy", "foreign": "это легко", "phonetic": "eto legko"},
+           {"english": "it's difficult", "foreign": "это трудно", "phonetic": "eto trudno"},
+           {"english": "it's important", "foreign": "это важно", "phonetic": "eto vazhno"},
+           {"english": "it's interesting", "foreign": "это интересно", "phonetic": "eto interesno"},
+           {"english": "it's boring", "foreign": "это скучно", "phonetic": "eto skuchno"},
+           {"english": "it's possible", "foreign": "это возможно", "phonetic": "eto vozmozhno"},
+           {"english": "it's impossible", "foreign": "это невозможно", "phonetic": "eto nevozmozhno"}
         ]
       },
       "time": {
@@ -215,10 +236,12 @@
           {"english": "siblings", "foreign": "братья и сёстры", "phonetic": "bratya i syostry"},
           {"english": "niece", "foreign": "племянница", "phonetic": "plemyannitsa"},
           {"english": "nephew", "foreign": "племянник", "phonetic": "plemyannik"},
-          {"english": "mother-in-law", "foreign": "свекровь/тёща", "phonetic": "svekrov/tyoshcha"},
-          {"english": "father-in-law", "foreign": "свёкор/тесть", "phonetic": "svyokor/test"},
+          {"english": "mother-in-law", "foreign": "свекровь", "phonetic": "svekrova"},
+          {"english": "father-in-law", "foreign": "свёкор", "phonetic": "svyokor"},
           {"english": "grandson", "foreign": "внук", "phonetic": "vnuk"},
-          {"english": "granddaughter", "foreign": "внучка", "phonetic": "vnuchka"}
+          {"english": "granddaughter", "foreign": "внучка", "phonetic": "vnuchka"},
+          {"english": "mother-in-law", "foreign": "тёща", "phonetic": "tyoshcha"},
+          {"english": "father-in-law", "foreign": "тесть", "phonetic": "test"},
         ]
       },
       "travel": {

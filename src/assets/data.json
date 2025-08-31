@@ -102,7 +102,27 @@
            {"english": "it's interesting", "foreign": "это интересно", "phonetic": "eto interesno"},
            {"english": "it's boring", "foreign": "это скучно", "phonetic": "eto skuchno"},
            {"english": "it's possible", "foreign": "это возможно", "phonetic": "eto vozmozhno"},
-           {"english": "it's impossible", "foreign": "это невозможно", "phonetic": "eto nevozmozhno"}
+           {"english": "it's impossible", "foreign": "это невозможно", "phonetic": "eto nevozmozhno"},
+           {"english": "damn", "foreign": "чёрт", "phonetic": "chyort"},
+           {"english": "shit", "foreign": "дерьмо", "phonetic": "der'mo"},
+           {"english": "fuck", "foreign": "блять", "phonetic": "blyat'"},
+           {"english": "asshole", "foreign": "мудак", "phonetic": "mudak"},
+           {"english": "bitch", "foreign": "сука", "phonetic": "suka"},
+           {"english": "bastard", "foreign": "ублюдок", "phonetic": "ublyudok"},
+           {"english": "idiot", "foreign": "идиот", "phonetic": "idiot"},
+           {"english": "stupid", "foreign": "тупой", "phonetic": "tupoy"},
+           {"english": "fool", "foreign": "дурак", "phonetic": "durak"},
+           {"english": "damn it", "foreign": "чёрт побери", "phonetic": "chyort poberi"},
+           {"english": "hell", "foreign": "ад", "phonetic": "ad"},
+           {"english": "devil", "foreign": "дьявол", "phonetic": "d'yavol"},
+           {"english": "crap", "foreign": "говно", "phonetic": "govno"},
+           {"english": "piss off", "foreign": "отвали", "phonetic": "otvali"},
+           {"english": "go to hell", "foreign": "иди к чёрту", "phonetic": "idi k chyortu"},
+           {"english": "screw you", "foreign": "пошёл ты", "phonetic": "poshyol ty"},
+           {"english": "dumbass", "foreign": "дебил", "phonetic": "debil"},
+           {"english": "jerk", "foreign": "козёл", "phonetic": "kozyol"},
+           {"english": "scumbag", "foreign": "подонок", "phonetic": "podonok"},
+           {"english": "motherfucker", "foreign": "ебать", "phonetic": "yebat'"}
         ]
       },
       "time": {
@@ -240,8 +260,8 @@
           {"english": "father-in-law", "foreign": "свёкор", "phonetic": "svyokor"},
           {"english": "grandson", "foreign": "внук", "phonetic": "vnuk"},
           {"english": "granddaughter", "foreign": "внучка", "phonetic": "vnuchka"},
-          {"english": "mother-in-law", "foreign": "тёща", "phonetic": "tyoshcha"},
-          {"english": "father-in-law", "foreign": "тесть", "phonetic": "test"},
+                     {"english": "mother-in-law", "foreign": "тёща", "phonetic": "tyoshcha"},
+           {"english": "father-in-law", "foreign": "тесть", "phonetic": "test"}
         ]
       },
       "travel": {

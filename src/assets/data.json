@@ -57,7 +57,7 @@
           {"english": "happy new year", "foreign": "с новым годом", "phonetic": "s novym godom"},
           {"english": "I love you", "foreign": "я тебя люблю", "phonetic": "ya tebya lyublyu"},
           {"english": "take care", "foreign": "береги себя", "phonetic": "beregi sebya"},
-                     {"english": "call me", "foreign": "позвони мне", "phonetic": "pozvoni mne"},
+          {"english": "call me", "foreign": "позвони мне", "phonetic": "pozvoni mne"},
            {"english": "I miss you", "foreign": "я скучаю по тебе", "phonetic": "ya skuchayu po tebe"},
            {"english": "good luck", "foreign": "удачи", "phonetic": "udachi"},
            {"english": "be careful", "foreign": "будь осторожен", "phonetic": "bud' ostorozhen"},
@@ -256,12 +256,10 @@
           {"english": "siblings", "foreign": "братья и сёстры", "phonetic": "bratya i syostry"},
           {"english": "niece", "foreign": "племянница", "phonetic": "plemyannitsa"},
           {"english": "nephew", "foreign": "племянник", "phonetic": "plemyannik"},
-          {"english": "mother-in-law", "foreign": "свекровь", "phonetic": "svekrova"},
-          {"english": "father-in-law", "foreign": "свёкор", "phonetic": "svyokor"},
-          {"english": "grandson", "foreign": "внук", "phonetic": "vnuk"},
-          {"english": "granddaughter", "foreign": "внучка", "phonetic": "vnuchka"},
-                     {"english": "mother-in-law", "foreign": "тёща", "phonetic": "tyoshcha"},
-           {"english": "father-in-law", "foreign": "тесть", "phonetic": "test"}
+                     {"english": "mother-in-law", "foreign": "свекровь", "phonetic": "svekrova"},
+           {"english": "father-in-law", "foreign": "свёкор", "phonetic": "svyokor"},
+           {"english": "grandson", "foreign": "внук", "phonetic": "vnuk"},
+           {"english": "granddaughter", "foreign": "внучка", "phonetic": "vnuchka"}
         ]
       },
       "travel": {

@@ -850,9 +850,8 @@
       {"english": "wood", "foreign": "pren", "phonetic": "pren"},
       {"english": "glass", "foreign": "gwydr", "phonetic": "gwi-dr"}
       ]
-    },
-    
-      "cornish": {
+  },
+  "cornish": {
         "name": "Cornish",
         "words": [
           {"english": "hello", "foreign": "dydh da", "phonetic": "dith dah"},
@@ -1015,8 +1014,8 @@
           {"english": "wood", "foreign": "prenn", "phonetic": "pren"},
           {"english": "glass", "foreign": "gwydh", "phonetic": "gwid"}
         ]
-      },
-      "chinese": {
+  },
+  "chinese": {
         "name": "Chinese",
         "words": [
           {"english": "hello", "foreign": "你好", "phonetic": "nǐ hǎo"},
@@ -1179,8 +1178,8 @@
           {"english": "wood", "foreign": "木头", "phonetic": "mù tou"},
           {"english": "glass", "foreign": "玻璃", "phonetic": "bō lí"}
         ]
-      }
-    }
+  }
+}
      
 
 

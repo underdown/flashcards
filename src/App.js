@@ -938,19 +938,66 @@ const App = () => {
             </button>
             <h3>How to use</h3>
             <div className="help-modal-body">
+              <h4>Quick overview</h4>
               <p>
-                <strong>Play (Auto / loop)</strong>: auto-plays kanji/kana, then listens for you to pronounce it correctly.
-                Pass/Fail updates in the stats.
+                This is a pronunciation flashcard app. Your browser speaks a card, and then you respond. It uses speech recognition
+                built into your browser, so the results depend on your system's available voices and language packs.
+              </p>
+
+              <h4>Buttons</h4>
+              <p>
+                <strong>Play / Auto</strong>: auto-plays kanji/kana and then listens for you to pronounce the active reading correctly.
+                When you turn Auto on, it keeps looping through cards until you click Stop.
               </p>
               <p>
-                <strong>Sound</strong>: replays the current card’s pronunciation.
+                <strong>Sound</strong>: replays the pronunciation for the current card (useful for review).
               </p>
               <p>
-                <strong>Speak (microphone)</strong>: manually test pronunciation with speech detection.
+                <strong>Speak (microphone)</strong>: manually tests pronunciation using speech detection.
               </p>
               <p>
-                <strong>Privacy</strong>: the app has no tracking and no external database. Your stats are saved locally in your
-                browser (local storage), and more kanji are being added over time.
+                <strong>Skip</strong>: moves to the next card without scoring.
+              </p>
+              <p>
+                <strong>Categories / Options</strong>: opens the category picker. For Japanese, you can enable:
+                <strong>Kanji</strong> (cards may include multiple meanings/readings; the app picks one active reading for Auto/Speak),
+                and kana decks (hiragana/katakana) which are practiced together as a single kana-focused card.
+              </p>
+
+              <h4>Kanji practice tip</h4>
+              <p>
+                Some kanji have multiple pronunciations. For those cards, the UI shows all meaning/sound options, but Auto/Speak only listens
+                for the active pronunciation. If you want to change what's considered active, click the kanji card to cycle the active reading.
+              </p>
+
+              <h4>Stats + privacy</h4>
+              <p>
+                The app has no tracking and no external database. Pronunciation stats are stored locally in your browser (IndexedDB),
+                and more kanji are being added over time.
+              </p>
+
+              <h4>Most likely causes (sound or speech detection)</h4>
+              <p>
+                <strong>Sound doesn't play</strong>:
+                try clicking <strong>Play</strong> or <strong>Sound</strong> again (some browsers require user interaction to start audio),
+                confirm your device isn't muted, and check Chrome's audio/tab mute and site sound permissions.
+              </p>
+              <p>
+                <strong>Speech detection doesn't work</strong>:
+                confirm your microphone permission for the site, ensure your system has Japanese speech recognition support installed,
+                and try Chrome (Web Speech API behavior varies by browser).
+              </p>
+
+              <h4>How to add Japanese voices (recommended: Chrome)</h4>
+              <p>
+                <strong>Windows</strong>:
+                Settings -> Time &amp; language -> Language &amp; region -> Add a language -> <strong>Japanese</strong>.
+                Then open the Japanese language options and install speech-related features/voices. Restart Chrome after installing.
+              </p>
+              <p>
+                <strong>macOS</strong>:
+                System Settings -> General -> Language &amp; Region -> add <strong>Japanese</strong>.
+                Then open Accessibility/Spoken Content (or Dictation &amp; Speech) and select/enable Japanese voices. Restart Chrome after changes.
               </p>
             </div>
           </div>

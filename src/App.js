@@ -50,6 +50,35 @@ function loadVoicesWhenReady() {
   });
 }
 
+/** Must wait for the previous session to finish before start() or the engine throws / misbehaves. */
+function waitForRecognitionIdle(recognition) {
+  return new Promise((resolve) => {
+    if (!recognition) {
+      resolve();
+      return;
+    }
+    let settled = false;
+    const done = () => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(fallback);
+      resolve();
+    };
+    const fallback = setTimeout(done, 450);
+    const onEnd = () => {
+      recognition.removeEventListener('end', onEnd);
+      done();
+    };
+    recognition.addEventListener('end', onEnd);
+    try {
+      recognition.abort();
+    } catch {
+      recognition.removeEventListener('end', onEnd);
+      done();
+    }
+  });
+}
+
 const App = () => {
   const navigate = useNavigate();
   const [words, setWords] = useState([]);
@@ -184,7 +213,8 @@ const App = () => {
 
       const selectedWords = categoriesToUse.reduce((acc, categoryKey) => {
         const categoryWords = categoriesObj[categoryKey]?.words || [];
-        return [...acc, ...categoryWords];
+        const tagged = categoryWords.map((w) => ({ ...w, categoryKey }));
+        return [...acc, ...tagged];
       }, []);
 
       setWords(selectedWords);
@@ -222,7 +252,7 @@ const App = () => {
     if ('webkitSpeechRecognition' in window) {
       const newRecognition = new window.webkitSpeechRecognition();
       newRecognition.lang = getLanguageCode(currentLanguage);
-      newRecognition.continuous = true;
+      newRecognition.continuous = false;
       newRecognition.interimResults = true;
       setRecognition(newRecognition);
       console.log('Speech recognition initialized');
@@ -272,9 +302,9 @@ const App = () => {
   };
 
   const startListening = useCallback(() => {
-    if (recognition) {
-      recognition.abort();
+    if (!recognition) return;
 
+    waitForRecognitionIdle(recognition).then(() => {
       let timeoutId;
 
       recognition.onstart = () => {
@@ -369,7 +399,7 @@ const App = () => {
         setSpeechStatus('error');
         clearTimeout(timeoutId);
       }
-    }
+    });
     // nextRandomWord/autoPractice omitted to avoid resetting recognition handlers every word
     // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional
   }, [recognition, currentWord, playSound, updateWordStats]);
@@ -518,59 +548,87 @@ const App = () => {
   }, []);
 
   const startRecognition = useCallback(() => {
-    return new Promise((resolve) => {
-      if (!recognition) {
-        resolve(false);
-        return;
-      }
+    if (!recognition) {
+      return Promise.resolve(false);
+    }
 
-      successHandledRef.current = false;
-      recognition.abort();
+    return waitForRecognitionIdle(recognition).then(() => {
+      return new Promise((resolve) => {
+        let finished = false;
+        let listenTimeoutId;
 
-      recognition.onresult = (event) => {
-        const transcript = Array.from(event.results)
-          .map(result => result[0].transcript)
-          .join('')
-          .toLowerCase()
-          .trim();
+        const finish = (value) => {
+          if (finished) return;
+          finished = true;
+          clearTimeout(listenTimeoutId);
+          resolve(value);
+        };
 
-        console.log('Transcript:', transcript);
-        setDetectedSpeech(transcript);
+        successHandledRef.current = false;
 
-        const expectedWord = currentWordRef.current.foreign.toLowerCase().trim();
-        console.log('Expected word:', expectedWord);
-        
-        if (transcript.includes(expectedWord)) {
-          console.log('Success! Transcript matches expected word');
-          successHandledRef.current = true;
-          recognition.abort();
-          playSound(successSound);
-          setShowSuccessGif(true);
-          setWordStats(prev => ({ ...prev, successes: prev.successes + 1 }));
-          updateWordStats(currentWordRef.current.foreign, true, 1);
-          resolve(true);
+        recognition.onresult = (event) => {
+          const transcript = Array.from(event.results)
+            .map((result) => result[0].transcript)
+            .join('')
+            .toLowerCase()
+            .trim();
+
+          console.log('Transcript:', transcript);
+          setDetectedSpeech(transcript);
+
+          const expectedWord = currentWordRef.current.foreign.toLowerCase().trim();
+          console.log('Expected word:', expectedWord);
+
+          if (transcript.includes(expectedWord)) {
+            console.log('Success! Transcript matches expected word');
+            successHandledRef.current = true;
+            try {
+              recognition.abort();
+            } catch (e) {
+              console.error(e);
+            }
+            playSound(successSound);
+            setShowSuccessGif(true);
+            setWordStats((prev) => ({ ...prev, successes: prev.successes + 1 }));
+            updateWordStats(currentWordRef.current.foreign, true, 1);
+            finish(true);
+          }
+        };
+
+        recognition.onerror = (event) => {
+          if (finished || event.error === 'aborted') return;
+          console.log('Recognition error:', event.error);
+        };
+
+        recognition.onend = () => {
+          if (!successHandledRef.current) {
+            console.log('Recognition ended without success');
+            playSound(failSound);
+            setWordStats((prev) => ({ ...prev, failures: prev.failures + 1 }));
+            updateWordStats(currentWordRef.current.foreign, false, 0);
+            finish(false);
+          }
+        };
+
+        try {
+          recognition.start();
+          setSpeechStatus('listening');
+        } catch (e) {
+          console.error('recognition.start failed:', e);
+          finish(false);
+          return;
         }
-      };
 
-      recognition.onend = () => {
-        if (!successHandledRef.current) {
-          console.log('Recognition ended without success');
-          playSound(failSound);
-          setWordStats(prev => ({ ...prev, failures: prev.failures + 1 }));
-          updateWordStats(currentWordRef.current.foreign, false, 0);
-          resolve(false);
-        }
-      };
-
-      recognition.start();
-      setSpeechStatus('listening');
-
-      // Set timeout for recognition
-      setTimeout(() => {
-        if (!successHandledRef.current) {
-          recognition.abort();
-        }
-      }, 5000);
+        listenTimeoutId = setTimeout(() => {
+          if (!successHandledRef.current) {
+            try {
+              recognition.abort();
+            } catch (err) {
+              console.error(err);
+            }
+          }
+        }, 12000);
+      });
     });
   }, [recognition, playSound, updateWordStats]);
 
@@ -586,22 +644,28 @@ const App = () => {
 
       try {
         // Always use currentWordRef.current to get the latest word
-        console.log('Starting practice sequence for word:', currentWordRef.current);
+        const word = currentWordRef.current;
+        console.log('Starting practice sequence for word:', word);
 
-        // Speak English word and wait for completion
-        console.log('Speaking English word:', currentWordRef.current.english);
-        await readWord(currentWordRef.current.english, 'en-US');
-        if (!autoPracticeActiveRef.current) return;
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        const skipEnglishInAuto =
+          currentLanguage === 'japanese' &&
+          (word.categoryKey === 'hiragana' || word.categoryKey === 'katakana');
+
+        if (!skipEnglishInAuto) {
+          console.log('Speaking English word:', word.english);
+          await readWord(word.english, 'en-US');
+          if (!autoPracticeActiveRef.current) return;
+          await new Promise((resolve) => setTimeout(resolve, 1000));
+        }
 
         // Speak foreign word and wait for completion
-        console.log('Speaking foreign word:', currentWordRef.current.foreign);
+        console.log('Speaking foreign word:', word.foreign);
         if (!autoPracticeActiveRef.current) return;
-        await readWord(currentWordRef.current.foreign, getLanguageCode(currentLanguage));
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await readWord(word.foreign, getLanguageCode(currentLanguage));
+        await new Promise((resolve) => setTimeout(resolve, 1000));
 
         // Start recognition
-        console.log('Starting recognition for word:', currentWordRef.current.foreign);
+        console.log('Starting recognition for word:', word.foreign);
         if (!autoPracticeActiveRef.current) return;
         await startRecognition();
 

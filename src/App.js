@@ -6,9 +6,9 @@ import moonIcon from './assets/moon.svg';
 import iconPlay from './assets/icon-play.svg';
 import iconMic from './assets/icon-mic.svg';
 import iconSkip from './assets/icon-skip.svg';
-import iconRepeat from './assets/icon-repeat.svg';
 import iconStop from './assets/icon-stop.svg';
 import iconSettings from './assets/icon-settings.svg';
+import iconSound from './assets/icon-sound.svg';
 import successSound from './assets/success.wav';
 import failSound from './assets/fail.wav';
 import successGif from './assets/success.gif';
@@ -253,6 +253,18 @@ const App = () => {
         categoriesToUse = defaultKey ? [defaultKey] : [];
       }
 
+      // If the user opts into kana in Japanese, always include both decks so the
+      // card can show both hiragana and katakana simultaneously.
+      if (currentLanguage === 'japanese') {
+        const wantsKana =
+          categoriesToUse.includes('hiragana') || categoriesToUse.includes('katakana');
+        if (wantsKana) {
+          categoriesToUse = Array.from(
+            new Set([...categoriesToUse, 'hiragana', 'katakana'])
+          );
+        }
+      }
+
       const sorted = (arr) => [...arr].sort().join(',');
       if (sorted(categoriesToUse) !== sorted(selectedCategories)) {
         setSelectedCategories(categoriesToUse);
@@ -260,11 +272,61 @@ const App = () => {
 
       setCategories(categoriesObj);
 
-      const selectedWords = categoriesToUse.reduce((acc, categoryKey) => {
+      let selectedWords = [];
+
+      // Special pairing for Japanese kana cards: one card shows both hiragana
+      // and katakana, while speech detection targets the active deck.
+      if (
+        currentLanguage === 'japanese' &&
+        (categoriesToUse.includes('hiragana') || categoriesToUse.includes('katakana'))
+      ) {
+        const hiraWords = categoriesObj.hiragana?.words || [];
+        const kataWords = categoriesObj.katakana?.words || [];
+
+        const hiraBy = new Map(hiraWords.map((w) => [w.english, w]));
+        const kataBy = new Map(kataWords.map((w) => [w.english, w]));
+
+        const kanaKeys = Array.from(new Set([...hiraBy.keys(), ...kataBy.keys()])).filter(
+          (k) => hiraBy.has(k) && kataBy.has(k)
+        );
+
+        const kanaWords = kanaKeys.flatMap((englishKey) => {
+          const h = hiraBy.get(englishKey);
+          const k = kataBy.get(englishKey);
+
+          // Hiragana-active card
+          const hiraganaCard = {
+            ...h,
+            categoryKey: 'hiragana',
+            kanaHiragana: h.foreign,
+            kanaKatakana: k.foreign,
+          };
+
+          // Katakana-active card
+          const katakanaCard = {
+            ...k,
+            categoryKey: 'katakana',
+            kanaHiragana: h.foreign,
+            kanaKatakana: k.foreign,
+          };
+
+          return [hiraganaCard, katakanaCard];
+        });
+
+        selectedWords = [...kanaWords];
+      }
+
+      // Add all other decks (and kanji) normally.
+      const nonKanaCategories = categoriesToUse.filter(
+        (k) => k !== 'hiragana' && k !== 'katakana'
+      );
+      const nonKanaWords = nonKanaCategories.reduce((acc, categoryKey) => {
         const categoryWords = categoriesObj[categoryKey]?.words || [];
         const tagged = categoryWords.map((w) => ({ ...w, categoryKey }));
         return [...acc, ...tagged];
       }, []);
+
+      selectedWords = [...selectedWords, ...nonKanaWords];
 
       setWords(selectedWords);
       setWordsInitialized(true);
@@ -795,11 +857,31 @@ const App = () => {
 
   const handleCategoryToggle = (categoryKey) => {
     setSelectedCategories(prev => {
+      if (
+        currentLanguage === 'japanese' &&
+        (categoryKey === 'hiragana' || categoryKey === 'katakana')
+      ) {
+        const otherKey = categoryKey === 'hiragana' ? 'katakana' : 'hiragana';
+        const hasThis = prev.includes(categoryKey);
+        const hasOther = prev.includes(otherKey);
+
+        // Selecting either hiragana or katakana should enable both so cards can show
+        // both symbols at once; toggling one off removes both.
+        if (hasThis && hasOther) {
+          return prev.filter((k) => k !== categoryKey && k !== otherKey);
+        }
+
+        // Otherwise add both.
+        const next = new Set(prev);
+        next.add('hiragana');
+        next.add('katakana');
+        return Array.from(next);
+      }
+
       if (prev.includes(categoryKey)) {
         return prev.filter(key => key !== categoryKey);
-      } else {
-        return [...prev, categoryKey];
       }
+      return [...prev, categoryKey];
     });
   };
 
@@ -851,8 +933,8 @@ const App = () => {
         {speechStatus === 'error' && <p>Error occurred. Please try again.</p>}
       </div>
       <div className="button-container" style={{ position: 'relative', zIndex: 2 }}>
-        <button type="button" className="nav-button" onClick={speakWord} aria-label="Play pronunciation" title="Play">
-          <img src={iconPlay} alt="" className="nav-button-icon" />
+        <button type="button" className="nav-button" onClick={speakWord} aria-label="Play sound" title="Sound">
+          <img src={iconSound} alt="" className="nav-button-icon" />
         </button>
         <button
           type="button"
@@ -884,7 +966,7 @@ const App = () => {
           style={{ cursor: 'pointer', pointerEvents: 'auto' }}
         >
           <img
-            src={isAutoPracticeActive ? iconStop : iconRepeat}
+            src={isAutoPracticeActive ? iconStop : iconPlay}
             alt=""
             className="nav-button-icon"
           />
@@ -899,7 +981,7 @@ const App = () => {
           <img src={iconSettings} alt="" className="nav-button-icon" />
         </button>
       </div>
-      <div className="dark-mode-toggle" style={{ paddingTop: '20px' }}>
+      <div className="dark-mode-toggle" style={{ paddingTop: '10px' }}>
         <label className="switch">
           <input type="checkbox" checked={darkMode} onChange={toggleDarkMode} />
           <span className="slider round">
@@ -913,7 +995,7 @@ const App = () => {
           <table>
             <tbody>
               <tr>
-                <td>Word:</td>
+                <td>{currentLanguage === 'japanese' ? 'Kanji:' : 'Word:'}</td>
                 <td><strong>{currentWord?.foreign}</strong></td>
               </tr>
               <tr>
@@ -940,7 +1022,7 @@ const App = () => {
           <table>
             <tbody>
               <tr>
-                <td>Words:</td>
+                <td>{currentLanguage === 'japanese' ? 'Kanji:' : 'Words:'}</td>
                 <td><strong>{words.length}</strong></td>
               </tr>
               <tr>

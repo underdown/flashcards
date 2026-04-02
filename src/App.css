@@ -120,6 +120,46 @@ html, body, #root {
   letter-spacing: 0.02em;
 }
 
+.kana-indicator {
+  font-size: 0.95em;
+  font-style: italic;
+  color: #666;
+  margin: 5px 0 2px;
+}
+
+.kana-pair {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin: 5px 0;
+  font-size: 5.4em; /* 1.8em * 3 */
+  line-height: 1.05;
+}
+
+.kana-symbol {
+  display: inline-block;
+  font-weight: bold;
+  color: #1b5e20;
+}
+
+.kana-symbol--active {
+  color: #1b5e20;
+}
+
+.kana-symbol--inactive {
+  opacity: 0.6;
+}
+
+.kana-romaji {
+  /* reuse italic phonetic styling but keep it slightly tighter */
+  margin-top: 8px;
+}
+
+.dark-mode .kana-symbol {
+  color: #c8e6c9;
+}
+
 .flag-icon {
   width: 30px;
   height: 20px;
@@ -142,7 +182,7 @@ html, body, #root {
   display: flex;
   justify-content: center;
   gap: 10px; /* Adds space between buttons */
-  margin-top: 20px;
+  margin-top: 10px;
   background-color: transparent; /* Ensure no background color */
   flex-wrap: wrap;
   padding: 0 10px;
@@ -216,6 +256,18 @@ html, body, #root {
 
 .dark-mode .phonetic-latin {
   color: #c4c4c4;
+}
+
+.dark-mode .kana-indicator {
+  color: #b0b0b0;
+}
+
+.dark-mode .kana-symbol--active {
+  color: #c8e6c9;
+}
+
+.dark-mode .kana-symbol--inactive {
+  opacity: 0.65;
 }
 
 .dark-mode .foreign-kanji-link {
@@ -547,6 +599,10 @@ input:checked + .slider:before {
     font-size: 1.8em; /* 1.5em * 1.2 */
   }
 
+  .kana-pair {
+    font-size: 4.5em; /* 1.5em * 3 */
+  }
+
   .language-selector {
     font-size: 14px;
     padding: 8px;
@@ -634,6 +690,10 @@ input:checked + .slider:before {
 
   .kanji-foreign {
     font-size: 1.56em; /* 1.3em * 1.2 */
+  }
+
+  .kana-pair {
+    font-size: 3.9em; /* 1.3em * 3 */
   }
 
   .language-selector {

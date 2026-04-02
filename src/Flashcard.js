@@ -9,6 +9,7 @@ const Flashcard = ({ word, activeKanjiVariantIndex = 0, onCycleKanjiVariant }) =
   }
 
   const isKanji = word.categoryKey === 'kanji';
+  const isKana = word.categoryKey === 'hiragana' || word.categoryKey === 'katakana';
   const variants = isKanji ? getKanjiVariants(word) : [];
   const activeIdx =
     isKanji && typeof activeKanjiVariantIndex === 'number'
@@ -96,25 +97,45 @@ const Flashcard = ({ word, activeKanjiVariantIndex = 0, onCycleKanjiVariant }) =
           </div>
         ) : (
           <>
-            <p className="english">{word.english}</p>
-            <h2 className={isKanji ? 'foreign kanji-foreign' : 'foreign'}>
-              {kanjiLookupUrl ? (
-                <a
-                  href={kanjiLookupUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="foreign-kanji-link"
-                  title="Look up this kanji on RomajiDesu"
-                >
-                  {word.foreign}
-                </a>
-              ) : (
-                word.foreign
-              )}
-            </h2>
-            <p className="phonetic">{word.phonetic}</p>
-            {word.readingRomaji && (
-              <p className="phonetic-latin">{word.readingRomaji}</p>
+            {isKana ? (
+              <>
+                <h2 className="foreign kana-pair">
+                  <span
+                    className="kana-symbol"
+                  >
+                    {word.kanaHiragana || word.foreign}
+                  </span>
+                  <span
+                    className="kana-symbol"
+                  >
+                    {word.kanaKatakana || word.foreign}
+                  </span>
+                </h2>
+                <p className="phonetic kana-romaji">{word.english}</p>
+              </>
+            ) : (
+              <>
+                <p className="english">{word.english}</p>
+                <h2 className={isKanji ? 'foreign kanji-foreign' : 'foreign'}>
+                  {kanjiLookupUrl ? (
+                    <a
+                      href={kanjiLookupUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="foreign-kanji-link"
+                      title="Look up this kanji on RomajiDesu"
+                    >
+                      {word.foreign}
+                    </a>
+                  ) : (
+                    word.foreign
+                  )}
+                </h2>
+                <p className="phonetic">{word.phonetic}</p>
+                {word.readingRomaji && (
+                  <p className="phonetic-latin">{word.readingRomaji}</p>
+                )}
+              </>
             )}
           </>
         )}

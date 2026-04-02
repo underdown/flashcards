@@ -8,12 +8,21 @@ export function getKanjiVariants(word) {
   const rawKana = (word.phonetic || '').split(sep).map((s) => s.trim());
   const rawRomaji = (word.readingRomaji || '').split(sep).map((s) => s.trim());
   const n = Math.max(rawEn.length, rawKana.length, rawRomaji.length, 1);
+
+  // Many entries only provide one English meaning even when kana/romaji has
+  // multiple readings (e.g. "九" has phonetic "ここの" but english "ここの"?).
+  // To avoid showing a dash (—) for unselected variants, reuse the single
+  // English segment across all variants.
+  const enFallback = rawEn.length === 1 ? rawEn[0] : null;
+  const kanaFallback = rawKana.length === 1 ? rawKana[0] : null;
+  const romajiFallback = rawRomaji.length === 1 ? rawRomaji[0] : null;
+
   const out = [];
   for (let i = 0; i < n; i++) {
     out.push({
-      english: rawEn[i] ?? '',
-      kana: rawKana[i] ?? '',
-      romaji: rawRomaji[i] ?? '',
+      english: rawEn[i] ?? enFallback ?? '',
+      kana: rawKana[i] ?? kanaFallback ?? '',
+      romaji: rawRomaji[i] ?? romajiFallback ?? '',
     });
   }
   return out.length ? out : [{ english: '', kana: '', romaji: '' }];

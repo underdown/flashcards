@@ -479,212 +479,254 @@
         {
           "english": "sun / day",
           "foreign": "日",
-          "phonetic": "にち / ひ / び"
+          "phonetic": "にち / ひ / び",
+          "readingRomaji": "nichi / hi / bi"
         },
         {
           "english": "moon / month",
           "foreign": "月",
-          "phonetic": "げつ / つき"
+          "phonetic": "げつ / つき",
+          "readingRomaji": "getsu / tsuki"
         },
         {
           "english": "fire / Tuesday",
           "foreign": "火",
-          "phonetic": "か / ひ"
+          "phonetic": "か / ひ",
+          "readingRomaji": "ka / hi"
         },
         {
           "english": "water / Wednesday",
           "foreign": "水",
-          "phonetic": "すい / みず"
+          "phonetic": "すい / みず",
+          "readingRomaji": "sui / mizu"
         },
         {
           "english": "tree / Thursday",
           "foreign": "木",
-          "phonetic": "もく / き"
+          "phonetic": "もく / き",
+          "readingRomaji": "moku / ki"
         },
         {
           "english": "gold / Friday",
           "foreign": "金",
-          "phonetic": "きん / かね"
+          "phonetic": "きん / かね",
+          "readingRomaji": "kin / kane"
         },
         {
           "english": "earth / Saturday",
           "foreign": "土",
-          "phonetic": "ど / つち"
+          "phonetic": "ど / つち",
+          "readingRomaji": "do / tsuchi"
         },
         {
           "english": "person",
           "foreign": "人",
-          "phonetic": "ひと / じん"
+          "phonetic": "ひと / じん",
+          "readingRomaji": "hito / jin"
         },
         {
           "english": "big",
           "foreign": "大",
-          "phonetic": "おお / だい"
+          "phonetic": "おお / だい",
+          "readingRomaji": "oo / dai"
         },
         {
           "english": "small",
           "foreign": "小",
-          "phonetic": "ちい / しょう"
+          "phonetic": "ちい / しょう",
+          "readingRomaji": "chii / shou"
         },
         {
           "english": "middle",
           "foreign": "中",
-          "phonetic": "なか / ちゅう"
+          "phonetic": "なか / ちゅう",
+          "readingRomaji": "naka / chuu"
         },
         {
           "english": "up",
           "foreign": "上",
-          "phonetic": "うえ / じょう"
+          "phonetic": "うえ / じょう",
+          "readingRomaji": "ue / jou"
         },
         {
           "english": "down",
           "foreign": "下",
-          "phonetic": "した / か / げ"
+          "phonetic": "した / か / げ",
+          "readingRomaji": "shita / ka / ge"
         },
         {
           "english": "left",
           "foreign": "左",
-          "phonetic": "ひだり / さ"
+          "phonetic": "ひだり / さ",
+          "readingRomaji": "hidari / sa"
         },
         {
           "english": "right",
           "foreign": "右",
-          "phonetic": "みぎ / ゆう"
+          "phonetic": "みぎ / ゆう",
+          "readingRomaji": "migi / yuu"
         },
         {
           "english": "one",
           "foreign": "一",
-          "phonetic": "いち / ひと"
+          "phonetic": "いち / ひと",
+          "readingRomaji": "ichi / hito"
         },
         {
           "english": "two",
           "foreign": "二",
-          "phonetic": "に / ふた"
+          "phonetic": "に / ふた",
+          "readingRomaji": "ni / futa"
         },
         {
           "english": "three",
           "foreign": "三",
-          "phonetic": "さん / みっ"
+          "phonetic": "さん / みっ",
+          "readingRomaji": "san / mi"
         },
         {
           "english": "four",
           "foreign": "四",
-          "phonetic": "し / よん"
+          "phonetic": "し / よん",
+          "readingRomaji": "shi / yon"
         },
         {
           "english": "five",
           "foreign": "五",
-          "phonetic": "ご / いつ"
+          "phonetic": "ご / いつ",
+          "readingRomaji": "go / itsu"
         },
         {
           "english": "six",
           "foreign": "六",
-          "phonetic": "ろく / むっ"
+          "phonetic": "ろく / むっ",
+          "readingRomaji": "roku / mu"
         },
         {
           "english": "seven",
           "foreign": "七",
-          "phonetic": "しち / なな"
+          "phonetic": "しち / なな",
+          "readingRomaji": "shichi / nana"
         },
         {
           "english": "eight",
           "foreign": "八",
-          "phonetic": "はち / やっ"
+          "phonetic": "はち / やっ",
+          "readingRomaji": "hachi / ya"
         },
         {
           "english": "nine",
           "foreign": "九",
-          "phonetic": "きゅう / ここの"
+          "phonetic": "きゅう / ここの",
+          "readingRomaji": "kyuu / kokonotsu"
         },
         {
           "english": "ten",
           "foreign": "十",
-          "phonetic": "じゅう / とお"
+          "phonetic": "じゅう / とお",
+          "readingRomaji": "juu / too"
         },
         {
           "english": "hundred",
           "foreign": "百",
-          "phonetic": "ひゃく"
+          "phonetic": "ひゃく",
+          "readingRomaji": "hyaku"
         },
         {
           "english": "thousand",
           "foreign": "千",
-          "phonetic": "せん"
+          "phonetic": "せん",
+          "readingRomaji": "sen"
         },
         {
           "english": "ten thousand",
           "foreign": "万",
-          "phonetic": "まん"
+          "phonetic": "まん",
+          "readingRomaji": "man"
         },
         {
           "english": "year",
           "foreign": "年",
-          "phonetic": "ねん / とし"
+          "phonetic": "ねん / とし",
+          "readingRomaji": "nen / toshi"
         },
         {
           "english": "time / hour",
           "foreign": "時",
-          "phonetic": "じ / とき"
+          "phonetic": "じ / とき",
+          "readingRomaji": "ji / toki"
         },
         {
           "english": "minute",
           "foreign": "分",
-          "phonetic": "ふん / ぶん"
+          "phonetic": "ふん / ぶん",
+          "readingRomaji": "fun / bun"
         },
         {
           "english": "now",
           "foreign": "今",
-          "phonetic": "いま / こん"
+          "phonetic": "いま / こん",
+          "readingRomaji": "ima / kon"
         },
         {
           "english": "book",
           "foreign": "本",
-          "phonetic": "ほん"
+          "phonetic": "ほん",
+          "readingRomaji": "hon"
         },
         {
           "english": "learn",
           "foreign": "学",
-          "phonetic": "がく"
+          "phonetic": "がく",
+          "readingRomaji": "gaku"
         },
         {
           "english": "school",
           "foreign": "校",
-          "phonetic": "こう"
+          "phonetic": "こう",
+          "readingRomaji": "kou"
         },
         {
           "english": "ahead / previous",
           "foreign": "先",
-          "phonetic": "せん / さき"
+          "phonetic": "せん / さき",
+          "readingRomaji": "sen / saki"
         },
         {
           "english": "life / raw",
           "foreign": "生",
-          "phonetic": "せい / なま"
+          "phonetic": "せい / なま",
+          "readingRomaji": "sei / nama"
         },
         {
           "english": "electricity",
           "foreign": "電",
-          "phonetic": "でん"
+          "phonetic": "でん",
+          "readingRomaji": "den"
         },
         {
           "english": "car",
           "foreign": "車",
-          "phonetic": "くるま / しゃ"
+          "phonetic": "くるま / しゃ",
+          "readingRomaji": "kuruma / sha"
         },
         {
           "english": "what",
           "foreign": "何",
-          "phonetic": "なに / なん"
+          "phonetic": "なに / なん",
+          "readingRomaji": "nani / nan"
         },
         {
           "english": "I / private",
           "foreign": "私",
-          "phonetic": "わたし"
+          "phonetic": "わたし",
+          "readingRomaji": "watashi"
         },
         {
           "english": "you (polite)",
           "foreign": "貴方",
-          "phonetic": "あなた"
+          "phonetic": "あなた",
+          "readingRomaji": "anata"
         }
       ]
     }

@@ -3,6 +3,12 @@ import Flashcard from './Flashcard';
 import './App.css';
 import sunIcon from './assets/sun.svg';
 import moonIcon from './assets/moon.svg';
+import iconPlay from './assets/icon-play.svg';
+import iconMic from './assets/icon-mic.svg';
+import iconSkip from './assets/icon-skip.svg';
+import iconRepeat from './assets/icon-repeat.svg';
+import iconStop from './assets/icon-stop.svg';
+import iconSettings from './assets/icon-settings.svg';
 import successSound from './assets/success.wav';
 import failSound from './assets/fail.wav';
 import successGif from './assets/success.gif';
@@ -10,6 +16,12 @@ import { openDB } from 'idb';
 import { useNavigate } from 'react-router-dom';
 import CategorySelector from './CategorySelector';
 import { languages, getLanguageCode, languageIds } from './assets/languages';
+import {
+  getJapaneseSpeechText,
+  getKanjiEnglishSpeechText,
+  speechMatchesExpected,
+  getKanjiVariants,
+} from './kanjiVariants';
 
 const DB_VERSION = 1;
 
@@ -105,6 +117,36 @@ const App = () => {
   const [categories, setCategories] = useState({});
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [showCategorySelector, setShowCategorySelector] = useState(false);
+  const [kanjiVariantIndex, setKanjiVariantIndex] = useState(0);
+  const kanjiVariantIndexRef = useRef(0);
+
+  useEffect(() => {
+    kanjiVariantIndexRef.current = kanjiVariantIndex;
+  }, [kanjiVariantIndex]);
+
+  useEffect(() => {
+    if (!currentWord) return;
+    if (currentWord.categoryKey === 'kanji') {
+      const n = Math.max(1, getKanjiVariants(currentWord).length);
+      const next = Math.floor(Math.random() * n);
+      kanjiVariantIndexRef.current = next;
+      setKanjiVariantIndex(next);
+    } else {
+      kanjiVariantIndexRef.current = 0;
+      setKanjiVariantIndex(0);
+    }
+  }, [currentWord]);
+
+  const cycleKanjiVariant = useCallback(() => {
+    if (!currentWord || currentWord.categoryKey !== 'kanji') return;
+    const vars = getKanjiVariants(currentWord);
+    if (vars.length <= 1) return;
+    setKanjiVariantIndex((i) => {
+      const next = (i + 1) % vars.length;
+      kanjiVariantIndexRef.current = next;
+      return next;
+    });
+  }, [currentWord]);
 
   const updateWordStats = useCallback(async (word, isSuccess, similarity) => {
     const db = await openDB('flashcards', DB_VERSION);
@@ -200,7 +242,14 @@ const App = () => {
 
       let categoriesToUse = selectedCategories.filter((k) => catKeys.includes(k));
       if (categoriesToUse.length === 0 && catKeys.length > 0) {
-        const defaultKey = catKeys.includes('basics') ? 'basics' : catKeys[0];
+        let defaultKey;
+        if (currentLanguage === 'japanese' && catKeys.includes('kanji')) {
+          defaultKey = 'kanji';
+        } else if (catKeys.includes('basics')) {
+          defaultKey = 'basics';
+        } else {
+          defaultKey = catKeys[0];
+        }
         categoriesToUse = defaultKey ? [defaultKey] : [];
       }
 
@@ -366,10 +415,12 @@ const App = () => {
           .join('');
 
         const cleanTranscript = transcript.toLowerCase().trim();
-        const cleanExpected = currentWord.foreign.toLowerCase().trim();
         setDetectedSpeech(cleanTranscript);
 
-        if (cleanTranscript.includes(cleanExpected) && !successHandledRef.current) {
+        if (
+          speechMatchesExpected(cleanTranscript, currentWord, kanjiVariantIndexRef.current) &&
+          !successHandledRef.current
+        ) {
           console.log('Success detected');
           successHandledRef.current = true;
           recognition.abort();
@@ -416,7 +467,7 @@ const App = () => {
     if (!currentWord?.foreign) return;
 
     const langCode = getLanguageCode(currentLanguage);
-    const text = currentWord.foreign;
+    const text = getJapaneseSpeechText(currentWord, kanjiVariantIndexRef.current);
 
     const runSpeak = (voices) => {
       window.speechSynthesis.cancel();
@@ -576,10 +627,12 @@ const App = () => {
           console.log('Transcript:', transcript);
           setDetectedSpeech(transcript);
 
-          const expectedWord = currentWordRef.current.foreign.toLowerCase().trim();
-          console.log('Expected word:', expectedWord);
+          const wordNow = currentWordRef.current;
+          const idx = kanjiVariantIndexRef.current;
+          const ok = speechMatchesExpected(transcript, wordNow, idx);
+          console.log('Speech match (variant', idx, '):', ok);
 
-          if (transcript.includes(expectedWord)) {
+          if (ok) {
             console.log('Success! Transcript matches expected word');
             successHandledRef.current = true;
             try {
@@ -652,16 +705,24 @@ const App = () => {
           (word.categoryKey === 'hiragana' || word.categoryKey === 'katakana');
 
         if (!skipEnglishInAuto) {
-          console.log('Speaking English word:', word.english);
-          await readWord(word.english, 'en-US');
+          const englishSpeak =
+            word.categoryKey === 'kanji'
+              ? getKanjiEnglishSpeechText(word, kanjiVariantIndexRef.current)
+              : word.english;
+          console.log('Speaking English word:', englishSpeak);
+          await readWord(englishSpeak, 'en-US');
           if (!autoPracticeActiveRef.current) return;
           await new Promise((resolve) => setTimeout(resolve, 1000));
         }
 
-        // Speak foreign word and wait for completion
-        console.log('Speaking foreign word:', word.foreign);
+        // Speak foreign word and wait for completion (active kana for kanji)
+        const jpSpeak =
+          word.categoryKey === 'kanji'
+            ? getJapaneseSpeechText(word, kanjiVariantIndexRef.current)
+            : word.foreign;
+        console.log('Speaking Japanese word:', jpSpeak);
         if (!autoPracticeActiveRef.current) return;
-        await readWord(word.foreign, getLanguageCode(currentLanguage));
+        await readWord(jpSpeak, getLanguageCode(currentLanguage));
         await new Promise((resolve) => setTimeout(resolve, 1000));
 
         // Start recognition
@@ -757,11 +818,16 @@ const App = () => {
           selectedCategories={selectedCategories}
           onCategoryToggle={handleCategoryToggle}
           onClose={() => setShowCategorySelector(false)}
+          currentLanguage={currentLanguage}
         />
       )}
       <div className="flashcard-container">
         {showSuccessGif && <img src={successGif} alt="Success GIF" className="success-gif" />}
-        <Flashcard word={currentWord} />
+        <Flashcard
+          word={currentWord}
+          activeKanjiVariantIndex={currentWord?.categoryKey === 'kanji' ? kanjiVariantIndex : undefined}
+          onCycleKanjiVariant={currentWord?.categoryKey === 'kanji' ? cycleKanjiVariant : undefined}
+        />
       </div>
       <div className="detected-speech">
         <p>
@@ -783,36 +849,52 @@ const App = () => {
         {speechStatus === 'error' && <p>Error occurred. Please try again.</p>}
       </div>
       <div className="button-container" style={{ position: 'relative', zIndex: 2 }}>
-        <button className="nav-button" onClick={speakWord}>Play</button>
+        <button type="button" className="nav-button" onClick={speakWord} aria-label="Play pronunciation" title="Play">
+          <img src={iconPlay} alt="" className="nav-button-icon" />
+        </button>
         <button
+          type="button"
           onClick={startListening}
           disabled={listening}
           className="nav-button"
+          aria-label={listening ? 'Listening' : 'Speak'}
+          title={listening ? 'Listening' : 'Speak'}
           style={{ cursor: 'pointer', pointerEvents: 'auto' }}
         >
-          {listening ? 'Listening...' : 'Speak'}
+          <img src={iconMic} alt="" className="nav-button-icon" />
         </button>
         <button
+          type="button"
           className="nav-button"
           onClick={nextRandomWord}
-          disabled={false}
+          aria-label="Skip card"
+          title="Skip"
           style={{ cursor: 'pointer', pointerEvents: 'auto' }}
         >
-          Skip
+          <img src={iconSkip} alt="" className="nav-button-icon" />
         </button>
         <button
+          type="button"
           className={`nav-button ${isAutoPracticeActive ? 'active' : ''}`}
           onClick={toggleAutoPractice}
-          disabled={false}
+          aria-label={isAutoPracticeActive ? 'Stop auto practice' : 'Auto practice'}
+          title={isAutoPracticeActive ? 'Stop' : 'Auto'}
           style={{ cursor: 'pointer', pointerEvents: 'auto' }}
         >
-          {isAutoPracticeActive ? 'Stop' : 'Auto'}
+          <img
+            src={isAutoPracticeActive ? iconStop : iconRepeat}
+            alt=""
+            className="nav-button-icon"
+          />
         </button>
         <button
+          type="button"
           className="nav-button"
           onClick={() => setShowCategorySelector(!showCategorySelector)}
+          aria-label="Categories"
+          title="Categories"
         >
-          Categories
+          <img src={iconSettings} alt="" className="nav-button-icon" />
         </button>
       </div>
       <div className="dark-mode-toggle" style={{ paddingTop: '20px' }}>

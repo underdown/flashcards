@@ -76,6 +76,25 @@ html, body, #root {
   margin-bottom: 10px;
 }
 
+.foreign {
+  font-size: 1.8em;
+  font-weight: bold;
+  margin: 5px 0;
+  text-align: center;
+}
+
+.foreign-kanji-link {
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 1px dashed rgba(0, 0, 0, 0.25);
+  transition: border-color 0.2s, opacity 0.2s;
+}
+
+.foreign-kanji-link:hover {
+  border-bottom-color: rgba(30, 136, 229, 0.85);
+  opacity: 0.95;
+}
+
 .russian {
   font-size: 1.8em;
   font-weight: bold;
@@ -87,6 +106,14 @@ html, body, #root {
   color: #666;
   margin: 5px 0;
   font-size: 0.9em;
+}
+
+.phonetic-latin {
+  font-style: normal;
+  color: #555;
+  margin: 2px 0 5px;
+  font-size: 0.85em;
+  letter-spacing: 0.02em;
 }
 
 .flag-icon {
@@ -120,7 +147,12 @@ html, body, #root {
 }
 
 .nav-button {
-  padding: 10px 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 48px;
+  min-height: 48px;
+  padding: 10px 14px;
   margin: 5px;
   border: none;
   border-radius: 5px;
@@ -130,6 +162,13 @@ html, body, #root {
   transition: background-color 0.3s;
 }
 
+.nav-button-icon {
+  width: 24px;
+  height: 24px;
+  display: block;
+  pointer-events: none;
+}
+
 .nav-button:hover {
   background-color: #45a049;
 }
@@ -137,6 +176,10 @@ html, body, #root {
 .nav-button:disabled {
   background-color: #cccccc;
   cursor: not-allowed;
+}
+
+.nav-button:disabled .nav-button-icon {
+  opacity: 0.85;
 }
 
 .nav-button.active {
@@ -161,6 +204,101 @@ html, body, #root {
 .dark-mode .flashcard {
   background-color: #333;
   border-color: #555;
+}
+
+.dark-mode .phonetic {
+  color: #b0b0b0;
+}
+
+.dark-mode .phonetic-latin {
+  color: #c4c4c4;
+}
+
+.dark-mode .foreign-kanji-link {
+  border-bottom-color: rgba(255, 255, 255, 0.35);
+}
+
+.dark-mode .foreign-kanji-link:hover {
+  border-bottom-color: #90caf9;
+}
+
+.kanji-variant-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 100%;
+}
+
+.kanji-variant-block--clickable {
+  cursor: pointer;
+  border-radius: 10px;
+  padding: 8px 6px;
+  outline: none;
+  transition: background-color 0.2s;
+}
+
+.kanji-variant-block--clickable:hover {
+  background-color: rgba(0, 0, 0, 0.06);
+}
+
+.dark-mode .kanji-variant-block--clickable:hover {
+  background-color: rgba(255, 255, 255, 0.06);
+}
+
+.kanji-variant-block--clickable:focus-visible {
+  box-shadow: 0 0 0 2px rgba(30, 136, 229, 0.5);
+}
+
+.kanji-variant-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px 10px;
+  margin: 6px 0;
+  max-width: 100%;
+}
+
+.variant-chip {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 0.95em;
+  line-height: 1.35;
+  border: 1px solid transparent;
+  transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+}
+
+.variant-chip--kana {
+  font-style: italic;
+  font-size: 0.95em;
+}
+
+.variant-chip--romaji {
+  font-style: normal;
+  font-size: 0.88em;
+}
+
+.variant-chip--active {
+  background-color: rgba(76, 175, 80, 0.2);
+  border-color: rgba(76, 175, 80, 0.55);
+  font-weight: 600;
+  color: #1b5e20;
+}
+
+.variant-chip--muted {
+  opacity: 0.72;
+}
+
+.dark-mode .variant-chip--active {
+  background-color: rgba(129, 199, 132, 0.2);
+  border-color: rgba(129, 199, 132, 0.5);
+  color: #c8e6c9;
+}
+
+.dark-mode .variant-chip--muted {
+  opacity: 0.65;
+  color: #b0b0b0;
 }
 
 .dark-mode .nav-button,
@@ -353,11 +491,16 @@ input:checked + .slider:before {
   }
 
   .nav-button {
-    padding: 8px 12px;
+    padding: 8px 10px;
     margin: 3px;
-    font-size: 14px;
-    min-width: 60px;
+    min-width: 44px;
+    min-height: 44px;
     flex: 0 1 auto;
+  }
+
+  .nav-button-icon {
+    width: 22px;
+    height: 22px;
   }
 
   .content {
@@ -370,6 +513,10 @@ input:checked + .slider:before {
   }
 
   .russian {
+    font-size: 1.5em;
+  }
+
+  .foreign {
     font-size: 1.5em;
   }
 
@@ -432,8 +579,13 @@ input:checked + .slider:before {
   .nav-button {
     padding: 6px 8px;
     margin: 2px;
-    font-size: 12px;
-    min-width: 50px;
+    min-width: 42px;
+    min-height: 42px;
+  }
+
+  .nav-button-icon {
+    width: 20px;
+    height: 20px;
   }
 
   .content {
@@ -446,6 +598,10 @@ input:checked + .slider:before {
   }
 
   .russian {
+    font-size: 1.3em;
+  }
+
+  .foreign {
     font-size: 1.3em;
   }
 

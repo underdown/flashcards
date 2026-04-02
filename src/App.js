@@ -805,13 +805,15 @@ const App = () => {
 
   return (
     <div className={`App ${darkMode ? 'dark-mode' : ''}`} style={{ position: 'relative', zIndex: 1 }}>
-      <select value={currentLanguage} onChange={handleLanguageChange} className="language-selector">
-        {languageIds.map((id) => (
-          <option key={id} value={id}>
-            {languages[id].name}
-          </option>
-        ))}
-      </select>
+      {currentLanguage !== 'japanese' && (
+        <select value={currentLanguage} onChange={handleLanguageChange} className="language-selector">
+          {languageIds.map((id) => (
+            <option key={id} value={id}>
+              {languages[id].name}
+            </option>
+          ))}
+        </select>
+      )}
       {showCategorySelector && (
         <CategorySelector
           categories={categories}

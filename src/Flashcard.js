@@ -55,7 +55,7 @@ const Flashcard = ({ word, activeKanjiVariantIndex = 0, onCycleKanjiVariant }) =
                 </span>
               ))}
             </p>
-            <h2 className="foreign">
+            <h2 className={isKanji ? 'foreign kanji-foreign' : 'foreign'}>
               {kanjiLookupUrl ? (
                 <a
                   href={kanjiLookupUrl}
@@ -97,7 +97,7 @@ const Flashcard = ({ word, activeKanjiVariantIndex = 0, onCycleKanjiVariant }) =
         ) : (
           <>
             <p className="english">{word.english}</p>
-            <h2 className="foreign">
+            <h2 className={isKanji ? 'foreign kanji-foreign' : 'foreign'}>
               {kanjiLookupUrl ? (
                 <a
                   href={kanjiLookupUrl}

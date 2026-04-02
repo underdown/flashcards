@@ -83,6 +83,10 @@ html, body, #root {
   text-align: center;
 }
 
+.kanji-foreign {
+  font-size: 3em; /* +20% from 1.8em */
+}
+
 .foreign-kanji-link {
   color: inherit;
   text-decoration: none;
@@ -156,7 +160,7 @@ html, body, #root {
   margin: 5px;
   border: none;
   border-radius: 5px;
-  background-color: #4CAF50;
+  background-color: #1b5e20;
   color: white;
   cursor: pointer;
   transition: background-color 0.3s;
@@ -170,7 +174,7 @@ html, body, #root {
 }
 
 .nav-button:hover {
-  background-color: #45a049;
+  background-color: #2e7d32;
 }
 
 .nav-button:disabled {
@@ -301,14 +305,29 @@ html, body, #root {
   color: #b0b0b0;
 }
 
-.dark-mode .nav-button,
-.dark-mode .toggle-button {
-  background-color: #1e88e5;
+/* Match light-mode / kanji accent green (#4CAF50), not blue */
+.dark-mode .nav-button {
+  background-color: #1b5e20;
 }
 
-.dark-mode .nav-button:hover,
+.dark-mode .nav-button:hover {
+  background-color: #2e7d32;
+}
+
+.dark-mode .nav-button.active {
+  background-color: #f44336;
+}
+
+.dark-mode .nav-button.active:hover {
+  background-color: #da190b;
+}
+
+.dark-mode .toggle-button {
+  background-color: #1b5e20;
+}
+
 .dark-mode .toggle-button:hover {
-  background-color: #1565c0;
+  background-color: #2e7d32;
 }
 
 .dark-mode .twitter-link {
@@ -359,7 +378,7 @@ html, body, #root {
 }
 
 input:checked + .slider {
-  background-color: #2196F3;
+  background-color: #1b5e20;
 }
 
 input:checked + .slider:before {
@@ -467,7 +486,11 @@ input:checked + .slider:before {
 }
 
 .failure-text {
-  color: red;
+  color: #9e4a4a;
+}
+
+.dark-mode .failure-text {
+  color: #c99595;
 }
 
 /* Mobile responsive styles */
@@ -518,6 +541,10 @@ input:checked + .slider:before {
 
   .foreign {
     font-size: 1.5em;
+  }
+
+  .kanji-foreign {
+    font-size: 1.8em; /* 1.5em * 1.2 */
   }
 
   .language-selector {
@@ -603,6 +630,10 @@ input:checked + .slider:before {
 
   .foreign {
     font-size: 1.3em;
+  }
+
+  .kanji-foreign {
+    font-size: 1.56em; /* 1.3em * 1.2 */
   }
 
   .language-selector {

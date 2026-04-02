@@ -933,19 +933,18 @@ const App = () => {
         {speechStatus === 'error' && <p>Error occurred. Please try again.</p>}
       </div>
       <div className="button-container" style={{ position: 'relative', zIndex: 2 }}>
-        <button type="button" className="nav-button" onClick={speakWord} aria-label="Play sound" title="Sound">
-          <img src={iconSound} alt="" className="nav-button-icon" />
-        </button>
         <button
           type="button"
-          onClick={startListening}
-          disabled={listening}
-          className="nav-button"
-          aria-label={listening ? 'Listening' : 'Speak'}
-          title={listening ? 'Listening' : 'Speak'}
-          style={{ cursor: 'pointer', pointerEvents: 'auto' }}
+          className={`nav-button ${isAutoPracticeActive ? 'active' : ''}`}
+          onClick={toggleAutoPractice}
+          aria-label={isAutoPracticeActive ? 'Stop auto practice' : 'Auto practice'}
+          title={isAutoPracticeActive ? 'Stop' : 'Auto'}
         >
-          <img src={iconMic} alt="" className="nav-button-icon" />
+          <img
+            src={isAutoPracticeActive ? iconStop : iconPlay}
+            alt=""
+            className="nav-button-icon"
+          />
         </button>
         <button
           type="button"
@@ -959,17 +958,28 @@ const App = () => {
         </button>
         <button
           type="button"
-          className={`nav-button ${isAutoPracticeActive ? 'active' : ''}`}
-          onClick={toggleAutoPractice}
-          aria-label={isAutoPracticeActive ? 'Stop auto practice' : 'Auto practice'}
-          title={isAutoPracticeActive ? 'Stop' : 'Auto'}
+          className="nav-button"
+          onClick={speakWord}
+          aria-label="Play"
+          title="Play"
           style={{ cursor: 'pointer', pointerEvents: 'auto' }}
         >
           <img
-            src={isAutoPracticeActive ? iconStop : iconPlay}
+            src={iconSound}
             alt=""
             className="nav-button-icon"
           />
+        </button>
+        <button
+          type="button"
+          onClick={startListening}
+          disabled={listening}
+          className="nav-button"
+          aria-label={listening ? 'Listening' : 'Speak'}
+          title={listening ? 'Listening' : 'Speak'}
+          style={{ cursor: 'pointer', pointerEvents: 'auto' }}
+        >
+          <img src={iconMic} alt="" className="nav-button-icon" />
         </button>
         <button
           type="button"

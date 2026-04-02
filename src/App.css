@@ -63,6 +63,110 @@ html, body, #root {
   flex-direction: column;
 }
 
+.help-button {
+  position: absolute;
+  bottom: 6px;
+  right: 6px;
+  z-index: 20;
+  width: 26px;
+  height: 26px;
+  border: none;
+  border-radius: 50%;
+  background-color: #4CAF50;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 2px rgba(0, 0, 0, 0.15);
+}
+
+.help-button:hover {
+  background-color: #45a049;
+}
+
+.help-button--kanji {
+  background-color: rgba(129, 199, 132, 0.2);
+  border: 1px solid rgba(129, 199, 132, 0.5);
+  box-shadow: none;
+  color: #c8e6c9;
+}
+
+.help-button--kanji:hover {
+  background-color: rgba(129, 199, 132, 0.25);
+}
+
+.help-button-icon {
+  width: 24px;
+  height: 24px;
+  display: block;
+  pointer-events: none;
+}
+
+.help-modal {
+  position: relative;
+}
+
+.help-modal-close {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(0, 0, 0, 0.12);
+  color: inherit;
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 28px;
+}
+
+.help-modal-close:hover {
+  background: rgba(0, 0, 0, 0.18);
+}
+
+.help-modal-body {
+  text-align: left;
+  max-width: 520px;
+  margin: 0 auto;
+  padding-right: 10px;
+}
+
+.help-modal-body p {
+  margin: 10px 0;
+}
+
+.dark-mode .help-button {
+  background-color: #1b5e20;
+}
+
+.dark-mode .help-button:hover {
+  background-color: #2e7d32;
+}
+
+.dark-mode .help-button--kanji {
+  background-color: rgba(129, 199, 132, 0.2);
+  border: 1px solid rgba(129, 199, 132, 0.5);
+  box-shadow: none;
+  color: #c8e6c9;
+}
+
+.dark-mode .help-button--kanji:hover {
+  background-color: rgba(129, 199, 132, 0.25);
+}
+
+.dark-mode .help-modal-body {
+  color: #e0e0e0;
+}
+
+.dark-mode .help-modal-close {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.dark-mode .help-modal-close:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
 .content {
   font-size: 1.33em; /* Reduced by roughly 33% from 2em */
   display: flex;

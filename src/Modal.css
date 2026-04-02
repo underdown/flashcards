@@ -18,3 +18,8 @@
     text-align: center;
     color: #4CAF50;
   }
+
+  .dark-mode .modal-content {
+    background-color: #333;
+    color: #c8e6c9;
+  }

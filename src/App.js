@@ -16,6 +16,8 @@ import { openDB } from 'idb';
 import { useNavigate } from 'react-router-dom';
 import CategorySelector from './CategorySelector';
 import { languages, getLanguageCode, languageIds } from './assets/languages';
+import Modal from './Modal';
+import iconHelp from './assets/icon-help.svg';
 import {
   getJapaneseSpeechText,
   getKanjiEnglishSpeechText,
@@ -119,6 +121,7 @@ const App = () => {
   const [showCategorySelector, setShowCategorySelector] = useState(false);
   const [kanjiVariantIndex, setKanjiVariantIndex] = useState(0);
   const kanjiVariantIndexRef = useRef(0);
+  const [showHelp, setShowHelp] = useState(false);
 
   useEffect(() => {
     kanjiVariantIndexRef.current = kanjiVariantIndex;
@@ -912,6 +915,46 @@ const App = () => {
           activeKanjiVariantIndex={currentWord?.categoryKey === 'kanji' ? kanjiVariantIndex : undefined}
           onCycleKanjiVariant={currentWord?.categoryKey === 'kanji' ? cycleKanjiVariant : undefined}
         />
+        <button
+          type="button"
+          className={`help-button ${
+            currentWord?.categoryKey === 'kanji' ? 'help-button--kanji' : ''
+          }`}
+          aria-label="Help"
+          title="Help"
+          onClick={() => setShowHelp(true)}
+        >
+          <img src={iconHelp} alt="" className="help-button-icon" />
+        </button>
+        <Modal isOpen={showHelp}>
+          <div className="help-modal">
+            <button
+              type="button"
+              className="help-modal-close"
+              aria-label="Close help"
+              onClick={() => setShowHelp(false)}
+            >
+              ×
+            </button>
+            <h3>How to use</h3>
+            <div className="help-modal-body">
+              <p>
+                <strong>Play (Auto / loop)</strong>: auto-plays kanji/kana, then listens for you to pronounce it correctly.
+                Pass/Fail updates in the stats.
+              </p>
+              <p>
+                <strong>Sound</strong>: replays the current card’s pronunciation.
+              </p>
+              <p>
+                <strong>Speak (microphone)</strong>: manually test pronunciation with speech detection.
+              </p>
+              <p>
+                <strong>Privacy</strong>: the app has no tracking and no external database. Your stats are saved locally in your
+                browser (local storage), and more kanji are being added over time.
+              </p>
+            </div>
+          </div>
+        </Modal>
       </div>
       <div className="detected-speech">
         <p>

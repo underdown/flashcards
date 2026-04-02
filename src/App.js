@@ -230,7 +230,7 @@ const App = () => {
     if (pathLanguage && languages[pathLanguage]) {
       setCurrentLanguage(pathLanguage);
     } else {
-      setCurrentLanguage('spanish'); 
+      setCurrentLanguage('japanese');
     }
   }, []);
 

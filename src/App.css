@@ -664,9 +664,13 @@ input:checked + .slider:before {
 
 /* Mobile responsive styles */
 @media (max-width: 768px) {
+  /* Avoid vertical centering on small screens (was leaving ~half the viewport empty above the card). */
   .App {
+    justify-content: flex-start;
     padding: 5px;
+    padding-top: max(5px, env(safe-area-inset-top, 0px));
     min-height: 100vh;
+    min-height: 100dvh;
   }
 
   .flashcard {
@@ -762,7 +766,8 @@ input:checked + .slider:before {
 
 @media (max-width: 480px) {
   .App {
-    padding: 2px;
+    padding: 2px 2px 10px;
+    padding-top: max(10px, env(safe-area-inset-top, 0px));
   }
 
   .flashcard {

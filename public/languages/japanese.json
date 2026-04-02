@@ -727,6 +727,306 @@
           "foreign": "貴方",
           "phonetic": "あなた",
           "readingRomaji": "anata"
+        },
+        {
+          "foreign": "入",
+          "english": "enter / admission",
+          "phonetic": "はいる / にゅう",
+          "readingRomaji": "hairu / nyuu"
+        },
+        {
+          "foreign": "出",
+          "english": "exit / departure",
+          "phonetic": "でる / しゅつ",
+          "readingRomaji": "deru / syutsu"
+        },
+        {
+          "foreign": "会",
+          "english": "meet / meeting",
+          "phonetic": "あう / かい",
+          "readingRomaji": "au / kai"
+        },
+        {
+          "foreign": "見",
+          "english": "see / view",
+          "phonetic": "みる / けん",
+          "readingRomaji": "miru / ken"
+        },
+        {
+          "foreign": "聞",
+          "english": "hear / hearing",
+          "phonetic": "きく / ぶん",
+          "readingRomaji": "kiku / bun"
+        },
+        {
+          "foreign": "話",
+          "english": "talk / story",
+          "phonetic": "はなす / わ",
+          "readingRomaji": "hanasu / wa"
+        },
+        {
+          "foreign": "書",
+          "english": "write / writing",
+          "phonetic": "かく / しょ",
+          "readingRomaji": "kaku / sho"
+        },
+        {
+          "foreign": "読",
+          "english": "read / reading",
+          "phonetic": "よむ / どく",
+          "readingRomaji": "yomu / doku"
+        },
+        {
+          "foreign": "食",
+          "english": "eat / food",
+          "phonetic": "たべる / しょく",
+          "readingRomaji": "taberu / shoku"
+        },
+        {
+          "foreign": "飲",
+          "english": "drink / beverage",
+          "phonetic": "のむ / いん",
+          "readingRomaji": "nomu / in"
+        },
+        {
+          "foreign": "休",
+          "english": "rest / vacation",
+          "phonetic": "やすむ / きゅう",
+          "readingRomaji": "yasumu / kyu"
+        },
+        {
+          "foreign": "友",
+          "english": "friend / friendship",
+          "phonetic": "とも / ゆう",
+          "readingRomaji": "tomo / yuu"
+        },
+        {
+          "foreign": "好",
+          "english": "like / preference",
+          "phonetic": "このむ / こう",
+          "readingRomaji": "konomu / kou"
+        },
+        {
+          "foreign": "円",
+          "english": "yen / circle",
+          "phonetic": "まる / えん",
+          "readingRomaji": "maru / en"
+        },
+        {
+          "foreign": "買",
+          "english": "buy / purchase",
+          "phonetic": "かう / ばい",
+          "readingRomaji": "kau / bai"
+        },
+        {
+          "foreign": "売",
+          "english": "sell / sale",
+          "phonetic": "うる / ばい",
+          "readingRomaji": "uru / bai"
+        },
+        {
+          "foreign": "安",
+          "english": "cheap / peaceful",
+          "phonetic": "やすい / あん",
+          "readingRomaji": "yasui / an"
+        },
+        {
+          "foreign": "男",
+          "english": "man / male",
+          "phonetic": "おとこ / だん",
+          "readingRomaji": "otoko / dan"
+        },
+        {
+          "foreign": "女",
+          "english": "woman / female",
+          "phonetic": "おんな / じょ",
+          "readingRomaji": "onna / jo"
+        },
+        {
+          "foreign": "子",
+          "english": "child / youth",
+          "phonetic": "こ / し",
+          "readingRomaji": "ko / shi"
+        },
+        {
+          "foreign": "新",
+          "english": "new / newness",
+          "phonetic": "あたらしい / しん",
+          "readingRomaji": "atarashii / shin"
+        },
+        {
+          "foreign": "古",
+          "english": "old / antiquity",
+          "phonetic": "ふるい / こ",
+          "readingRomaji": "furui / ko"
+        },
+        {
+          "foreign": "北",
+          "english": "north / northern",
+          "phonetic": "きた / ほく",
+          "readingRomaji": "kita / hoku"
+        },
+        {
+          "foreign": "南",
+          "english": "south / southern",
+          "phonetic": "みなみ / なん",
+          "readingRomaji": "minami / nan"
+        },
+        {
+          "foreign": "西",
+          "english": "west / western",
+          "phonetic": "にし / せい",
+          "readingRomaji": "nishi / sei"
+        },
+        {
+          "foreign": "東",
+          "english": "east / eastern",
+          "phonetic": "ひがし / とう",
+          "readingRomaji": "higashi / tou"
+        },
+        {
+          "foreign": "山",
+          "english": "mountain / mountain",
+          "phonetic": "やま / さん",
+          "readingRomaji": "yama / san"
+        },
+        {
+          "foreign": "川",
+          "english": "river / stream",
+          "phonetic": "かわ / せん",
+          "readingRomaji": "kawa / sen"
+        },
+        {
+          "foreign": "海",
+          "english": "sea / ocean",
+          "phonetic": "うみ / かい",
+          "readingRomaji": "umi / kai"
+        },
+        {
+          "foreign": "草",
+          "english": "grass / plant",
+          "phonetic": "くさ / そう",
+          "readingRomaji": "kusa / sou"
+        },
+        {
+          "foreign": "花",
+          "english": "flower / blossom",
+          "phonetic": "はな / か",
+          "readingRomaji": "hana / ka"
+        },
+        {
+          "foreign": "空",
+          "english": "sky / sky",
+          "phonetic": "そら / くう",
+          "readingRomaji": "sora / kuu"
+        },
+        {
+          "foreign": "雨",
+          "english": "rain / rain",
+          "phonetic": "あめ / う",
+          "readingRomaji": "ame / u"
+        },
+        {
+          "foreign": "風",
+          "english": "wind / breeze",
+          "phonetic": "かぜ / ふう",
+          "readingRomaji": "kaze / fuu"
+        },
+        {
+          "foreign": "光",
+          "english": "light / glow",
+          "phonetic": "ひかり / こう",
+          "readingRomaji": "hikari / kou"
+        },
+        {
+          "foreign": "石",
+          "english": "stone / stone",
+          "phonetic": "いし / せき",
+          "readingRomaji": "ishi / seki"
+        },
+        {
+          "foreign": "魚",
+          "english": "fish / fish",
+          "phonetic": "さかな / ぎょ",
+          "readingRomaji": "sakana / gyo"
+        },
+        {
+          "foreign": "米",
+          "english": "rice / rice",
+          "phonetic": "こめ / べい",
+          "readingRomaji": "kome / bei"
+        },
+        {
+          "foreign": "林",
+          "english": "grove / forest",
+          "phonetic": "はやし / りん",
+          "readingRomaji": "hayashi / rin"
+        },
+        {
+          "foreign": "森",
+          "english": "forest / forest",
+          "phonetic": "もり / しん",
+          "readingRomaji": "mori / shin"
+        },
+        {
+          "foreign": "行",
+          "english": "go / conduct",
+          "phonetic": "いく / こう",
+          "readingRomaji": "iku / kou"
+        },
+        {
+          "foreign": "来",
+          "english": "come / future",
+          "phonetic": "くる / らい",
+          "readingRomaji": "kuru / rai"
+        },
+        {
+          "foreign": "後",
+          "english": "after / behind",
+          "phonetic": "あと / ご",
+          "readingRomaji": "ato / go"
+        },
+        {
+          "foreign": "前",
+          "english": "before / in front",
+          "phonetic": "まえ / ぜん",
+          "readingRomaji": "mae / zen"
+        },
+        {
+          "foreign": "町",
+          "english": "town / district",
+          "phonetic": "まち / ちょう",
+          "readingRomaji": "machi / chou"
+        },
+        {
+          "foreign": "村",
+          "english": "village / village",
+          "phonetic": "むら / そん",
+          "readingRomaji": "mura / son"
+        },
+        {
+          "foreign": "国",
+          "english": "country / nation",
+          "phonetic": "くに / こく",
+          "readingRomaji": "kuni / koku"
+        },
+        {
+          "foreign": "歩",
+          "english": "walk / step",
+          "phonetic": "あるく / ほ",
+          "readingRomaji": "aruku / ho"
+        },
+        {
+          "foreign": "外",
+          "english": "outside / foreign",
+          "phonetic": "そと / がい",
+          "readingRomaji": "soto / gai"
+        },
+        {
+          "foreign": "内",
+          "english": "inside / within",
+          "phonetic": "うち / ない",
+          "readingRomaji": "uchi / nai"
         }
       ]
     }

@@ -68,11 +68,13 @@ html, body, #root {
   bottom: 6px;
   right: 6px;
   z-index: 20;
-  width: 26px;
-  height: 26px;
+  width: 24px;
+  height: 24px;
   border: none;
   border-radius: 50%;
   background-color: #4CAF50;
+  /* icon-help.svg uses currentColor, so match the flashcard background */
+  color: #f0f0f0;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -100,6 +102,16 @@ html, body, #root {
   height: 24px;
   display: block;
   pointer-events: none;
+  /* icon-help.svg uses currentColor; force the icon tint explicitly */
+  color: #f0f0f0;
+}
+
+.dark-mode .help-button-icon {
+  color: #333;
+}
+
+.help-button--kanji .help-button-icon {
+  color: #c8e6c9;
 }
 
 .help-modal {
@@ -138,6 +150,7 @@ html, body, #root {
 
 .dark-mode .help-button {
   background-color: #1b5e20;
+  color: #333;
 }
 
 .dark-mode .help-button:hover {

@@ -17,7 +17,7 @@ import { useNavigate } from 'react-router-dom';
 import CategorySelector from './CategorySelector';
 import { languages, getLanguageCode, languageIds } from './assets/languages';
 import Modal from './Modal';
-import iconHelp from './assets/icon-help.svg';
+import { ReactComponent as HelpIcon } from './assets/icon-help.svg';
 import {
   getJapaneseSpeechText,
   getKanjiEnglishSpeechText,
@@ -924,7 +924,7 @@ const App = () => {
           title="Help"
           onClick={() => setShowHelp(true)}
         >
-          <img src={iconHelp} alt="" className="help-button-icon" />
+          <HelpIcon className="help-button-icon" />
         </button>
         <Modal isOpen={showHelp}>
           <div className="help-modal">

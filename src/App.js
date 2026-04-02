@@ -14,6 +14,43 @@ import { languages, getLanguageCode, languageIds } from './assets/languages';
 
 const DB_VERSION = 1;
 
+/** Match exact BCP47 first, then same language subtag only (avoids jam-JM matching ja-JP). */
+function pickVoiceForLang(voices, langCode) {
+  if (!voices?.length || !langCode) return undefined;
+  const primary = langCode.split(/[-_]/)[0].toLowerCase();
+  const exact = langCode.replace('_', '-').toLowerCase();
+
+  const norm = (v) => String(v.lang).replace('_', '-').toLowerCase();
+
+  const exactMatch = voices.find((v) => norm(v) === exact);
+  if (exactMatch) return exactMatch;
+
+  return voices.find((v) => norm(v).split('-')[0] === primary);
+}
+
+function loadVoicesWhenReady() {
+  return new Promise((resolve) => {
+    let list = window.speechSynthesis.getVoices();
+    if (list.length > 0) {
+      resolve(list);
+      return;
+    }
+    const finish = (voices) => {
+      window.speechSynthesis.removeEventListener('voiceschanged', onVoices);
+      clearTimeout(timeout);
+      resolve(voices);
+    };
+    const onVoices = () => {
+      list = window.speechSynthesis.getVoices();
+      if (list.length > 0) finish(list);
+    };
+    const timeout = setTimeout(() => finish(window.speechSynthesis.getVoices()), 2500);
+    window.speechSynthesis.addEventListener('voiceschanged', onVoices);
+    list = window.speechSynthesis.getVoices();
+    if (list.length > 0) finish(list);
+  });
+}
+
 const App = () => {
   const navigate = useNavigate();
   const [words, setWords] = useState([]);
@@ -345,30 +382,30 @@ const App = () => {
   }, [recognition]);
 
   const speakWord = useCallback(() => {
-    if (currentWord && currentWord.foreign) {
-      const utterance = new SpeechSynthesisUtterance(currentWord.foreign);
-      const langCode = getLanguageCode(currentLanguage);
+    if (!currentWord?.foreign) return;
+
+    const langCode = getLanguageCode(currentLanguage);
+    const text = currentWord.foreign;
+
+    const runSpeak = (voices) => {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
       utterance.lang = langCode;
-      
-      // Get available voices and try to find a match for our language
-      const voices = window.speechSynthesis.getVoices();
-      const languageVoice = voices.find(voice => 
-        voice.lang.startsWith(langCode.split('-')[0]) && !voice.lang.includes('en-')
-      );
-      
+
+      const languageVoice = pickVoiceForLang(voices, langCode);
       if (languageVoice) {
         utterance.voice = languageVoice;
-        console.log('Using voice:', languageVoice.name);
+        console.log('Using voice:', languageVoice.name, languageVoice.lang);
       } else {
-        console.log('No specific voice found for', langCode);
+        console.log('No specific voice found for', langCode, '(voices:', voices.length, ')');
       }
 
-      // Set other properties to improve quality
-      utterance.rate = 0.9; // Slightly slower
+      utterance.rate = 0.9;
       utterance.pitch = 1;
-      
       window.speechSynthesis.speak(utterance);
-    }
+    };
+
+    loadVoicesWhenReady().then(runSpeak);
   }, [currentWord, currentLanguage]);
 
   // Add this effect to handle voice loading
@@ -455,31 +492,27 @@ const App = () => {
 
   const readWord = useCallback((word, lang) => {
     console.log('Reading word:', word, 'in language:', lang);
-    return new Promise((resolve) => {
-      window.speechSynthesis.cancel(); // Clear any ongoing speech
+    return loadVoicesWhenReady().then((voices) => {
+      window.speechSynthesis.cancel();
       const utterance = new SpeechSynthesisUtterance(word);
       utterance.lang = lang;
-      
-      // Get available voices and try to find a match for our language
-      const voices = window.speechSynthesis.getVoices();
-      const languageVoice = voices.find(voice => 
-        voice.lang.startsWith(lang.split('-')[0]) && !voice.lang.includes('en-')
-      );
-      
+
+      const languageVoice = pickVoiceForLang(voices, lang);
       if (languageVoice) {
         utterance.voice = languageVoice;
-        console.log('Using voice:', languageVoice.name);
+        console.log('Using voice:', languageVoice.name, languageVoice.lang);
       }
 
       utterance.rate = 0.9;
       utterance.pitch = 1;
 
-      utterance.onend = () => {
-        console.log('Finished speaking:', word);
-        resolve();
-      };
-
-      window.speechSynthesis.speak(utterance);
+      return new Promise((resolve) => {
+        utterance.onend = () => {
+          console.log('Finished speaking:', word);
+          resolve();
+        };
+        window.speechSynthesis.speak(utterance);
+      });
     });
   }, []);
 

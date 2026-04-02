@@ -7,7 +7,6 @@ import successSound from './assets/success.wav';
 import failSound from './assets/fail.wav';
 import successGif from './assets/success.gif';
 import { openDB } from 'idb';
-import { levenshteinDistance } from './utils';
 import { useNavigate } from 'react-router-dom';
 import CategorySelector from './CategorySelector';
 import { languages, getLanguageCode, languageIds } from './assets/languages';
@@ -371,6 +370,8 @@ const App = () => {
         clearTimeout(timeoutId);
       }
     }
+    // nextRandomWord/autoPractice omitted to avoid resetting recognition handlers every word
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional
   }, [recognition, currentWord, playSound, updateWordStats]);
 
   useEffect(() => {
@@ -602,7 +603,7 @@ const App = () => {
         // Start recognition
         console.log('Starting recognition for word:', currentWordRef.current.foreign);
         if (!autoPracticeActiveRef.current) return;
-        const success = await startRecognition();
+        await startRecognition();
 
         // Clean up
         setDetectedSpeech('');

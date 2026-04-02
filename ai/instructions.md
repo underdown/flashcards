@@ -167,7 +167,7 @@ useEffect(() => {
 ```javascript
 useEffect(() => {
   if (currentLanguage) {
-    // Loads words from data.json
+    // Loads words from src/assets/languages/<lang>.json
     // Sets wordsInitialized to true
     // This triggers the above effect
   }

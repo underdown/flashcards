@@ -13,6 +13,7 @@ const Root = () => {
         <Route path="/russian" element={<App />} />
         <Route path="/spanish" element={<App />} />
         <Route path="/chinese" element={<App />} />
+        <Route path="/japanese" element={<App />} />
       </Routes>
     </Router>
   );

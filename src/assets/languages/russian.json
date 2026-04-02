@@ -1,0 +1,2628 @@
+{
+  "categories": {
+    "basics": {
+      "name": "Basic Phrases",
+      "description": "Essential everyday phrases",
+      "words": [
+        {
+          "english": "hello",
+          "foreign": "привет",
+          "phonetic": "privet"
+        },
+        {
+          "english": "goodbye",
+          "foreign": "до свидания",
+          "phonetic": "do svidaniya"
+        },
+        {
+          "english": "please",
+          "foreign": "пожалуйста",
+          "phonetic": "pozhaluysta"
+        },
+        {
+          "english": "thank you",
+          "foreign": "спасибо",
+          "phonetic": "spasibo"
+        },
+        {
+          "english": "yes",
+          "foreign": "да",
+          "phonetic": "da"
+        },
+        {
+          "english": "no",
+          "foreign": "нет",
+          "phonetic": "nyet"
+        },
+        {
+          "english": "excuse me",
+          "foreign": "извините",
+          "phonetic": "izvinite"
+        },
+        {
+          "english": "sorry",
+          "foreign": "прости",
+          "phonetic": "prosti"
+        },
+        {
+          "english": "good morning",
+          "foreign": "доброе утро",
+          "phonetic": "dobroye utro"
+        },
+        {
+          "english": "good evening",
+          "foreign": "добрый вечер",
+          "phonetic": "dobryy vecher"
+        },
+        {
+          "english": "good night",
+          "foreign": "спокойной ночи",
+          "phonetic": "spokoynoy nochi"
+        },
+        {
+          "english": "how are you",
+          "foreign": "как дела",
+          "phonetic": "kak dela"
+        },
+        {
+          "english": "fine thanks",
+          "foreign": "хорошо спасибо",
+          "phonetic": "khorosho spasibo"
+        },
+        {
+          "english": "you're welcome",
+          "foreign": "пожалуйста",
+          "phonetic": "pozhaluysta"
+        },
+        {
+          "english": "see you later",
+          "foreign": "до встречи",
+          "phonetic": "do vstrechi"
+        },
+        {
+          "english": "nice to meet you",
+          "foreign": "приятно познакомиться",
+          "phonetic": "priyatno poznakomit'sya"
+        },
+        {
+          "english": "what's your name",
+          "foreign": "как вас зовут",
+          "phonetic": "kak vas zovut"
+        },
+        {
+          "english": "my name is",
+          "foreign": "меня зовут",
+          "phonetic": "menya zovut"
+        },
+        {
+          "english": "I understand",
+          "foreign": "я понимаю",
+          "phonetic": "ya ponimayu"
+        },
+        {
+          "english": "I don't understand",
+          "foreign": "я не понимаю",
+          "phonetic": "ya ne ponimayu"
+        },
+        {
+          "english": "can you help me",
+          "foreign": "можете помочь",
+          "phonetic": "mozhete pomoch"
+        },
+        {
+          "english": "of course",
+          "foreign": "конечно",
+          "phonetic": "konechno"
+        },
+        {
+          "english": "good",
+          "foreign": "хорошо",
+          "phonetic": "khorosho"
+        },
+        {
+          "english": "bad",
+          "foreign": "плохо",
+          "phonetic": "plokho"
+        },
+        {
+          "english": "do you speak English",
+          "foreign": "вы говорите по-английски",
+          "phonetic": "vy govorite po-angliyski"
+        },
+        {
+          "english": "I speak Russian",
+          "foreign": "я говорю по-русски",
+          "phonetic": "ya govoryu po-russki"
+        },
+        {
+          "english": "I don't speak Russian",
+          "foreign": "я не говорю по-русски",
+          "phonetic": "ya ne govoryu po-russki"
+        },
+        {
+          "english": "please speak slowly",
+          "foreign": "пожалуйста, говорите медленнее",
+          "phonetic": "pozhaluysta, govorite medlenneye"
+        },
+        {
+          "english": "could you repeat that",
+          "foreign": "повторите пожалуйста",
+          "phonetic": "povtorite, pozhaluysta"
+        },
+        {
+          "english": "what does this mean",
+          "foreign": "что это значит",
+          "phonetic": "chto eto znachit"
+        },
+        {
+          "english": "I need help",
+          "foreign": "мне нужна помощь",
+          "phonetic": "mne nuzhna pomoshch"
+        },
+        {
+          "english": "wait a moment",
+          "foreign": "подождите минутку",
+          "phonetic": "podozhdite minutku"
+        },
+        {
+          "english": "come here",
+          "foreign": "идите сюда",
+          "phonetic": "idite syuda"
+        },
+        {
+          "english": "let's go",
+          "foreign": "пойдём",
+          "phonetic": "poydom"
+        },
+        {
+          "english": "have a nice day",
+          "foreign": "хорошего дня",
+          "phonetic": "khoroshego dnya"
+        },
+        {
+          "english": "welcome",
+          "foreign": "добро пожаловать",
+          "phonetic": "dobro pozhalovat"
+        },
+        {
+          "english": "maybe",
+          "foreign": "может быть",
+          "phonetic": "mozhet byt"
+        },
+        {
+          "english": "I agree",
+          "foreign": "я согласен",
+          "phonetic": "ya soglasen"
+        },
+        {
+          "english": "I disagree",
+          "foreign": "я не согласен",
+          "phonetic": "ya ne soglasen"
+        },
+        {
+          "english": "it's okay",
+          "foreign": "всё в порядке",
+          "phonetic": "vsyo v poryadke"
+        },
+        {
+          "english": "no problem",
+          "foreign": "без проблем",
+          "phonetic": "bez problem"
+        },
+        {
+          "english": "excuse me (to pass)",
+          "foreign": "разрешите",
+          "phonetic": "razreshite"
+        },
+        {
+          "english": "I'm sorry to bother you",
+          "foreign": "извините за беспокойство",
+          "phonetic": "izvinite za bespokoystvo"
+        },
+        {
+          "english": "what time is it",
+          "foreign": "который час",
+          "phonetic": "kotoryy chas"
+        },
+        {
+          "english": "where is the bathroom",
+          "foreign": "где туалет",
+          "phonetic": "gde tualet"
+        },
+        {
+          "english": "cheers",
+          "foreign": "на здоровье",
+          "phonetic": "na zdorovye"
+        },
+        {
+          "english": "congratulations",
+          "foreign": "поздравляю",
+          "phonetic": "pozdravlyayu"
+        },
+        {
+          "english": "get well soon",
+          "foreign": "выздоравливай",
+          "phonetic": "vyzdoravlivay"
+        },
+        {
+          "english": "happy birthday",
+          "foreign": "с днём рождения",
+          "phonetic": "s dnyom rozhdeniya"
+        },
+        {
+          "english": "happy new year",
+          "foreign": "с новым годом",
+          "phonetic": "s novym godom"
+        },
+        {
+          "english": "I love you",
+          "foreign": "я тебя люблю",
+          "phonetic": "ya tebya lyublyu"
+        },
+        {
+          "english": "take care",
+          "foreign": "береги себя",
+          "phonetic": "beregi sebya"
+        },
+        {
+          "english": "call me",
+          "foreign": "позвони мне",
+          "phonetic": "pozvoni mne"
+        },
+        {
+          "english": "I miss you",
+          "foreign": "я скучаю по тебе",
+          "phonetic": "ya skuchayu po tebe"
+        },
+        {
+          "english": "good luck",
+          "foreign": "удачи",
+          "phonetic": "udachi"
+        },
+        {
+          "english": "be careful",
+          "foreign": "будь осторожен",
+          "phonetic": "bud' ostorozhen"
+        },
+        {
+          "english": "hurry up",
+          "foreign": "поторопись",
+          "phonetic": "potoropis'"
+        },
+        {
+          "english": "slow down",
+          "foreign": "медленнее",
+          "phonetic": "medlenneye"
+        },
+        {
+          "english": "stop it",
+          "foreign": "остановись",
+          "phonetic": "ostanovis'"
+        },
+        {
+          "english": "come on",
+          "foreign": "давай",
+          "phonetic": "davay"
+        },
+        {
+          "english": "really",
+          "foreign": "правда",
+          "phonetic": "pravda"
+        },
+        {
+          "english": "of course not",
+          "foreign": "конечно нет",
+          "phonetic": "konechno nyet"
+        },
+        {
+          "english": "I think so",
+          "foreign": "думаю да",
+          "phonetic": "dumayu da"
+        },
+        {
+          "english": "I don't think so",
+          "foreign": "не думаю",
+          "phonetic": "ne dumayu"
+        },
+        {
+          "english": "maybe later",
+          "foreign": "может быть позже",
+          "phonetic": "mozhet byt' pozhe"
+        },
+        {
+          "english": "not now",
+          "foreign": "не сейчас",
+          "phonetic": "ne seychas"
+        },
+        {
+          "english": "another time",
+          "foreign": "в другой раз",
+          "phonetic": "v drugoy raz"
+        },
+        {
+          "english": "I'm busy",
+          "foreign": "я занят",
+          "phonetic": "ya zanyat"
+        },
+        {
+          "english": "I'm free",
+          "foreign": "я свободен",
+          "phonetic": "ya svoboden"
+        },
+        {
+          "english": "I'm tired",
+          "foreign": "я устал",
+          "phonetic": "ya ustal"
+        },
+        {
+          "english": "I'm hungry",
+          "foreign": "я голоден",
+          "phonetic": "ya goloden"
+        },
+        {
+          "english": "I'm thirsty",
+          "foreign": "я хочу пить",
+          "phonetic": "ya khochu pit'"
+        },
+        {
+          "english": "I'm cold",
+          "foreign": "мне холодно",
+          "phonetic": "mne kholodno"
+        },
+        {
+          "english": "I'm hot",
+          "foreign": "мне жарко",
+          "phonetic": "mne zharko"
+        },
+        {
+          "english": "I'm sick",
+          "foreign": "я болен",
+          "phonetic": "ya bolen"
+        },
+        {
+          "english": "I'm better",
+          "foreign": "мне лучше",
+          "phonetic": "mne luchshe"
+        },
+        {
+          "english": "get well",
+          "foreign": "выздоравливай",
+          "phonetic": "vyzdoravlivay"
+        },
+        {
+          "english": "I'm sorry",
+          "foreign": "извините",
+          "phonetic": "izvinite"
+        },
+        {
+          "english": "no worries",
+          "foreign": "не беспокойтесь",
+          "phonetic": "ne bespokoites'"
+        },
+        {
+          "english": "that's right",
+          "foreign": "правильно",
+          "phonetic": "pravil'no"
+        },
+        {
+          "english": "that's wrong",
+          "foreign": "неправильно",
+          "phonetic": "nepravil'no"
+        },
+        {
+          "english": "I know",
+          "foreign": "я знаю",
+          "phonetic": "ya znayu"
+        },
+        {
+          "english": "I don't know",
+          "foreign": "я не знаю",
+          "phonetic": "ya ne znayu"
+        },
+        {
+          "english": "I like it",
+          "foreign": "мне нравится",
+          "phonetic": "mne nravitsya"
+        },
+        {
+          "english": "I don't like it",
+          "foreign": "мне не нравится",
+          "phonetic": "mne ne nravitsya"
+        },
+        {
+          "english": "it's beautiful",
+          "foreign": "это красиво",
+          "phonetic": "eto krasivo"
+        },
+        {
+          "english": "it's ugly",
+          "foreign": "это некрасиво",
+          "phonetic": "eto nekrasivo"
+        },
+        {
+          "english": "it's big",
+          "foreign": "это большое",
+          "phonetic": "eto bol'shoe"
+        },
+        {
+          "english": "it's small",
+          "foreign": "это маленькое",
+          "phonetic": "eto malen'koe"
+        },
+        {
+          "english": "it's new",
+          "foreign": "это новое",
+          "phonetic": "eto novoe"
+        },
+        {
+          "english": "it's old",
+          "foreign": "это старое",
+          "phonetic": "eto staroe"
+        },
+        {
+          "english": "it's easy",
+          "foreign": "это легко",
+          "phonetic": "eto legko"
+        },
+        {
+          "english": "it's difficult",
+          "foreign": "это трудно",
+          "phonetic": "eto trudno"
+        },
+        {
+          "english": "it's important",
+          "foreign": "это важно",
+          "phonetic": "eto vazhno"
+        },
+        {
+          "english": "it's interesting",
+          "foreign": "это интересно",
+          "phonetic": "eto interesno"
+        },
+        {
+          "english": "it's boring",
+          "foreign": "это скучно",
+          "phonetic": "eto skuchno"
+        },
+        {
+          "english": "it's possible",
+          "foreign": "это возможно",
+          "phonetic": "eto vozmozhno"
+        },
+        {
+          "english": "it's impossible",
+          "foreign": "это невозможно",
+          "phonetic": "eto nevozmozhno"
+        },
+        {
+          "english": "damn",
+          "foreign": "чёрт",
+          "phonetic": "chyort"
+        },
+        {
+          "english": "shit",
+          "foreign": "дерьмо",
+          "phonetic": "der'mo"
+        },
+        {
+          "english": "fuck",
+          "foreign": "блять",
+          "phonetic": "blyat'"
+        },
+        {
+          "english": "asshole",
+          "foreign": "мудак",
+          "phonetic": "mudak"
+        },
+        {
+          "english": "bitch",
+          "foreign": "сука",
+          "phonetic": "suka"
+        },
+        {
+          "english": "bastard",
+          "foreign": "ублюдок",
+          "phonetic": "ublyudok"
+        },
+        {
+          "english": "idiot",
+          "foreign": "идиот",
+          "phonetic": "idiot"
+        },
+        {
+          "english": "stupid",
+          "foreign": "тупой",
+          "phonetic": "tupoy"
+        },
+        {
+          "english": "fool",
+          "foreign": "дурак",
+          "phonetic": "durak"
+        },
+        {
+          "english": "damn it",
+          "foreign": "чёрт побери",
+          "phonetic": "chyort poberi"
+        },
+        {
+          "english": "hell",
+          "foreign": "ад",
+          "phonetic": "ad"
+        },
+        {
+          "english": "devil",
+          "foreign": "дьявол",
+          "phonetic": "d'yavol"
+        },
+        {
+          "english": "crap",
+          "foreign": "говно",
+          "phonetic": "govno"
+        },
+        {
+          "english": "piss off",
+          "foreign": "отвали",
+          "phonetic": "otvali"
+        },
+        {
+          "english": "go to hell",
+          "foreign": "иди к чёрту",
+          "phonetic": "idi k chyortu"
+        },
+        {
+          "english": "screw you",
+          "foreign": "пошёл ты",
+          "phonetic": "poshyol ty"
+        },
+        {
+          "english": "dumbass",
+          "foreign": "дебил",
+          "phonetic": "debil"
+        },
+        {
+          "english": "jerk",
+          "foreign": "козёл",
+          "phonetic": "kozyol"
+        },
+        {
+          "english": "scumbag",
+          "foreign": "подонок",
+          "phonetic": "podonok"
+        },
+        {
+          "english": "motherfucker",
+          "foreign": "ебать",
+          "phonetic": "yebat'"
+        }
+      ]
+    },
+    "adjectives": {
+      "name": "Adjectives",
+      "description": "Adjectives",
+      "words": [
+        {
+          "english": "good",
+          "foreign": "хороший",
+          "phonetic": "khoroshiy"
+        },
+        {
+          "english": "bad",
+          "foreign": "плохой",
+          "phonetic": "plokhoy"
+        },
+        {
+          "english": "big",
+          "foreign": "большой",
+          "phonetic": "bol'shoy"
+        },
+        {
+          "english": "small",
+          "foreign": "маленький",
+          "phonetic": "malen'kiy"
+        },
+        {
+          "english": "hot",
+          "foreign": "горячий",
+          "phonetic": "goryachiy"
+        },
+        {
+          "english": "cold",
+          "foreign": "холодный",
+          "phonetic": "kholodnyy"
+        },
+        {
+          "english": "new",
+          "foreign": "новый",
+          "phonetic": "novyy"
+        },
+        {
+          "english": "old",
+          "foreign": "старый",
+          "phonetic": "staryy"
+        },
+        {
+          "english": "young",
+          "foreign": "молодой",
+          "phonetic": "molodoy"
+        },
+        {
+          "english": "beautiful",
+          "foreign": "красивый",
+          "phonetic": "krasivyy"
+        },
+        {
+          "english": "ugly",
+          "foreign": "уродливый",
+          "phonetic": "urodlivyy"
+        },
+        {
+          "english": "happy",
+          "foreign": "счастливый",
+          "phonetic": "schastlivyy"
+        },
+        {
+          "english": "sad",
+          "foreign": "грустный",
+          "phonetic": "grustnyy"
+        },
+        {
+          "english": "angry",
+          "foreign": "сердитый",
+          "phonetic": "serdityy"
+        },
+        {
+          "english": "tired",
+          "foreign": "усталый",
+          "phonetic": "ustalyy"
+        },
+        {
+          "english": "hungry",
+          "foreign": "голодный",
+          "phonetic": "golodnyy"
+        },
+        {
+          "english": "thirsty",
+          "foreign": "жаждущий",
+          "phonetic": "zhazhdushchiy"
+        },
+        {
+          "english": "rich",
+          "foreign": "богатый",
+          "phonetic": "bogatyy"
+        },
+        {
+          "english": "poor",
+          "foreign": "бедный",
+          "phonetic": "bednyy"
+        },
+        {
+          "english": "expensive",
+          "foreign": "дорогой",
+          "phonetic": "dorogoy"
+        },
+        {
+          "english": "cheap",
+          "foreign": "дешёвый",
+          "phonetic": "deshyovyy"
+        },
+        {
+          "english": "fast",
+          "foreign": "быстрый",
+          "phonetic": "bystryy"
+        },
+        {
+          "english": "slow",
+          "foreign": "медленный",
+          "phonetic": "medlennyy"
+        },
+        {
+          "english": "easy",
+          "foreign": "лёгкий",
+          "phonetic": "lyogkiy"
+        },
+        {
+          "english": "difficult",
+          "foreign": "трудный",
+          "phonetic": "trudnyy"
+        },
+        {
+          "english": "interesting",
+          "foreign": "интересный",
+          "phonetic": "interesnyy"
+        },
+        {
+          "english": "boring",
+          "foreign": "скучный",
+          "phonetic": "skuchnyy"
+        },
+        {
+          "english": "important",
+          "foreign": "важный",
+          "phonetic": "vazhnyy"
+        },
+        {
+          "english": "dangerous",
+          "foreign": "опасный",
+          "phonetic": "opasnyy"
+        },
+        {
+          "english": "safe",
+          "foreign": "безопасный",
+          "phonetic": "bezopasnyy"
+        },
+        {
+          "english": "clean",
+          "foreign": "чистый",
+          "phonetic": "chistyy"
+        },
+        {
+          "english": "dirty",
+          "foreign": "грязный",
+          "phonetic": "gryaznyy"
+        },
+        {
+          "english": "loud",
+          "foreign": "громкий",
+          "phonetic": "gromkiy"
+        },
+        {
+          "english": "quiet",
+          "foreign": "тихий",
+          "phonetic": "tikhiy"
+        },
+        {
+          "english": "open",
+          "foreign": "открытый",
+          "phonetic": "otkrytyy"
+        },
+        {
+          "english": "closed",
+          "foreign": "закрытый",
+          "phonetic": "zakrytyy"
+        },
+        {
+          "english": "full",
+          "foreign": "полный",
+          "phonetic": "polnyy"
+        },
+        {
+          "english": "empty",
+          "foreign": "пустой",
+          "phonetic": "pustoy"
+        },
+        {
+          "english": "heavy",
+          "foreign": "тяжёлый",
+          "phonetic": "tyazhyolyy"
+        },
+        {
+          "english": "light",
+          "foreign": "лёгкий",
+          "phonetic": "lyogkiy"
+        },
+        {
+          "english": "hard",
+          "foreign": "твёрдый",
+          "phonetic": "tvyordyy"
+        },
+        {
+          "english": "soft",
+          "foreign": "мягкий",
+          "phonetic": "myagkiy"
+        },
+        {
+          "english": "strong",
+          "foreign": "сильный",
+          "phonetic": "sil'nyy"
+        },
+        {
+          "english": "weak",
+          "foreign": "слабый",
+          "phonetic": "slabyy"
+        },
+        {
+          "english": "early",
+          "foreign": "ранний",
+          "phonetic": "ranniy"
+        },
+        {
+          "english": "late",
+          "foreign": "поздний",
+          "phonetic": "pozdniy"
+        },
+        {
+          "english": "right",
+          "foreign": "правильный",
+          "phonetic": "pravil'nyy"
+        },
+        {
+          "english": "wrong",
+          "foreign": "неправильный",
+          "phonetic": "nepravil'nyy"
+        },
+        {
+          "english": "true",
+          "foreign": "верный",
+          "phonetic": "vernyy"
+        },
+        {
+          "english": "false",
+          "foreign": "ложный",
+          "phonetic": "lozhnyy"
+        },
+        {
+          "english": "same",
+          "foreign": "одинаковый",
+          "phonetic": "odinakovyy"
+        },
+        {
+          "english": "different",
+          "foreign": "разный",
+          "phonetic": "raznyy"
+        },
+        {
+          "english": "whole",
+          "foreign": "целый",
+          "phonetic": "tselyy"
+        },
+        {
+          "english": "broken",
+          "foreign": "сломанный",
+          "phonetic": "slomannyy"
+        },
+        {
+          "english": "wet",
+          "foreign": "мокрый",
+          "phonetic": "mokryy"
+        },
+        {
+          "english": "dry",
+          "foreign": "сухой",
+          "phonetic": "sukhoy"
+        },
+        {
+          "english": "sick",
+          "foreign": "больной",
+          "phonetic": "bol'noy"
+        },
+        {
+          "english": "healthy",
+          "foreign": "здоровый",
+          "phonetic": "zdorovyy"
+        },
+        {
+          "english": "alive",
+          "foreign": "живой",
+          "phonetic": "zhivoy"
+        },
+        {
+          "english": "dead",
+          "foreign": "мёртвый",
+          "phonetic": "myortvyy"
+        },
+        {
+          "english": "free",
+          "foreign": "свободный",
+          "phonetic": "svobodnyy"
+        },
+        {
+          "english": "busy",
+          "foreign": "занятый",
+          "phonetic": "zanyatyy"
+        },
+        {
+          "english": "ready",
+          "foreign": "готовый",
+          "phonetic": "gotovyy"
+        },
+        {
+          "english": "famous",
+          "foreign": "известный",
+          "phonetic": "izvestnyy"
+        },
+        {
+          "english": "popular",
+          "foreign": "популярный",
+          "phonetic": "populyarnyy"
+        },
+        {
+          "english": "successful",
+          "foreign": "успешный",
+          "phonetic": "uspeshnyy"
+        },
+        {
+          "english": "necessary",
+          "foreign": "необходимый",
+          "phonetic": "neobkhodimyy"
+        },
+        {
+          "english": "possible",
+          "foreign": "возможный",
+          "phonetic": "vozmozhnyy"
+        },
+        {
+          "english": "impossible",
+          "foreign": "невозможный",
+          "phonetic": "nevozmozhnyy"
+        },
+        {
+          "english": "real",
+          "foreign": "настоящий",
+          "phonetic": "nastoyashchiy"
+        },
+        {
+          "english": "fake",
+          "foreign": "поддельный",
+          "phonetic": "poddel'nyy"
+        },
+        {
+          "english": "modern",
+          "foreign": "современный",
+          "phonetic": "sovremennyy"
+        },
+        {
+          "english": "ancient",
+          "foreign": "древний",
+          "phonetic": "drevniy"
+        },
+        {
+          "english": "first",
+          "foreign": "первый",
+          "phonetic": "pervyy"
+        },
+        {
+          "english": "last",
+          "foreign": "последний",
+          "phonetic": "posledniy"
+        },
+        {
+          "english": "next",
+          "foreign": "следующий",
+          "phonetic": "sleduyushchiy"
+        },
+        {
+          "english": "previous",
+          "foreign": "предыдущий",
+          "phonetic": "predydushchiy"
+        },
+        {
+          "english": "current",
+          "foreign": "текущий",
+          "phonetic": "tekushchiy"
+        },
+        {
+          "english": "future",
+          "foreign": "будущий",
+          "phonetic": "budushchiy"
+        },
+        {
+          "english": "past",
+          "foreign": "прошлый",
+          "phonetic": "proshlyy"
+        },
+        {
+          "english": "present",
+          "foreign": "настоящий",
+          "phonetic": "nastoyashchiy"
+        },
+        {
+          "english": "main",
+          "foreign": "главный",
+          "phonetic": "glavnyy"
+        },
+        {
+          "english": "secondary",
+          "foreign": "второстепенный",
+          "phonetic": "vtorostepennyy"
+        },
+        {
+          "english": "central",
+          "foreign": "центральный",
+          "phonetic": "tsentral'nyy"
+        },
+        {
+          "english": "local",
+          "foreign": "местный",
+          "phonetic": "mestnyy"
+        }
+      ]
+    },
+    "time": {
+      "name": "Time & Calendar",
+      "description": "Days, months, and time expressions",
+      "words": [
+        {
+          "english": "monday",
+          "foreign": "понедельник",
+          "phonetic": "ponedel'nik"
+        },
+        {
+          "english": "tuesday",
+          "foreign": "вторник",
+          "phonetic": "vtornik"
+        },
+        {
+          "english": "wednesday",
+          "foreign": "среда",
+          "phonetic": "sreda"
+        },
+        {
+          "english": "thursday",
+          "foreign": "четверг",
+          "phonetic": "chetverg"
+        },
+        {
+          "english": "friday",
+          "foreign": "пятница",
+          "phonetic": "pyatnitsa"
+        },
+        {
+          "english": "saturday",
+          "foreign": "суббота",
+          "phonetic": "subbota"
+        },
+        {
+          "english": "sunday",
+          "foreign": "воскресенье",
+          "phonetic": "voskresen'ye"
+        },
+        {
+          "english": "january",
+          "foreign": "январь",
+          "phonetic": "yanvar'"
+        },
+        {
+          "english": "february",
+          "foreign": "февраль",
+          "phonetic": "fevral'"
+        },
+        {
+          "english": "march",
+          "foreign": "март",
+          "phonetic": "mart"
+        },
+        {
+          "english": "april",
+          "foreign": "апрель",
+          "phonetic": "aprel'"
+        },
+        {
+          "english": "may",
+          "foreign": "май",
+          "phonetic": "may"
+        },
+        {
+          "english": "june",
+          "foreign": "июнь",
+          "phonetic": "iyun'"
+        },
+        {
+          "english": "july",
+          "foreign": "июль",
+          "phonetic": "iyul'"
+        },
+        {
+          "english": "august",
+          "foreign": "август",
+          "phonetic": "avgust"
+        },
+        {
+          "english": "september",
+          "foreign": "сентябрь",
+          "phonetic": "sentyabr'"
+        },
+        {
+          "english": "october",
+          "foreign": "октябрь",
+          "phonetic": "oktyabr'"
+        },
+        {
+          "english": "november",
+          "foreign": "ноябрь",
+          "phonetic": "noyabr'"
+        },
+        {
+          "english": "december",
+          "foreign": "декабрь",
+          "phonetic": "dekabr'"
+        },
+        {
+          "english": "morning",
+          "foreign": "утро",
+          "phonetic": "utro"
+        },
+        {
+          "english": "afternoon",
+          "foreign": "день",
+          "phonetic": "den'"
+        },
+        {
+          "english": "evening",
+          "foreign": "вечер",
+          "phonetic": "vecher"
+        },
+        {
+          "english": "night",
+          "foreign": "ночь",
+          "phonetic": "noch'"
+        },
+        {
+          "english": "today",
+          "foreign": "сегодня",
+          "phonetic": "segodnya"
+        },
+        {
+          "english": "tomorrow",
+          "foreign": "завтра",
+          "phonetic": "zavtra"
+        },
+        {
+          "english": "yesterday",
+          "foreign": "вчера",
+          "phonetic": "vchera"
+        },
+        {
+          "english": "now",
+          "foreign": "сейчас",
+          "phonetic": "seychas"
+        },
+        {
+          "english": "later",
+          "foreign": "позже",
+          "phonetic": "pozhe"
+        },
+        {
+          "english": "hour",
+          "foreign": "час",
+          "phonetic": "chas"
+        },
+        {
+          "english": "minute",
+          "foreign": "минута",
+          "phonetic": "minuta"
+        },
+        {
+          "english": "second",
+          "foreign": "секунда",
+          "phonetic": "sekunda"
+        },
+        {
+          "english": "week",
+          "foreign": "неделя",
+          "phonetic": "nedelya"
+        },
+        {
+          "english": "month",
+          "foreign": "месяц",
+          "phonetic": "mesyats"
+        },
+        {
+          "english": "year",
+          "foreign": "год",
+          "phonetic": "god"
+        },
+        {
+          "english": "last week",
+          "foreign": "прошлая неделя",
+          "phonetic": "proshlaya nedelya"
+        },
+        {
+          "english": "next week",
+          "foreign": "следующая неделя",
+          "phonetic": "sleduyushchaya nedelya"
+        },
+        {
+          "english": "last month",
+          "foreign": "прошлый месяц",
+          "phonetic": "proshly mesyats"
+        },
+        {
+          "english": "next month",
+          "foreign": "следующий месяц",
+          "phonetic": "sleduyushchiy mesyats"
+        },
+        {
+          "english": "last year",
+          "foreign": "прошлый год",
+          "phonetic": "proshly god"
+        },
+        {
+          "english": "next year",
+          "foreign": "следующий год",
+          "phonetic": "sleduyushchiy god"
+        }
+      ]
+    },
+    "food": {
+      "name": "Food & Drink",
+      "description": "Common food and drink items",
+      "words": [
+        {
+          "english": "water",
+          "foreign": "вода",
+          "phonetic": "voda"
+        },
+        {
+          "english": "bread",
+          "foreign": "хлеб",
+          "phonetic": "khleb"
+        },
+        {
+          "english": "milk",
+          "foreign": "молоко",
+          "phonetic": "moloko"
+        },
+        {
+          "english": "coffee",
+          "foreign": "кофе",
+          "phonetic": "kofe"
+        },
+        {
+          "english": "tea",
+          "foreign": "чай",
+          "phonetic": "chay"
+        },
+        {
+          "english": "juice",
+          "foreign": "сок",
+          "phonetic": "sok"
+        },
+        {
+          "english": "beer",
+          "foreign": "пиво",
+          "phonetic": "pivo"
+        },
+        {
+          "english": "wine",
+          "foreign": "вино",
+          "phonetic": "vino"
+        },
+        {
+          "english": "meat",
+          "foreign": "мясо",
+          "phonetic": "myaso"
+        },
+        {
+          "english": "fish",
+          "foreign": "рыба",
+          "phonetic": "ryba"
+        },
+        {
+          "english": "chicken",
+          "foreign": "курица",
+          "phonetic": "kuritsa"
+        },
+        {
+          "english": "soup",
+          "foreign": "суп",
+          "phonetic": "sup"
+        },
+        {
+          "english": "salad",
+          "foreign": "салат",
+          "phonetic": "salat"
+        },
+        {
+          "english": "potato",
+          "foreign": "картофель",
+          "phonetic": "kartofel"
+        },
+        {
+          "english": "rice",
+          "foreign": "рис",
+          "phonetic": "ris"
+        },
+        {
+          "english": "cheese",
+          "foreign": "сыр",
+          "phonetic": "syr"
+        },
+        {
+          "english": "egg",
+          "foreign": "яйцо",
+          "phonetic": "yaytso"
+        },
+        {
+          "english": "fruit",
+          "foreign": "фрукт",
+          "phonetic": "frukt"
+        },
+        {
+          "english": "vegetable",
+          "foreign": "овощ",
+          "phonetic": "ovoshch"
+        },
+        {
+          "english": "dessert",
+          "foreign": "десерт",
+          "phonetic": "desert"
+        },
+        {
+          "english": "breakfast",
+          "foreign": "завтрак",
+          "phonetic": "zavtrak"
+        },
+        {
+          "english": "lunch",
+          "foreign": "обед",
+          "phonetic": "obed"
+        },
+        {
+          "english": "dinner",
+          "foreign": "ужин",
+          "phonetic": "uzhin"
+        },
+        {
+          "english": "restaurant",
+          "foreign": "ресторан",
+          "phonetic": "restoran"
+        }
+      ]
+    },
+    "numbers": {
+      "name": "Numbers",
+      "description": "Basic numbers and counting",
+      "words": [
+        {
+          "english": "one",
+          "foreign": "один",
+          "phonetic": "odin"
+        },
+        {
+          "english": "two",
+          "foreign": "два",
+          "phonetic": "dva"
+        },
+        {
+          "english": "three",
+          "foreign": "три",
+          "phonetic": "tri"
+        },
+        {
+          "english": "four",
+          "foreign": "четыре",
+          "phonetic": "chetyre"
+        },
+        {
+          "english": "five",
+          "foreign": "пять",
+          "phonetic": "pyat"
+        },
+        {
+          "english": "six",
+          "foreign": "шесть",
+          "phonetic": "shest"
+        },
+        {
+          "english": "seven",
+          "foreign": "семь",
+          "phonetic": "sem"
+        },
+        {
+          "english": "eight",
+          "foreign": "восемь",
+          "phonetic": "vosem"
+        },
+        {
+          "english": "nine",
+          "foreign": "девять",
+          "phonetic": "devyat"
+        },
+        {
+          "english": "ten",
+          "foreign": "десять",
+          "phonetic": "desyat"
+        },
+        {
+          "english": "twenty",
+          "foreign": "двадцать",
+          "phonetic": "dvadtsat"
+        },
+        {
+          "english": "thirty",
+          "foreign": "тридцать",
+          "phonetic": "tridtsat"
+        },
+        {
+          "english": "forty",
+          "foreign": "сорок",
+          "phonetic": "sorok"
+        },
+        {
+          "english": "fifty",
+          "foreign": "пятьдесят",
+          "phonetic": "pyatdesyat"
+        },
+        {
+          "english": "hundred",
+          "foreign": "сто",
+          "phonetic": "sto"
+        },
+        {
+          "english": "thousand",
+          "foreign": "тысяча",
+          "phonetic": "tysyacha"
+        },
+        {
+          "english": "first",
+          "foreign": "первый",
+          "phonetic": "pervyy"
+        },
+        {
+          "english": "second",
+          "foreign": "второй",
+          "phonetic": "vtoroy"
+        },
+        {
+          "english": "last",
+          "foreign": "последний",
+          "phonetic": "posledniy"
+        },
+        {
+          "english": "many",
+          "foreign": "много",
+          "phonetic": "mnogo"
+        },
+        {
+          "english": "few",
+          "foreign": "мало",
+          "phonetic": "malo"
+        },
+        {
+          "english": "all",
+          "foreign": "все",
+          "phonetic": "vse"
+        },
+        {
+          "english": "zero",
+          "foreign": "ноль",
+          "phonetic": "nol"
+        },
+        {
+          "english": "half",
+          "foreign": "половина",
+          "phonetic": "polovina"
+        }
+      ]
+    },
+    "family": {
+      "name": "Family Members",
+      "description": "Family relationships and terms",
+      "words": [
+        {
+          "english": "mother",
+          "foreign": "мама",
+          "phonetic": "mama"
+        },
+        {
+          "english": "father",
+          "foreign": "папа",
+          "phonetic": "papa"
+        },
+        {
+          "english": "sister",
+          "foreign": "сестра",
+          "phonetic": "sestra"
+        },
+        {
+          "english": "brother",
+          "foreign": "брат",
+          "phonetic": "brat"
+        },
+        {
+          "english": "grandmother",
+          "foreign": "бабушка",
+          "phonetic": "babushka"
+        },
+        {
+          "english": "grandfather",
+          "foreign": "дедушка",
+          "phonetic": "dedushka"
+        },
+        {
+          "english": "aunt",
+          "foreign": "тётя",
+          "phonetic": "tyotya"
+        },
+        {
+          "english": "uncle",
+          "foreign": "дядя",
+          "phonetic": "dyadya"
+        },
+        {
+          "english": "cousin",
+          "foreign": "двоюродный брат",
+          "phonetic": "dvoyurodnyy brat"
+        },
+        {
+          "english": "cousin (female)",
+          "foreign": "двоюродный сестра",
+          "phonetic": "dvoyurodnyy sestra"
+        },
+        {
+          "english": "wife",
+          "foreign": "жена",
+          "phonetic": "zhena"
+        },
+        {
+          "english": "husband",
+          "foreign": "муж",
+          "phonetic": "muzh"
+        },
+        {
+          "english": "daughter",
+          "foreign": "дочь",
+          "phonetic": "doch"
+        },
+        {
+          "english": "son",
+          "foreign": "сын",
+          "phonetic": "syn"
+        },
+        {
+          "english": "child",
+          "foreign": "ребёнок",
+          "phonetic": "rebyonok"
+        },
+        {
+          "english": "children",
+          "foreign": "дети",
+          "phonetic": "deti"
+        },
+        {
+          "english": "family",
+          "foreign": "семья",
+          "phonetic": "semya"
+        },
+        {
+          "english": "parents",
+          "foreign": "родители",
+          "phonetic": "roditeli"
+        },
+        {
+          "english": "siblings",
+          "foreign": "братья и сёстры",
+          "phonetic": "bratya i syostry"
+        },
+        {
+          "english": "niece",
+          "foreign": "племянница",
+          "phonetic": "plemyannitsa"
+        },
+        {
+          "english": "nephew",
+          "foreign": "племянник",
+          "phonetic": "plemyannik"
+        },
+        {
+          "english": "mother-in-law",
+          "foreign": "свекровь",
+          "phonetic": "svekrova"
+        },
+        {
+          "english": "father-in-law",
+          "foreign": "свёкор",
+          "phonetic": "svyokor"
+        },
+        {
+          "english": "grandson",
+          "foreign": "внук",
+          "phonetic": "vnuk"
+        },
+        {
+          "english": "granddaughter",
+          "foreign": "внучка",
+          "phonetic": "vnuchka"
+        }
+      ]
+    },
+    "travel": {
+      "name": "Travel & Directions",
+      "description": "Getting around and asking for directions",
+      "words": [
+        {
+          "english": "where",
+          "foreign": "где",
+          "phonetic": "gde"
+        },
+        {
+          "english": "left",
+          "foreign": "налево",
+          "phonetic": "nalevo"
+        },
+        {
+          "english": "right",
+          "foreign": "направо",
+          "phonetic": "napravo"
+        },
+        {
+          "english": "straight",
+          "foreign": "прямо",
+          "phonetic": "pryamo"
+        },
+        {
+          "english": "airport",
+          "foreign": "аэропорт",
+          "phonetic": "aeroport"
+        },
+        {
+          "english": "train station",
+          "foreign": "вокзал",
+          "phonetic": "vokzal"
+        },
+        {
+          "english": "bus stop",
+          "foreign": "автобусная остановка",
+          "phonetic": "avtobusnaya ostanovka"
+        },
+        {
+          "english": "hotel",
+          "foreign": "гостиница",
+          "phonetic": "gostinitsa"
+        },
+        {
+          "english": "taxi",
+          "foreign": "такси",
+          "phonetic": "taksi"
+        },
+        {
+          "english": "subway",
+          "foreign": "метро",
+          "phonetic": "metro"
+        },
+        {
+          "english": "map",
+          "foreign": "карта",
+          "phonetic": "karta"
+        },
+        {
+          "english": "street",
+          "foreign": "улица",
+          "phonetic": "ulitsa"
+        },
+        {
+          "english": "road",
+          "foreign": "дорога",
+          "phonetic": "doroga"
+        },
+        {
+          "english": "turn",
+          "foreign": "поворот",
+          "phonetic": "povorot"
+        },
+        {
+          "english": "near",
+          "foreign": "близко",
+          "phonetic": "blizko"
+        },
+        {
+          "english": "far",
+          "foreign": "далеко",
+          "phonetic": "daleko"
+        },
+        {
+          "english": "here",
+          "foreign": "здесь",
+          "phonetic": "zdes"
+        },
+        {
+          "english": "there",
+          "foreign": "там",
+          "phonetic": "tam"
+        },
+        {
+          "english": "entrance",
+          "foreign": "вход",
+          "phonetic": "vkhod"
+        },
+        {
+          "english": "exit",
+          "foreign": "выход",
+          "phonetic": "vykhod"
+        },
+        {
+          "english": "ticket",
+          "foreign": "билет",
+          "phonetic": "bilet"
+        },
+        {
+          "english": "passport",
+          "foreign": "паспорт",
+          "phonetic": "pasport"
+        },
+        {
+          "english": "luggage",
+          "foreign": "багаж",
+          "phonetic": "bagazh"
+        },
+        {
+          "english": "tourist",
+          "foreign": "турист",
+          "phonetic": "turist"
+        }
+      ]
+    },
+    "weather": {
+      "name": "Weather & Seasons",
+      "description": "Weather conditions and seasons",
+      "words": [
+        {
+          "english": "hot",
+          "foreign": "жарко",
+          "phonetic": "zharko"
+        },
+        {
+          "english": "cold",
+          "foreign": "холодно",
+          "phonetic": "kholodno"
+        },
+        {
+          "english": "rain",
+          "foreign": "дождь",
+          "phonetic": "dozhd"
+        },
+        {
+          "english": "snow",
+          "foreign": "снег",
+          "phonetic": "sneg"
+        },
+        {
+          "english": "sunny",
+          "foreign": "солнечно",
+          "phonetic": "solnechno"
+        },
+        {
+          "english": "cloudy",
+          "foreign": "облачно",
+          "phonetic": "oblachno"
+        },
+        {
+          "english": "windy",
+          "foreign": "ветрено",
+          "phonetic": "vetreno"
+        },
+        {
+          "english": "storm",
+          "foreign": "гроза",
+          "phonetic": "groza"
+        },
+        {
+          "english": "thunder",
+          "foreign": "гром",
+          "phonetic": "grom"
+        },
+        {
+          "english": "lightning",
+          "foreign": "молния",
+          "phonetic": "molniya"
+        },
+        {
+          "english": "spring",
+          "foreign": "весна",
+          "phonetic": "vesna"
+        },
+        {
+          "english": "summer",
+          "foreign": "лето",
+          "phonetic": "leto"
+        },
+        {
+          "english": "autumn",
+          "foreign": "осень",
+          "phonetic": "osen"
+        },
+        {
+          "english": "winter",
+          "foreign": "зима",
+          "phonetic": "zima"
+        },
+        {
+          "english": "temperature",
+          "foreign": "температура",
+          "phonetic": "temperatura"
+        },
+        {
+          "english": "warm",
+          "foreign": "тепло",
+          "phonetic": "teplo"
+        },
+        {
+          "english": "cool",
+          "foreign": "прохладно",
+          "phonetic": "prokhladno"
+        },
+        {
+          "english": "freezing",
+          "foreign": "мороз",
+          "phonetic": "moroz"
+        },
+        {
+          "english": "humidity",
+          "foreign": "влажность",
+          "phonetic": "vlazhnost"
+        },
+        {
+          "english": "forecast",
+          "foreign": "прогноз погоды",
+          "phonetic": "prognoz pogody"
+        },
+        {
+          "english": "umbrella",
+          "foreign": "зонт",
+          "phonetic": "zont"
+        },
+        {
+          "english": "rainbow",
+          "foreign": "радуга",
+          "phonetic": "raduga"
+        },
+        {
+          "english": "fog",
+          "foreign": "туман",
+          "phonetic": "tuman"
+        },
+        {
+          "english": "ice",
+          "foreign": "лёд",
+          "phonetic": "lyod"
+        }
+      ]
+    },
+    "shopping": {
+      "name": "Shopping",
+      "description": "Shopping and money-related terms",
+      "words": [
+        {
+          "english": "how much",
+          "foreign": "сколько",
+          "phonetic": "skolko"
+        },
+        {
+          "english": "expensive",
+          "foreign": "дорого",
+          "phonetic": "dorogo"
+        },
+        {
+          "english": "cheap",
+          "foreign": "дёшево",
+          "phonetic": "dyoshevo"
+        },
+        {
+          "english": "money",
+          "foreign": "деньги",
+          "phonetic": "dengi"
+        },
+        {
+          "english": "store",
+          "foreign": "магазин",
+          "phonetic": "magazin"
+        },
+        {
+          "english": "market",
+          "foreign": "рынок",
+          "phonetic": "rynok"
+        },
+        {
+          "english": "mall",
+          "foreign": "торговый центр",
+          "phonetic": "torgovyy tsentr"
+        },
+        {
+          "english": "price",
+          "foreign": "цена",
+          "phonetic": "tsena"
+        },
+        {
+          "english": "discount",
+          "foreign": "скидка",
+          "phonetic": "skidka"
+        },
+        {
+          "english": "sale",
+          "foreign": "распродажа",
+          "phonetic": "rasprodazha"
+        },
+        {
+          "english": "cash",
+          "foreign": "наличные",
+          "phonetic": "nalichnye"
+        },
+        {
+          "english": "credit card",
+          "foreign": "кредитная карта",
+          "phonetic": "kreditnaya karta"
+        },
+        {
+          "english": "receipt",
+          "foreign": "чек",
+          "phonetic": "chek"
+        },
+        {
+          "english": "size",
+          "foreign": "размер",
+          "phonetic": "razmer"
+        },
+        {
+          "english": "try on",
+          "foreign": "примерить",
+          "phonetic": "primerit"
+        },
+        {
+          "english": "buy",
+          "foreign": "купить",
+          "phonetic": "kupit"
+        },
+        {
+          "english": "sell",
+          "foreign": "продать",
+          "phonetic": "prodat"
+        },
+        {
+          "english": "shopping cart",
+          "foreign": "тележка",
+          "phonetic": "telezhka"
+        },
+        {
+          "english": "fitting room",
+          "foreign": "примерочная",
+          "phonetic": "primerochnaya"
+        },
+        {
+          "english": "cashier",
+          "foreign": "кассир",
+          "phonetic": "kassir"
+        },
+        {
+          "english": "open",
+          "foreign": "открыто",
+          "phonetic": "otkryto"
+        },
+        {
+          "english": "closed",
+          "foreign": "закрыто",
+          "phonetic": "zakryto"
+        },
+        {
+          "english": "return",
+          "foreign": "вернуть",
+          "phonetic": "vernut"
+        },
+        {
+          "english": "exchange",
+          "foreign": "обменять",
+          "phonetic": "obmenyat"
+        }
+      ]
+    },
+    "colors": {
+      "name": "Colors",
+      "description": "Basic colors and shades",
+      "words": [
+        {
+          "english": "red",
+          "foreign": "красный",
+          "phonetic": "krasnyy"
+        },
+        {
+          "english": "blue",
+          "foreign": "синий",
+          "phonetic": "siniy"
+        },
+        {
+          "english": "green",
+          "foreign": "зелёный",
+          "phonetic": "zelyonyy"
+        },
+        {
+          "english": "yellow",
+          "foreign": "жёлтый",
+          "phonetic": "zhyoltyy"
+        },
+        {
+          "english": "black",
+          "foreign": "чёрный",
+          "phonetic": "chyornyy"
+        },
+        {
+          "english": "white",
+          "foreign": "белый",
+          "phonetic": "belyy"
+        },
+        {
+          "english": "gray",
+          "foreign": "серый",
+          "phonetic": "seryy"
+        },
+        {
+          "english": "brown",
+          "foreign": "коричневый",
+          "phonetic": "korichnevyy"
+        },
+        {
+          "english": "purple",
+          "foreign": "фиолетовый",
+          "phonetic": "fioletovyy"
+        },
+        {
+          "english": "pink",
+          "foreign": "розовый",
+          "phonetic": "rozovyy"
+        },
+        {
+          "english": "orange",
+          "foreign": "оранжевый",
+          "phonetic": "oranzhevyy"
+        },
+        {
+          "english": "gold",
+          "foreign": "золотой",
+          "phonetic": "zolotoy"
+        },
+        {
+          "english": "silver",
+          "foreign": "серебряный",
+          "phonetic": "serebryanyy"
+        },
+        {
+          "english": "light",
+          "foreign": "светлый",
+          "phonetic": "svetlyy"
+        },
+        {
+          "english": "dark",
+          "foreign": "тёмный",
+          "phonetic": "tyomnyy"
+        },
+        {
+          "english": "bright",
+          "foreign": "яркий",
+          "phonetic": "yarkiy"
+        },
+        {
+          "english": "pale",
+          "foreign": "бледный",
+          "phonetic": "blednyy"
+        },
+        {
+          "english": "colorful",
+          "foreign": "цветной",
+          "phonetic": "tsvetnoy"
+        },
+        {
+          "english": "navy blue",
+          "foreign": "тёмно-синий",
+          "phonetic": "tyomno-siniy"
+        },
+        {
+          "english": "maroon",
+          "foreign": "бордовый",
+          "phonetic": "bordovyy"
+        },
+        {
+          "english": "beige",
+          "foreign": "бежевый",
+          "phonetic": "bezhevyy"
+        },
+        {
+          "english": "turquoise",
+          "foreign": "бирюзовый",
+          "phonetic": "biryuzovyy"
+        },
+        {
+          "english": "violet",
+          "foreign": "лиловый",
+          "phonetic": "lilovyy"
+        },
+        {
+          "english": "rainbow",
+          "foreign": "радужный",
+          "phonetic": "raduzhnyy"
+        }
+      ]
+    },
+    "emotions": {
+      "name": "Emotions & Feelings",
+      "description": "Expressing emotions and feelings",
+      "words": [
+        {
+          "english": "happy",
+          "foreign": "счастливый",
+          "phonetic": "schastlivyy"
+        },
+        {
+          "english": "sad",
+          "foreign": "грустный",
+          "phonetic": "grustnyy"
+        },
+        {
+          "english": "tired",
+          "foreign": "уставший",
+          "phonetic": "ustavshiy"
+        },
+        {
+          "english": "angry",
+          "foreign": "сердитый",
+          "phonetic": "serdityy"
+        },
+        {
+          "english": "excited",
+          "foreign": "взволнованный",
+          "phonetic": "vzvolnovannyy"
+        },
+        {
+          "english": "scared",
+          "foreign": "испуганный",
+          "phonetic": "ispugannyy"
+        },
+        {
+          "english": "worried",
+          "foreign": "обеспокоенный",
+          "phonetic": "obespokoenny"
+        },
+        {
+          "english": "surprised",
+          "foreign": "удивлённый",
+          "phonetic": "udivlyonnyy"
+        },
+        {
+          "english": "confused",
+          "foreign": "растерянный",
+          "phonetic": "rasteryanny"
+        },
+        {
+          "english": "calm",
+          "foreign": "спокойный",
+          "phonetic": "spokoynyy"
+        },
+        {
+          "english": "nervous",
+          "foreign": "нервный",
+          "phonetic": "nervnyy"
+        },
+        {
+          "english": "proud",
+          "foreign": "гордый",
+          "phonetic": "gordyy"
+        },
+        {
+          "english": "shy",
+          "foreign": "застенчивый",
+          "phonetic": "zastenchivyy"
+        },
+        {
+          "english": "bored",
+          "foreign": "скучающий",
+          "phonetic": "skuchayushchiy"
+        },
+        {
+          "english": "lonely",
+          "foreign": "одинокий",
+          "phonetic": "odinokiy"
+        },
+        {
+          "english": "jealous",
+          "foreign": "ревнивый",
+          "phonetic": "revnivyy"
+        },
+        {
+          "english": "grateful",
+          "foreign": "благодарный",
+          "phonetic": "blagodarnyy"
+        },
+        {
+          "english": "disappointed",
+          "foreign": "разочарованный",
+          "phonetic": "razocharovannyy"
+        },
+        {
+          "english": "embarrassed",
+          "foreign": "смущённый",
+          "phonetic": "smushchyonnyy"
+        },
+        {
+          "english": "relaxed",
+          "foreign": "расслабленный",
+          "phonetic": "rasslablennyy"
+        },
+        {
+          "english": "stressed",
+          "foreign": "напряжённый",
+          "phonetic": "napryazhyonnyy"
+        },
+        {
+          "english": "cheerful",
+          "foreign": "весёлый",
+          "phonetic": "vesyolyy"
+        },
+        {
+          "english": "satisfied",
+          "foreign": "довольный",
+          "phonetic": "dovolnyy"
+        },
+        {
+          "english": "frustrated",
+          "foreign": "расстроенный",
+          "phonetic": "rasstroenny"
+        }
+      ]
+    },
+    "body": {
+      "name": "Body Parts",
+      "description": "Parts of the body and health terms",
+      "words": [
+        {
+          "english": "head",
+          "foreign": "голова",
+          "phonetic": "golova"
+        },
+        {
+          "english": "hand",
+          "foreign": "рука",
+          "phonetic": "ruka"
+        },
+        {
+          "english": "leg",
+          "foreign": "нога",
+          "phonetic": "noga"
+        },
+        {
+          "english": "eye",
+          "foreign": "глаз",
+          "phonetic": "glaz"
+        },
+        {
+          "english": "nose",
+          "foreign": "нос",
+          "phonetic": "nos"
+        },
+        {
+          "english": "mouth",
+          "foreign": "рот",
+          "phonetic": "rot"
+        },
+        {
+          "english": "ear",
+          "foreign": "ухо",
+          "phonetic": "ukho"
+        },
+        {
+          "english": "hair",
+          "foreign": "волосы",
+          "phonetic": "volosy"
+        },
+        {
+          "english": "face",
+          "foreign": "лицо",
+          "phonetic": "litso"
+        },
+        {
+          "english": "neck",
+          "foreign": "шея",
+          "phonetic": "sheya"
+        },
+        {
+          "english": "shoulder",
+          "foreign": "плечо",
+          "phonetic": "plecho"
+        },
+        {
+          "english": "arm",
+          "foreign": "рука",
+          "phonetic": "ruka"
+        },
+        {
+          "english": "elbow",
+          "foreign": "локоть",
+          "phonetic": "lokot"
+        },
+        {
+          "english": "wrist",
+          "foreign": "запястье",
+          "phonetic": "zapyaste"
+        },
+        {
+          "english": "finger",
+          "foreign": "палец",
+          "phonetic": "palets"
+        },
+        {
+          "english": "knee",
+          "foreign": "колено",
+          "phonetic": "koleno"
+        },
+        {
+          "english": "foot",
+          "foreign": "ступня",
+          "phonetic": "stupnya"
+        },
+        {
+          "english": "toe",
+          "foreign": "палец ноги",
+          "phonetic": "palets nogi"
+        },
+        {
+          "english": "back",
+          "foreign": "спина",
+          "phonetic": "spina"
+        },
+        {
+          "english": "chest",
+          "foreign": "грудь",
+          "phonetic": "grud"
+        },
+        {
+          "english": "stomach",
+          "foreign": "живот",
+          "phonetic": "zhivot"
+        },
+        {
+          "english": "heart",
+          "foreign": "сердце",
+          "phonetic": "serdtse"
+        },
+        {
+          "english": "brain",
+          "foreign": "мозг",
+          "phonetic": "mozg"
+        },
+        {
+          "english": "skin",
+          "foreign": "кожа",
+          "phonetic": "kozha"
+        }
+      ]
+    },
+    "animals": {
+      "name": "Animals",
+      "description": "Common animals and pets",
+      "words": [
+        {
+          "english": "cat",
+          "foreign": "кошка",
+          "phonetic": "koshka"
+        },
+        {
+          "english": "dog",
+          "foreign": "собака",
+          "phonetic": "sobaka"
+        },
+        {
+          "english": "bird",
+          "foreign": "птица",
+          "phonetic": "ptitsa"
+        },
+        {
+          "english": "fish",
+          "foreign": "рыба",
+          "phonetic": "ryba"
+        },
+        {
+          "english": "horse",
+          "foreign": "лошадь",
+          "phonetic": "loshad"
+        },
+        {
+          "english": "cow",
+          "foreign": "корова",
+          "phonetic": "korova"
+        },
+        {
+          "english": "pig",
+          "foreign": "свинья",
+          "phonetic": "svinya"
+        },
+        {
+          "english": "chicken",
+          "foreign": "курица",
+          "phonetic": "kuritsa"
+        },
+        {
+          "english": "mouse",
+          "foreign": "мышь",
+          "phonetic": "mysh"
+        },
+        {
+          "english": "rabbit",
+          "foreign": "кролик",
+          "phonetic": "krolik"
+        },
+        {
+          "english": "bear",
+          "foreign": "медведь",
+          "phonetic": "medved"
+        },
+        {
+          "english": "wolf",
+          "foreign": "волк",
+          "phonetic": "volk"
+        },
+        {
+          "english": "fox",
+          "foreign": "лиса",
+          "phonetic": "lisa"
+        },
+        {
+          "english": "deer",
+          "foreign": "олень",
+          "phonetic": "olen"
+        },
+        {
+          "english": "elephant",
+          "foreign": "слон",
+          "phonetic": "slon"
+        },
+        {
+          "english": "lion",
+          "foreign": "лев",
+          "phonetic": "lev"
+        },
+        {
+          "english": "tiger",
+          "foreign": "тигр",
+          "phonetic": "tigr"
+        },
+        {
+          "english": "monkey",
+          "foreign": "обезьяна",
+          "phonetic": "obezyana"
+        },
+        {
+          "english": "snake",
+          "foreign": "змея",
+          "phonetic": "zmeya"
+        },
+        {
+          "english": "frog",
+          "foreign": "лягушка",
+          "phonetic": "lyagushka"
+        },
+        {
+          "english": "butterfly",
+          "foreign": "бабочка",
+          "phonetic": "babochka"
+        },
+        {
+          "english": "spider",
+          "foreign": "паук",
+          "phonetic": "pauk"
+        },
+        {
+          "english": "duck",
+          "foreign": "утка",
+          "phonetic": "utka"
+        },
+        {
+          "english": "owl",
+          "foreign": "сова",
+          "phonetic": "sova"
+        }
+      ]
+    },
+    "home": {
+      "name": "Home & Furniture",
+      "description": "Items around the house",
+      "words": [
+        {
+          "english": "house",
+          "foreign": "дом",
+          "phonetic": "dom"
+        },
+        {
+          "english": "table",
+          "foreign": "стол",
+          "phonetic": "stol"
+        },
+        {
+          "english": "chair",
+          "foreign": "стул",
+          "phonetic": "stul"
+        },
+        {
+          "english": "bed",
+          "foreign": "кровать",
+          "phonetic": "krovat"
+        },
+        {
+          "english": "room",
+          "foreign": "комната",
+          "phonetic": "komnata"
+        },
+        {
+          "english": "kitchen",
+          "foreign": "кухня",
+          "phonetic": "kukhnya"
+        },
+        {
+          "english": "bathroom",
+          "foreign": "ванная",
+          "phonetic": "vannaya"
+        },
+        {
+          "english": "bedroom",
+          "foreign": "спальня",
+          "phonetic": "spalnya"
+        },
+        {
+          "english": "living room",
+          "foreign": "гостиная",
+          "phonetic": "gostinaya"
+        },
+        {
+          "english": "window",
+          "foreign": "окно",
+          "phonetic": "okno"
+        },
+        {
+          "english": "door",
+          "foreign": "дверь",
+          "phonetic": "dver"
+        },
+        {
+          "english": "wall",
+          "foreign": "стена",
+          "phonetic": "stena"
+        },
+        {
+          "english": "floor",
+          "foreign": "пол",
+          "phonetic": "pol"
+        },
+        {
+          "english": "ceiling",
+          "foreign": "потолок",
+          "phonetic": "potolok"
+        },
+        {
+          "english": "sofa",
+          "foreign": "диван",
+          "phonetic": "divan"
+        },
+        {
+          "english": "lamp",
+          "foreign": "лампа",
+          "phonetic": "lampa"
+        },
+        {
+          "english": "mirror",
+          "foreign": "зеркало",
+          "phonetic": "zerkalo"
+        },
+        {
+          "english": "carpet",
+          "foreign": "ковёр",
+          "phonetic": "kovyor"
+        },
+        {
+          "english": "curtain",
+          "foreign": "штора",
+          "phonetic": "shtora"
+        },
+        {
+          "english": "pillow",
+          "foreign": "подушка",
+          "phonetic": "podushka"
+        },
+        {
+          "english": "blanket",
+          "foreign": "одеяло",
+          "phonetic": "odeyalo"
+        },
+        {
+          "english": "shelf",
+          "foreign": "полка",
+          "phonetic": "polka"
+        },
+        {
+          "english": "closet",
+          "foreign": "шкаф",
+          "phonetic": "shkaf"
+        },
+        {
+          "english": "picture",
+          "foreign": "картина",
+          "phonetic": "kartina"
+        }
+      ]
+    }
+  }
+}

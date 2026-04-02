@@ -1,0 +1,692 @@
+{
+  "categories": {
+    "hiragana": {
+      "name": "Hiragana",
+      "description": "Hiragana characters (gojuon)",
+      "words": [
+        {
+          "english": "a",
+          "foreign": "あ",
+          "phonetic": "a"
+        },
+        {
+          "english": "i",
+          "foreign": "い",
+          "phonetic": "i"
+        },
+        {
+          "english": "u",
+          "foreign": "う",
+          "phonetic": "u"
+        },
+        {
+          "english": "e",
+          "foreign": "え",
+          "phonetic": "e"
+        },
+        {
+          "english": "o",
+          "foreign": "お",
+          "phonetic": "o"
+        },
+        {
+          "english": "ka",
+          "foreign": "か",
+          "phonetic": "ka"
+        },
+        {
+          "english": "ki",
+          "foreign": "き",
+          "phonetic": "ki"
+        },
+        {
+          "english": "ku",
+          "foreign": "く",
+          "phonetic": "ku"
+        },
+        {
+          "english": "ke",
+          "foreign": "け",
+          "phonetic": "ke"
+        },
+        {
+          "english": "ko",
+          "foreign": "こ",
+          "phonetic": "ko"
+        },
+        {
+          "english": "sa",
+          "foreign": "さ",
+          "phonetic": "sa"
+        },
+        {
+          "english": "shi",
+          "foreign": "し",
+          "phonetic": "shi"
+        },
+        {
+          "english": "su",
+          "foreign": "す",
+          "phonetic": "su"
+        },
+        {
+          "english": "se",
+          "foreign": "せ",
+          "phonetic": "se"
+        },
+        {
+          "english": "so",
+          "foreign": "そ",
+          "phonetic": "so"
+        },
+        {
+          "english": "ta",
+          "foreign": "た",
+          "phonetic": "ta"
+        },
+        {
+          "english": "chi",
+          "foreign": "ち",
+          "phonetic": "chi"
+        },
+        {
+          "english": "tsu",
+          "foreign": "つ",
+          "phonetic": "tsu"
+        },
+        {
+          "english": "te",
+          "foreign": "て",
+          "phonetic": "te"
+        },
+        {
+          "english": "to",
+          "foreign": "と",
+          "phonetic": "to"
+        },
+        {
+          "english": "na",
+          "foreign": "な",
+          "phonetic": "na"
+        },
+        {
+          "english": "ni",
+          "foreign": "に",
+          "phonetic": "ni"
+        },
+        {
+          "english": "nu",
+          "foreign": "ぬ",
+          "phonetic": "nu"
+        },
+        {
+          "english": "ne",
+          "foreign": "ね",
+          "phonetic": "ne"
+        },
+        {
+          "english": "no",
+          "foreign": "の",
+          "phonetic": "no"
+        },
+        {
+          "english": "ha",
+          "foreign": "は",
+          "phonetic": "ha"
+        },
+        {
+          "english": "hi",
+          "foreign": "ひ",
+          "phonetic": "hi"
+        },
+        {
+          "english": "fu",
+          "foreign": "ふ",
+          "phonetic": "fu"
+        },
+        {
+          "english": "he",
+          "foreign": "へ",
+          "phonetic": "he"
+        },
+        {
+          "english": "ho",
+          "foreign": "ほ",
+          "phonetic": "ho"
+        },
+        {
+          "english": "ma",
+          "foreign": "ま",
+          "phonetic": "ma"
+        },
+        {
+          "english": "mi",
+          "foreign": "み",
+          "phonetic": "mi"
+        },
+        {
+          "english": "mu",
+          "foreign": "む",
+          "phonetic": "mu"
+        },
+        {
+          "english": "me",
+          "foreign": "め",
+          "phonetic": "me"
+        },
+        {
+          "english": "mo",
+          "foreign": "も",
+          "phonetic": "mo"
+        },
+        {
+          "english": "ya",
+          "foreign": "や",
+          "phonetic": "ya"
+        },
+        {
+          "english": "yu",
+          "foreign": "ゆ",
+          "phonetic": "yu"
+        },
+        {
+          "english": "yo",
+          "foreign": "よ",
+          "phonetic": "yo"
+        },
+        {
+          "english": "ra",
+          "foreign": "ら",
+          "phonetic": "ra"
+        },
+        {
+          "english": "ri",
+          "foreign": "り",
+          "phonetic": "ri"
+        },
+        {
+          "english": "ru",
+          "foreign": "る",
+          "phonetic": "ru"
+        },
+        {
+          "english": "re",
+          "foreign": "れ",
+          "phonetic": "re"
+        },
+        {
+          "english": "ro",
+          "foreign": "ろ",
+          "phonetic": "ro"
+        },
+        {
+          "english": "wa",
+          "foreign": "わ",
+          "phonetic": "wa"
+        },
+        {
+          "english": "wo",
+          "foreign": "を",
+          "phonetic": "wo"
+        },
+        {
+          "english": "n",
+          "foreign": "ん",
+          "phonetic": "n"
+        }
+      ]
+    },
+    "katakana": {
+      "name": "Katakana",
+      "description": "Katakana characters (gojuon)",
+      "words": [
+        {
+          "english": "a",
+          "foreign": "ア",
+          "phonetic": "a"
+        },
+        {
+          "english": "i",
+          "foreign": "イ",
+          "phonetic": "i"
+        },
+        {
+          "english": "u",
+          "foreign": "ウ",
+          "phonetic": "u"
+        },
+        {
+          "english": "e",
+          "foreign": "エ",
+          "phonetic": "e"
+        },
+        {
+          "english": "o",
+          "foreign": "オ",
+          "phonetic": "o"
+        },
+        {
+          "english": "ka",
+          "foreign": "カ",
+          "phonetic": "ka"
+        },
+        {
+          "english": "ki",
+          "foreign": "キ",
+          "phonetic": "ki"
+        },
+        {
+          "english": "ku",
+          "foreign": "ク",
+          "phonetic": "ku"
+        },
+        {
+          "english": "ke",
+          "foreign": "ケ",
+          "phonetic": "ke"
+        },
+        {
+          "english": "ko",
+          "foreign": "コ",
+          "phonetic": "ko"
+        },
+        {
+          "english": "sa",
+          "foreign": "サ",
+          "phonetic": "sa"
+        },
+        {
+          "english": "shi",
+          "foreign": "シ",
+          "phonetic": "shi"
+        },
+        {
+          "english": "su",
+          "foreign": "ス",
+          "phonetic": "su"
+        },
+        {
+          "english": "se",
+          "foreign": "セ",
+          "phonetic": "se"
+        },
+        {
+          "english": "so",
+          "foreign": "ソ",
+          "phonetic": "so"
+        },
+        {
+          "english": "ta",
+          "foreign": "タ",
+          "phonetic": "ta"
+        },
+        {
+          "english": "chi",
+          "foreign": "チ",
+          "phonetic": "chi"
+        },
+        {
+          "english": "tsu",
+          "foreign": "ツ",
+          "phonetic": "tsu"
+        },
+        {
+          "english": "te",
+          "foreign": "テ",
+          "phonetic": "te"
+        },
+        {
+          "english": "to",
+          "foreign": "ト",
+          "phonetic": "to"
+        },
+        {
+          "english": "na",
+          "foreign": "ナ",
+          "phonetic": "na"
+        },
+        {
+          "english": "ni",
+          "foreign": "ニ",
+          "phonetic": "ni"
+        },
+        {
+          "english": "nu",
+          "foreign": "ヌ",
+          "phonetic": "nu"
+        },
+        {
+          "english": "ne",
+          "foreign": "ネ",
+          "phonetic": "ne"
+        },
+        {
+          "english": "no",
+          "foreign": "ノ",
+          "phonetic": "no"
+        },
+        {
+          "english": "ha",
+          "foreign": "ハ",
+          "phonetic": "ha"
+        },
+        {
+          "english": "hi",
+          "foreign": "ヒ",
+          "phonetic": "hi"
+        },
+        {
+          "english": "fu",
+          "foreign": "フ",
+          "phonetic": "fu"
+        },
+        {
+          "english": "he",
+          "foreign": "ヘ",
+          "phonetic": "he"
+        },
+        {
+          "english": "ho",
+          "foreign": "ホ",
+          "phonetic": "ho"
+        },
+        {
+          "english": "ma",
+          "foreign": "マ",
+          "phonetic": "ma"
+        },
+        {
+          "english": "mi",
+          "foreign": "ミ",
+          "phonetic": "mi"
+        },
+        {
+          "english": "mu",
+          "foreign": "ム",
+          "phonetic": "mu"
+        },
+        {
+          "english": "me",
+          "foreign": "メ",
+          "phonetic": "me"
+        },
+        {
+          "english": "mo",
+          "foreign": "モ",
+          "phonetic": "mo"
+        },
+        {
+          "english": "ya",
+          "foreign": "ヤ",
+          "phonetic": "ya"
+        },
+        {
+          "english": "yu",
+          "foreign": "ユ",
+          "phonetic": "yu"
+        },
+        {
+          "english": "yo",
+          "foreign": "ヨ",
+          "phonetic": "yo"
+        },
+        {
+          "english": "ra",
+          "foreign": "ラ",
+          "phonetic": "ra"
+        },
+        {
+          "english": "ri",
+          "foreign": "リ",
+          "phonetic": "ri"
+        },
+        {
+          "english": "ru",
+          "foreign": "ル",
+          "phonetic": "ru"
+        },
+        {
+          "english": "re",
+          "foreign": "レ",
+          "phonetic": "re"
+        },
+        {
+          "english": "ro",
+          "foreign": "ロ",
+          "phonetic": "ro"
+        },
+        {
+          "english": "wa",
+          "foreign": "ワ",
+          "phonetic": "wa"
+        },
+        {
+          "english": "wo",
+          "foreign": "ヲ",
+          "phonetic": "wo"
+        },
+        {
+          "english": "n",
+          "foreign": "ン",
+          "phonetic": "n"
+        }
+      ]
+    },
+    "kanji": {
+      "name": "Kanji",
+      "description": "Essential beginner kanji (readings)",
+      "words": [
+        {
+          "english": "sun / day",
+          "foreign": "日",
+          "phonetic": "にち / ひ / び"
+        },
+        {
+          "english": "moon / month",
+          "foreign": "月",
+          "phonetic": "げつ / つき"
+        },
+        {
+          "english": "fire / Tuesday",
+          "foreign": "火",
+          "phonetic": "か / ひ"
+        },
+        {
+          "english": "water / Wednesday",
+          "foreign": "水",
+          "phonetic": "すい / みず"
+        },
+        {
+          "english": "tree / Thursday",
+          "foreign": "木",
+          "phonetic": "もく / き"
+        },
+        {
+          "english": "gold / Friday",
+          "foreign": "金",
+          "phonetic": "きん / かね"
+        },
+        {
+          "english": "earth / Saturday",
+          "foreign": "土",
+          "phonetic": "ど / つち"
+        },
+        {
+          "english": "person",
+          "foreign": "人",
+          "phonetic": "ひと / じん"
+        },
+        {
+          "english": "big",
+          "foreign": "大",
+          "phonetic": "おお / だい"
+        },
+        {
+          "english": "small",
+          "foreign": "小",
+          "phonetic": "ちい / しょう"
+        },
+        {
+          "english": "middle",
+          "foreign": "中",
+          "phonetic": "なか / ちゅう"
+        },
+        {
+          "english": "up",
+          "foreign": "上",
+          "phonetic": "うえ / じょう"
+        },
+        {
+          "english": "down",
+          "foreign": "下",
+          "phonetic": "した / か / げ"
+        },
+        {
+          "english": "left",
+          "foreign": "左",
+          "phonetic": "ひだり / さ"
+        },
+        {
+          "english": "right",
+          "foreign": "右",
+          "phonetic": "みぎ / ゆう"
+        },
+        {
+          "english": "one",
+          "foreign": "一",
+          "phonetic": "いち / ひと"
+        },
+        {
+          "english": "two",
+          "foreign": "二",
+          "phonetic": "に / ふた"
+        },
+        {
+          "english": "three",
+          "foreign": "三",
+          "phonetic": "さん / みっ"
+        },
+        {
+          "english": "four",
+          "foreign": "四",
+          "phonetic": "し / よん"
+        },
+        {
+          "english": "five",
+          "foreign": "五",
+          "phonetic": "ご / いつ"
+        },
+        {
+          "english": "six",
+          "foreign": "六",
+          "phonetic": "ろく / むっ"
+        },
+        {
+          "english": "seven",
+          "foreign": "七",
+          "phonetic": "しち / なな"
+        },
+        {
+          "english": "eight",
+          "foreign": "八",
+          "phonetic": "はち / やっ"
+        },
+        {
+          "english": "nine",
+          "foreign": "九",
+          "phonetic": "きゅう / ここの"
+        },
+        {
+          "english": "ten",
+          "foreign": "十",
+          "phonetic": "じゅう / とお"
+        },
+        {
+          "english": "hundred",
+          "foreign": "百",
+          "phonetic": "ひゃく"
+        },
+        {
+          "english": "thousand",
+          "foreign": "千",
+          "phonetic": "せん"
+        },
+        {
+          "english": "ten thousand",
+          "foreign": "万",
+          "phonetic": "まん"
+        },
+        {
+          "english": "year",
+          "foreign": "年",
+          "phonetic": "ねん / とし"
+        },
+        {
+          "english": "time / hour",
+          "foreign": "時",
+          "phonetic": "じ / とき"
+        },
+        {
+          "english": "minute",
+          "foreign": "分",
+          "phonetic": "ふん / ぶん"
+        },
+        {
+          "english": "now",
+          "foreign": "今",
+          "phonetic": "いま / こん"
+        },
+        {
+          "english": "book",
+          "foreign": "本",
+          "phonetic": "ほん"
+        },
+        {
+          "english": "learn",
+          "foreign": "学",
+          "phonetic": "がく"
+        },
+        {
+          "english": "school",
+          "foreign": "校",
+          "phonetic": "こう"
+        },
+        {
+          "english": "ahead / previous",
+          "foreign": "先",
+          "phonetic": "せん / さき"
+        },
+        {
+          "english": "life / raw",
+          "foreign": "生",
+          "phonetic": "せい / なま"
+        },
+        {
+          "english": "electricity",
+          "foreign": "電",
+          "phonetic": "でん"
+        },
+        {
+          "english": "car",
+          "foreign": "車",
+          "phonetic": "くるま / しゃ"
+        },
+        {
+          "english": "what",
+          "foreign": "何",
+          "phonetic": "なに / なん"
+        },
+        {
+          "english": "I / private",
+          "foreign": "私",
+          "phonetic": "わたし"
+        },
+        {
+          "english": "you (polite)",
+          "foreign": "貴方",
+          "phonetic": "あなた"
+        }
+      ]
+    }
+  }
+}

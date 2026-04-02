@@ -10,6 +10,7 @@ const HomePage = () => {
         <a href="/russian" className="language-link button">Russian</a>
         <a href="/spanish" className="language-link button">Spanish</a>
         <a href="/chinese" className="language-link button">Chinese</a>
+        <a href="/japanese" className="language-link button">Japanese</a>
       </div>
       <footer className="footer">
         <img src="hotpink.svg" alt="Logo" className="footer-logo" />

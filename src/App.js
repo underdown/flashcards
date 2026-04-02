@@ -10,14 +10,9 @@ import { openDB } from 'idb';
 import { levenshteinDistance } from './utils';
 import { useNavigate } from 'react-router-dom';
 import CategorySelector from './CategorySelector';
+import { languages, getLanguageCode, languageIds } from './assets/languages';
 
 const DB_VERSION = 1;
-
-const languageCodes = {
-  russian: 'ru-RU',
-  spanish: 'es-ES',
-  chinese: 'zh-CN'
-};
 
 const App = () => {
   const navigate = useNavigate();
@@ -122,7 +117,7 @@ const App = () => {
 
   useEffect(() => {
     const pathLanguage = window.location.pathname.split('/')[1];
-    if (pathLanguage && languageCodes[pathLanguage]) {
+    if (pathLanguage && languages[pathLanguage]) {
       setCurrentLanguage(pathLanguage);
     } else {
       setCurrentLanguage('spanish'); 
@@ -130,49 +125,50 @@ const App = () => {
   }, []);
 
   useEffect(() => {
-    if (currentLanguage) {
-      import('./assets/data.json')
-        .then(data => {
-          const languageData = data.default[currentLanguage];
-          setCategories(languageData.categories || {});
-          
-          // If no categories are selected, select 'basics' by default
-          if (selectedCategories.length === 0) {
-            setSelectedCategories(['basics']);
-          }
-          
-          // Combine words from all selected categories
-          const selectedWords = selectedCategories.reduce((acc, categoryKey) => {
-            const categoryWords = languageData.categories[categoryKey]?.words || [];
-            return [...acc, ...categoryWords];
-          }, []);
-          
-          setWords(selectedWords);
-          setWordsInitialized(true);
-        })
-        .catch(error => {
-          console.error('Error loading words:', error);
-          fetch('/data.json')
-            .then(response => response.json())
-            .then(data => {
-              const languageData = data[currentLanguage];
-              setCategories(languageData.categories || {});
-              
-              if (selectedCategories.length === 0) {
-                setSelectedCategories(['basics']);
-              }
-              
-              const selectedWords = selectedCategories.reduce((acc, categoryKey) => {
-                const categoryWords = languageData.categories[categoryKey]?.words || [];
-                return [...acc, ...categoryWords];
-              }, []);
-              
-              setWords(selectedWords);
-              setWordsInitialized(true);
-            })
-            .catch(error => console.error('Error loading words:', error));
-        });
+    if (!currentLanguage || !languages[currentLanguage]) {
+      return;
     }
+
+    const loadLanguageData = (languageData) => {
+      const categoriesObj = languageData.categories || {};
+      const catKeys = Object.keys(categoriesObj);
+
+      let categoriesToUse = selectedCategories.filter((k) => catKeys.includes(k));
+      if (categoriesToUse.length === 0 && catKeys.length > 0) {
+        const defaultKey = catKeys.includes('basics') ? 'basics' : catKeys[0];
+        categoriesToUse = defaultKey ? [defaultKey] : [];
+      }
+
+      const sorted = (arr) => [...arr].sort().join(',');
+      if (sorted(categoriesToUse) !== sorted(selectedCategories)) {
+        setSelectedCategories(categoriesToUse);
+      }
+
+      setCategories(categoriesObj);
+
+      const selectedWords = categoriesToUse.reduce((acc, categoryKey) => {
+        const categoryWords = categoriesObj[categoryKey]?.words || [];
+        return [...acc, ...categoryWords];
+      }, []);
+
+      setWords(selectedWords);
+      setWordsInitialized(true);
+    };
+
+    languages[currentLanguage]
+      .data()
+      .then((module) => {
+        loadLanguageData(module.default);
+      })
+      .catch((error) => {
+        console.error('Error loading words:', error);
+        fetch(`/languages/${currentLanguage}.json`)
+          .then((response) => response.json())
+          .then((data) => {
+            loadLanguageData(data);
+          })
+          .catch((err) => console.error('Error loading words:', err));
+      });
   }, [currentLanguage, selectedCategories]);
 
   useEffect(() => {
@@ -189,7 +185,7 @@ const App = () => {
   useEffect(() => {
     if ('webkitSpeechRecognition' in window) {
       const newRecognition = new window.webkitSpeechRecognition();
-      newRecognition.lang = languageCodes[currentLanguage] || 'en-US';
+      newRecognition.lang = getLanguageCode(currentLanguage);
       newRecognition.continuous = true;
       newRecognition.interimResults = true;
       setRecognition(newRecognition);
@@ -351,19 +347,20 @@ const App = () => {
   const speakWord = useCallback(() => {
     if (currentWord && currentWord.foreign) {
       const utterance = new SpeechSynthesisUtterance(currentWord.foreign);
-      utterance.lang = languageCodes[currentLanguage] || 'en-US';
+      const langCode = getLanguageCode(currentLanguage);
+      utterance.lang = langCode;
       
       // Get available voices and try to find a match for our language
       const voices = window.speechSynthesis.getVoices();
       const languageVoice = voices.find(voice => 
-        voice.lang.startsWith(languageCodes[currentLanguage].split('-')[0]) && !voice.lang.includes('en-')
+        voice.lang.startsWith(langCode.split('-')[0]) && !voice.lang.includes('en-')
       );
       
       if (languageVoice) {
         utterance.voice = languageVoice;
         console.log('Using voice:', languageVoice.name);
       } else {
-        console.log('No specific voice found for', languageCodes[currentLanguage]);
+        console.log('No specific voice found for', langCode);
       }
 
       // Set other properties to improve quality
@@ -566,7 +563,7 @@ const App = () => {
         // Speak foreign word and wait for completion
         console.log('Speaking foreign word:', currentWordRef.current.foreign);
         if (!autoPracticeActiveRef.current) return;
-        await readWord(currentWordRef.current.foreign, languageCodes[currentLanguage]);
+        await readWord(currentWordRef.current.foreign, getLanguageCode(currentLanguage));
         await new Promise(resolve => setTimeout(resolve, 1000));
 
         // Start recognition
@@ -650,9 +647,11 @@ const App = () => {
   return (
     <div className={`App ${darkMode ? 'dark-mode' : ''}`} style={{ position: 'relative', zIndex: 1 }}>
       <select value={currentLanguage} onChange={handleLanguageChange} className="language-selector">
-        <option value="russian">Russian</option>
-        <option value="spanish">Spanish</option>
-        <option value="chinese">Chinese</option>
+        {languageIds.map((id) => (
+          <option key={id} value={id}>
+            {languages[id].name}
+          </option>
+        ))}
       </select>
       {showCategorySelector && (
         <CategorySelector

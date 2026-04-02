@@ -1,0 +1,787 @@
+{
+  "categories": {
+    "basics": {
+      "name": "Basic Phrases",
+      "description": "Essential everyday phrases",
+      "words": [
+        {
+          "english": "hello",
+          "foreign": "hola",
+          "phonetic": "ola"
+        },
+        {
+          "english": "goodbye",
+          "foreign": "adiós",
+          "phonetic": "adios"
+        },
+        {
+          "english": "please",
+          "foreign": "por favor",
+          "phonetic": "por favor"
+        },
+        {
+          "english": "thank you",
+          "foreign": "gracias",
+          "phonetic": "grasias"
+        },
+        {
+          "english": "yes",
+          "foreign": "sí",
+          "phonetic": "si"
+        },
+        {
+          "english": "no",
+          "foreign": "no",
+          "phonetic": "no"
+        },
+        {
+          "english": "excuse me",
+          "foreign": "perdón",
+          "phonetic": "perdon"
+        },
+        {
+          "english": "sorry",
+          "foreign": "lo siento",
+          "phonetic": "lo siento"
+        },
+        {
+          "english": "good morning",
+          "foreign": "buenos días",
+          "phonetic": "buenos dias"
+        },
+        {
+          "english": "good evening",
+          "foreign": "buenas noches",
+          "phonetic": "buenas noches"
+        },
+        {
+          "english": "good night",
+          "foreign": "buenas noches",
+          "phonetic": "buenas noches"
+        },
+        {
+          "english": "how are you",
+          "foreign": "¿cómo estás?",
+          "phonetic": "como estas"
+        },
+        {
+          "english": "fine thanks",
+          "foreign": "bien gracias",
+          "phonetic": "bien grasias"
+        },
+        {
+          "english": "you're welcome",
+          "foreign": "de nada",
+          "phonetic": "de nada"
+        },
+        {
+          "english": "see you later",
+          "foreign": "hasta luego",
+          "phonetic": "asta luego"
+        },
+        {
+          "english": "nice to meet you",
+          "foreign": "mucho gusto",
+          "phonetic": "mucho gusto"
+        },
+        {
+          "english": "what's your name",
+          "foreign": "¿cómo te llamas?",
+          "phonetic": "como te yamas"
+        },
+        {
+          "english": "my name is",
+          "foreign": "me llamo",
+          "phonetic": "me yamo"
+        },
+        {
+          "english": "I understand",
+          "foreign": "entiendo",
+          "phonetic": "entiendo"
+        },
+        {
+          "english": "I don't understand",
+          "foreign": "no entiendo",
+          "phonetic": "no entiendo"
+        },
+        {
+          "english": "can you help me",
+          "foreign": "¿puedes ayudarme?",
+          "phonetic": "puedes ayudarme"
+        },
+        {
+          "english": "of course",
+          "foreign": "por supuesto",
+          "phonetic": "por supuesto"
+        },
+        {
+          "english": "good",
+          "foreign": "bueno",
+          "phonetic": "bueno"
+        },
+        {
+          "english": "bad",
+          "foreign": "malo",
+          "phonetic": "malo"
+        },
+        {
+          "english": "do you speak English",
+          "foreign": "¿hablas inglés?",
+          "phonetic": "ablas ingles"
+        },
+        {
+          "english": "I speak Spanish",
+          "foreign": "hablo español",
+          "phonetic": "ablo espanol"
+        },
+        {
+          "english": "I don't speak Spanish",
+          "foreign": "no hablo español",
+          "phonetic": "no ablo espanol"
+        },
+        {
+          "english": "please speak slowly",
+          "foreign": "habla más despacio por favor",
+          "phonetic": "abla mas despasio por favor"
+        },
+        {
+          "english": "could you repeat that",
+          "foreign": "¿puedes repetir?",
+          "phonetic": "puedes repetir"
+        },
+        {
+          "english": "what does this mean",
+          "foreign": "¿qué significa esto?",
+          "phonetic": "ke signifika esto"
+        },
+        {
+          "english": "I need help",
+          "foreign": "necesito ayuda",
+          "phonetic": "nesisito ayuda"
+        },
+        {
+          "english": "wait a moment",
+          "foreign": "espera un momento",
+          "phonetic": "espera un momento"
+        },
+        {
+          "english": "come here",
+          "foreign": "ven aquí",
+          "phonetic": "ben aki"
+        },
+        {
+          "english": "let's go",
+          "foreign": "vamos",
+          "phonetic": "bamos"
+        },
+        {
+          "english": "have a nice day",
+          "foreign": "que tengas un buen día",
+          "phonetic": "ke tengas un buen dia"
+        },
+        {
+          "english": "welcome",
+          "foreign": "bienvenido",
+          "phonetic": "bienbenido"
+        },
+        {
+          "english": "maybe",
+          "foreign": "quizás",
+          "phonetic": "kisas"
+        },
+        {
+          "english": "I agree",
+          "foreign": "estoy de acuerdo",
+          "phonetic": "estoy de akuerdo"
+        },
+        {
+          "english": "I disagree",
+          "foreign": "no estoy de acuerdo",
+          "phonetic": "no estoy de akuerdo"
+        },
+        {
+          "english": "it's okay",
+          "foreign": "está bien",
+          "phonetic": "esta bien"
+        },
+        {
+          "english": "no problem",
+          "foreign": "no hay problema",
+          "phonetic": "no ay problema"
+        },
+        {
+          "english": "excuse me (to pass)",
+          "foreign": "con permiso",
+          "phonetic": "kon permiso"
+        },
+        {
+          "english": "I'm sorry to bother you",
+          "foreign": "siento molestarte",
+          "phonetic": "siento molestarte"
+        },
+        {
+          "english": "what time is it",
+          "foreign": "¿qué hora es?",
+          "phonetic": "ke ora es"
+        },
+        {
+          "english": "where is the bathroom",
+          "foreign": "¿dónde está el baño?",
+          "phonetic": "donde esta el banyo"
+        },
+        {
+          "english": "cheers",
+          "foreign": "¡salud!",
+          "phonetic": "salud"
+        },
+        {
+          "english": "congratulations",
+          "foreign": "¡felicitaciones!",
+          "phonetic": "felisitasiones"
+        },
+        {
+          "english": "get well soon",
+          "foreign": "que te mejores",
+          "phonetic": "ke te mejores"
+        },
+        {
+          "english": "happy birthday",
+          "foreign": "feliz cumpleaños",
+          "phonetic": "felis kumpleanyos"
+        },
+        {
+          "english": "happy new year",
+          "foreign": "feliz año nuevo",
+          "phonetic": "felis anyo nuevo"
+        },
+        {
+          "english": "I love you",
+          "foreign": "te quiero",
+          "phonetic": "te kiero"
+        },
+        {
+          "english": "take care",
+          "foreign": "cuídate",
+          "phonetic": "kuidate"
+        },
+        {
+          "english": "call me",
+          "foreign": "llámame",
+          "phonetic": "yamame"
+        },
+        {
+          "english": "I miss you",
+          "foreign": "te extraño",
+          "phonetic": "te extranyo"
+        }
+      ]
+    },
+    "time": {
+      "name": "Time & Dates",
+      "description": "Days, months, and telling time",
+      "words": [
+        {
+          "english": "monday",
+          "foreign": "lunes",
+          "phonetic": "lunes"
+        },
+        {
+          "english": "tuesday",
+          "foreign": "martes",
+          "phonetic": "martes"
+        },
+        {
+          "english": "wednesday",
+          "foreign": "среда",
+          "phonetic": "sreda"
+        },
+        {
+          "english": "thursday",
+          "foreign": "четверг",
+          "phonetic": "chetverg"
+        },
+        {
+          "english": "friday",
+          "foreign": "пятница",
+          "phonetic": "pyatnitsa"
+        },
+        {
+          "english": "saturday",
+          "foreign": "суббота",
+          "phonetic": "subbota"
+        },
+        {
+          "english": "sunday",
+          "foreign": "воскресенье",
+          "phonetic": "voskresenye"
+        },
+        {
+          "english": "january",
+          "foreign": "январь",
+          "phonetic": "yanvar"
+        },
+        {
+          "english": "february",
+          "foreign": "февраль",
+          "phonetic": "fevral"
+        },
+        {
+          "english": "march",
+          "foreign": "март",
+          "phonetic": "mart"
+        },
+        {
+          "english": "april",
+          "foreign": "апрель",
+          "phonetic": "aprel"
+        },
+        {
+          "english": "may",
+          "foreign": "май",
+          "phonetic": "may"
+        },
+        {
+          "english": "june",
+          "foreign": "июнь",
+          "phonetic": "iyun"
+        },
+        {
+          "english": "july",
+          "foreign": "июль",
+          "phonetic": "iyul"
+        },
+        {
+          "english": "august",
+          "foreign": "август",
+          "phonetic": "avgust"
+        },
+        {
+          "english": "september",
+          "foreign": "сентябрь",
+          "phonetic": "sentyabr"
+        },
+        {
+          "english": "october",
+          "foreign": "октябрь",
+          "phonetic": "oktyabr"
+        },
+        {
+          "english": "november",
+          "foreign": "ноябрь",
+          "phonetic": "noyabr"
+        },
+        {
+          "english": "december",
+          "foreign": "декабрь",
+          "phonetic": "dekabr"
+        },
+        {
+          "english": "what time is it",
+          "foreign": "который час",
+          "phonetic": "kotoryy chas"
+        },
+        {
+          "english": "morning",
+          "foreign": "утро",
+          "phonetic": "utro"
+        },
+        {
+          "english": "afternoon",
+          "foreign": "день",
+          "phonetic": "den"
+        },
+        {
+          "english": "evening",
+          "foreign": "вечер",
+          "phonetic": "vecher"
+        },
+        {
+          "english": "night",
+          "foreign": "ночь",
+          "phonetic": "noch"
+        }
+      ]
+    },
+    "food": {
+      "name": "Food & Drink",
+      "description": "Common food and drink items",
+      "words": [
+        {
+          "english": "water",
+          "foreign": "agua",
+          "phonetic": "agua"
+        },
+        {
+          "english": "bread",
+          "foreign": "pan",
+          "phonetic": "pan"
+        },
+        {
+          "english": "milk",
+          "foreign": "leche",
+          "phonetic": "leche"
+        }
+      ]
+    },
+    "numbers": {
+      "name": "Numbers",
+      "description": "Basic numbers and counting",
+      "words": [
+        {
+          "english": "one",
+          "foreign": "uno",
+          "phonetic": "uno"
+        },
+        {
+          "english": "two",
+          "foreign": "dos",
+          "phonetic": "dos"
+        },
+        {
+          "english": "three",
+          "foreign": "tres",
+          "phonetic": "tres"
+        },
+        {
+          "english": "four",
+          "foreign": "четыре",
+          "phonetic": "chetyre"
+        },
+        {
+          "english": "five",
+          "foreign": "пять",
+          "phonetic": "pyat"
+        },
+        {
+          "english": "six",
+          "foreign": "шесть",
+          "phonetic": "shest"
+        },
+        {
+          "english": "seven",
+          "foreign": "семь",
+          "phonetic": "sem"
+        },
+        {
+          "english": "eight",
+          "foreign": "восемь",
+          "phonetic": "vosem"
+        },
+        {
+          "english": "nine",
+          "foreign": "девять",
+          "phonetic": "devyat"
+        },
+        {
+          "english": "ten",
+          "foreign": "десять",
+          "phonetic": "desyat"
+        },
+        {
+          "english": "twenty",
+          "foreign": "двадцать",
+          "phonetic": "dvadtsat"
+        },
+        {
+          "english": "thirty",
+          "foreign": "тридцать",
+          "phonetic": "tridtsat"
+        },
+        {
+          "english": "forty",
+          "foreign": "сорок",
+          "phonetic": "sorok"
+        },
+        {
+          "english": "fifty",
+          "foreign": "пятьдесят",
+          "phonetic": "pyatdesyat"
+        },
+        {
+          "english": "hundred",
+          "foreign": "сто",
+          "phonetic": "sto"
+        },
+        {
+          "english": "thousand",
+          "foreign": "тысяча",
+          "phonetic": "tysyacha"
+        },
+        {
+          "english": "first",
+          "foreign": "первый",
+          "phonetic": "pervyy"
+        },
+        {
+          "english": "second",
+          "foreign": "второй",
+          "phonetic": "vtoroy"
+        },
+        {
+          "english": "last",
+          "foreign": "последний",
+          "phonetic": "posledniy"
+        },
+        {
+          "english": "many",
+          "foreign": "много",
+          "phonetic": "mnogo"
+        },
+        {
+          "english": "few",
+          "foreign": "мало",
+          "phonetic": "malo"
+        },
+        {
+          "english": "all",
+          "foreign": "все",
+          "phonetic": "vse"
+        },
+        {
+          "english": "zero",
+          "foreign": "ноль",
+          "phonetic": "nol"
+        },
+        {
+          "english": "half",
+          "foreign": "половина",
+          "phonetic": "polovina"
+        }
+      ]
+    },
+    "family": {
+      "name": "Family Members",
+      "description": "Family relationships and terms",
+      "words": [
+        {
+          "english": "mother",
+          "foreign": "la madre",
+          "phonetic": "la madre"
+        },
+        {
+          "english": "father",
+          "foreign": "el padre",
+          "phonetic": "el padre"
+        },
+        {
+          "english": "sister",
+          "foreign": "la hermana",
+          "phonetic": "la hermana"
+        },
+        {
+          "english": "brother",
+          "foreign": "el hermano",
+          "phonetic": "el hermano"
+        }
+      ]
+    },
+    "travel": {
+      "name": "Travel & Directions",
+      "description": "Getting around and asking for directions",
+      "words": [
+        {
+          "english": "where",
+          "foreign": "dónde",
+          "phonetic": "dónde"
+        },
+        {
+          "english": "left",
+          "foreign": "a la izquierda",
+          "phonetic": "a la izquierda"
+        },
+        {
+          "english": "right",
+          "foreign": "a la derecha",
+          "phonetic": "a la derecha"
+        },
+        {
+          "english": "straight",
+          "foreign": "recto",
+          "phonetic": "recto"
+        }
+      ]
+    },
+    "weather": {
+      "name": "Weather & Seasons",
+      "description": "Weather conditions and seasons",
+      "words": [
+        {
+          "english": "hot",
+          "foreign": "caliente",
+          "phonetic": "caliente"
+        },
+        {
+          "english": "cold",
+          "foreign": "frío",
+          "phonetic": "frío"
+        },
+        {
+          "english": "rain",
+          "foreign": "lluvia",
+          "phonetic": "lluvia"
+        },
+        {
+          "english": "snow",
+          "foreign": "nieve",
+          "phonetic": "nieve"
+        }
+      ]
+    },
+    "shopping": {
+      "name": "Shopping",
+      "description": "Shopping and money-related terms",
+      "words": [
+        {
+          "english": "how much",
+          "foreign": "cuánto",
+          "phonetic": "cuánto"
+        },
+        {
+          "english": "expensive",
+          "foreign": "caro",
+          "phonetic": "caro"
+        },
+        {
+          "english": "cheap",
+          "foreign": "barato",
+          "phonetic": "barato"
+        },
+        {
+          "english": "money",
+          "foreign": "dinero",
+          "phonetic": "dinero"
+        }
+      ]
+    },
+    "colors": {
+      "name": "Colors",
+      "description": "Basic colors and shades",
+      "words": [
+        {
+          "english": "red",
+          "foreign": "rojo",
+          "phonetic": "rojo"
+        },
+        {
+          "english": "blue",
+          "foreign": "azul",
+          "phonetic": "azul"
+        },
+        {
+          "english": "green",
+          "foreign": "verde",
+          "phonetic": "verde"
+        },
+        {
+          "english": "yellow",
+          "foreign": "amarillo",
+          "phonetic": "amarillo"
+        }
+      ]
+    },
+    "emotions": {
+      "name": "Emotions & Feelings",
+      "description": "Expressing emotions and feelings",
+      "words": [
+        {
+          "english": "happy",
+          "foreign": "feliz",
+          "phonetic": "feliz"
+        },
+        {
+          "english": "sad",
+          "foreign": "triste",
+          "phonetic": "triste"
+        },
+        {
+          "english": "tired",
+          "foreign": "cansado",
+          "phonetic": "cansado"
+        },
+        {
+          "english": "angry",
+          "foreign": "enfadado",
+          "phonetic": "enfadado"
+        }
+      ]
+    },
+    "body": {
+      "name": "Body Parts",
+      "description": "Parts of the body and health terms",
+      "words": [
+        {
+          "english": "head",
+          "foreign": "la cabeza",
+          "phonetic": "la cabeza"
+        },
+        {
+          "english": "hand",
+          "foreign": "la mano",
+          "phonetic": "la mano"
+        },
+        {
+          "english": "leg",
+          "foreign": "la pierna",
+          "phonetic": "la pierna"
+        },
+        {
+          "english": "eye",
+          "foreign": "el ojo",
+          "phonetic": "el ojo"
+        }
+      ]
+    },
+    "animals": {
+      "name": "Animals",
+      "description": "Common animals and pets",
+      "words": [
+        {
+          "english": "cat",
+          "foreign": "el gato",
+          "phonetic": "el gato"
+        },
+        {
+          "english": "dog",
+          "foreign": "el perro",
+          "phonetic": "el perro"
+        },
+        {
+          "english": "bird",
+          "foreign": "el pájaro",
+          "phonetic": "el pájaro"
+        },
+        {
+          "english": "fish",
+          "foreign": "el pez",
+          "phonetic": "el pez"
+        }
+      ]
+    },
+    "home": {
+      "name": "Home & Furniture",
+      "description": "Items around the house",
+      "words": [
+        {
+          "english": "house",
+          "foreign": "la casa",
+          "phonetic": "la casa"
+        },
+        {
+          "english": "table",
+          "foreign": "la mesa",
+          "phonetic": "la mesa"
+        },
+        {
+          "english": "chair",
+          "foreign": "la silla",
+          "phonetic": "la silla"
+        },
+        {
+          "english": "bed",
+          "foreign": "el colchón",
+          "phonetic": "el colchón"
+        }
+      ]
+    }
+  }
+}

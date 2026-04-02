@@ -1,0 +1,1492 @@
+{
+  "categories": {
+    "basics": {
+      "name": "Basic Phrases",
+      "description": "Essential everyday phrases",
+      "words": [
+        {
+          "english": "hello",
+          "foreign": "你好",
+          "phonetic": "nǐ hǎo"
+        },
+        {
+          "english": "goodbye",
+          "foreign": "再见",
+          "phonetic": "zài jiàn"
+        },
+        {
+          "english": "please",
+          "foreign": "请",
+          "phonetic": "qǐng"
+        },
+        {
+          "english": "thank you",
+          "foreign": "谢谢",
+          "phonetic": "xiè xie"
+        },
+        {
+          "english": "yes",
+          "foreign": "是",
+          "phonetic": "shì"
+        },
+        {
+          "english": "no",
+          "foreign": "不",
+          "phonetic": "bù"
+        },
+        {
+          "english": "excuse me",
+          "foreign": "对不起",
+          "phonetic": "duì bù qǐ"
+        },
+        {
+          "english": "sorry",
+          "foreign": "抱歉",
+          "phonetic": "bào qiàn"
+        },
+        {
+          "english": "good morning",
+          "foreign": "早上好",
+          "phonetic": "zǎo shang hǎo"
+        },
+        {
+          "english": "good evening",
+          "foreign": "晚上好",
+          "phonetic": "wǎn shang hǎo"
+        },
+        {
+          "english": "good night",
+          "foreign": "晚安",
+          "phonetic": "wǎn ān"
+        },
+        {
+          "english": "how are you",
+          "foreign": "你好吗",
+          "phonetic": "nǐ hǎo ma"
+        },
+        {
+          "english": "fine thanks",
+          "foreign": "很好谢谢",
+          "phonetic": "hěn hǎo xiè xiè"
+        },
+        {
+          "english": "you're welcome",
+          "foreign": "不客气",
+          "phonetic": "bù kè qi"
+        },
+        {
+          "english": "see you later",
+          "foreign": "待会见",
+          "phonetic": "dāi huì jiàn"
+        },
+        {
+          "english": "nice to meet you",
+          "foreign": "很高兴认识你",
+          "phonetic": "hěn gāo xìng rèn shi nǐ"
+        },
+        {
+          "english": "what's your name",
+          "foreign": "你叫什么名字",
+          "phonetic": "nǐ jiào shén me míng zi"
+        },
+        {
+          "english": "my name is",
+          "foreign": "我叫",
+          "phonetic": "wǒ jiào"
+        },
+        {
+          "english": "I understand",
+          "foreign": "我明白",
+          "phonetic": "wǒ míng bai"
+        },
+        {
+          "english": "I don't understand",
+          "foreign": "我不明白",
+          "phonetic": "wǒ bù míng bai"
+        },
+        {
+          "english": "can you help me",
+          "foreign": "你能帮我吗",
+          "phonetic": "nǐ néng bāng wǒ ma"
+        },
+        {
+          "english": "of course",
+          "foreign": "当然",
+          "phonetic": "dāng rán"
+        },
+        {
+          "english": "good",
+          "foreign": "好",
+          "phonetic": "hǎo"
+        },
+        {
+          "english": "bad",
+          "foreign": "不好",
+          "phonetic": "bù hǎo"
+        },
+        {
+          "english": "do you speak English",
+          "foreign": "你会说英语吗",
+          "phonetic": "nǐ huì shuō yīng yǔ ma"
+        },
+        {
+          "english": "I speak Chinese",
+          "foreign": "我说中文",
+          "phonetic": "wǒ shuō zhōng wén"
+        },
+        {
+          "english": "I don't speak Chinese",
+          "foreign": "我不会说中文",
+          "phonetic": "wǒ bù huì shuō zhōng wén"
+        },
+        {
+          "english": "please speak slowly",
+          "foreign": "请说慢一点",
+          "phonetic": "qǐng shuō màn yī diǎn"
+        },
+        {
+          "english": "could you repeat that",
+          "foreign": "你能再说一遍吗",
+          "phonetic": "nǐ néng zài shuō yī biàn ma"
+        },
+        {
+          "english": "what does this mean",
+          "foreign": "这是什么意思",
+          "phonetic": "zhè shì shén me yì si"
+        },
+        {
+          "english": "I need help",
+          "foreign": "我需要帮助",
+          "phonetic": "wǒ xū yào bāng zhù"
+        },
+        {
+          "english": "wait a moment",
+          "foreign": "等一下",
+          "phonetic": "děng yī xià"
+        },
+        {
+          "english": "come here",
+          "foreign": "过来",
+          "phonetic": "guò lái"
+        },
+        {
+          "english": "let's go",
+          "foreign": "我们走吧",
+          "phonetic": "wǒ men zǒu ba"
+        },
+        {
+          "english": "have a nice day",
+          "foreign": "祝你今天愉快",
+          "phonetic": "zhù nǐ jīn tiān yú kuài"
+        },
+        {
+          "english": "welcome",
+          "foreign": "欢迎",
+          "phonetic": "huān yíng"
+        },
+        {
+          "english": "maybe",
+          "foreign": "可能",
+          "phonetic": "kě néng"
+        },
+        {
+          "english": "I agree",
+          "foreign": "我同意",
+          "phonetic": "wǒ tóng yì"
+        },
+        {
+          "english": "I disagree",
+          "foreign": "我不同意",
+          "phonetic": "wǒ bù tóng yì"
+        },
+        {
+          "english": "it's okay",
+          "foreign": "没关系",
+          "phonetic": "méi guān xi"
+        },
+        {
+          "english": "no problem",
+          "foreign": "没问题",
+          "phonetic": "méi wèn tí"
+        },
+        {
+          "english": "excuse me (to pass)",
+          "foreign": "借过",
+          "phonetic": "jiè guò"
+        },
+        {
+          "english": "I'm sorry to bother you",
+          "foreign": "抱歉打扰你",
+          "phonetic": "bào qiàn dǎ rǎo nǐ"
+        },
+        {
+          "english": "what time is it",
+          "foreign": "现在几点",
+          "phonetic": "xiàn zài jǐ diǎn"
+        },
+        {
+          "english": "where is the bathroom",
+          "foreign": "洗手间在哪里",
+          "phonetic": "xǐ shǒu jiān zài nǎ lǐ"
+        },
+        {
+          "english": "cheers",
+          "foreign": "干杯",
+          "phonetic": "gān bēi"
+        },
+        {
+          "english": "congratulations",
+          "foreign": "恭喜",
+          "phonetic": "gōng xǐ"
+        },
+        {
+          "english": "get well soon",
+          "foreign": "早日康复",
+          "phonetic": "zǎo rì kāng fù"
+        },
+        {
+          "english": "happy birthday",
+          "foreign": "生日快乐",
+          "phonetic": "shēng rì kuài lè"
+        },
+        {
+          "english": "happy new year",
+          "foreign": "新年快乐",
+          "phonetic": "xīn nián kuài lè"
+        },
+        {
+          "english": "I love you",
+          "foreign": "我爱你",
+          "phonetic": "wǒ ài nǐ"
+        },
+        {
+          "english": "take care",
+          "foreign": "保重",
+          "phonetic": "bǎo zhòng"
+        },
+        {
+          "english": "call me",
+          "foreign": "给我打电话",
+          "phonetic": "gěi wǒ dǎ diàn huà"
+        },
+        {
+          "english": "I miss you",
+          "foreign": "我想你",
+          "phonetic": "wǒ xiǎng nǐ"
+        }
+      ]
+    },
+    "time": {
+      "name": "Time & Calendar",
+      "description": "Days, months, and time expressions",
+      "words": [
+        {
+          "english": "monday",
+          "foreign": "星期一",
+          "phonetic": "xīng qī yī"
+        },
+        {
+          "english": "tuesday",
+          "foreign": "星期二",
+          "phonetic": "xīng qī èr"
+        },
+        {
+          "english": "wednesday",
+          "foreign": "星期三",
+          "phonetic": "xīng qī sān"
+        },
+        {
+          "english": "thursday",
+          "foreign": "星期四",
+          "phonetic": "xīng qī sì"
+        },
+        {
+          "english": "friday",
+          "foreign": "星期五",
+          "phonetic": "xīng qī wǔ"
+        },
+        {
+          "english": "saturday",
+          "foreign": "星期六",
+          "phonetic": "xīng qī liù"
+        },
+        {
+          "english": "sunday",
+          "foreign": "星期日",
+          "phonetic": "xīng qī rì"
+        },
+        {
+          "english": "january",
+          "foreign": "一月",
+          "phonetic": "yī yuè"
+        },
+        {
+          "english": "february",
+          "foreign": "二月",
+          "phonetic": "èr yuè"
+        },
+        {
+          "english": "march",
+          "foreign": "三月",
+          "phonetic": "sān yuè"
+        },
+        {
+          "english": "april",
+          "foreign": "四月",
+          "phonetic": "sì yuè"
+        },
+        {
+          "english": "may",
+          "foreign": "五月",
+          "phonetic": "wǔ yuè"
+        },
+        {
+          "english": "june",
+          "foreign": "六月",
+          "phonetic": "liù yuè"
+        },
+        {
+          "english": "july",
+          "foreign": "七月",
+          "phonetic": "qī yuè"
+        },
+        {
+          "english": "august",
+          "foreign": "八月",
+          "phonetic": "bā yuè"
+        },
+        {
+          "english": "september",
+          "foreign": "九月",
+          "phonetic": "jiǔ yuè"
+        },
+        {
+          "english": "october",
+          "foreign": "十月",
+          "phonetic": "shí yuè"
+        },
+        {
+          "english": "november",
+          "foreign": "十一月",
+          "phonetic": "shí yī yuè"
+        },
+        {
+          "english": "december",
+          "foreign": "十二月",
+          "phonetic": "shí èr yuè"
+        },
+        {
+          "english": "morning",
+          "foreign": "早上",
+          "phonetic": "zǎo shang"
+        },
+        {
+          "english": "afternoon",
+          "foreign": "下午",
+          "phonetic": "xià wǔ"
+        },
+        {
+          "english": "evening",
+          "foreign": "晚上",
+          "phonetic": "wǎn shang"
+        },
+        {
+          "english": "night",
+          "foreign": "夜晚",
+          "phonetic": "yè wǎn"
+        },
+        {
+          "english": "today",
+          "foreign": "今天",
+          "phonetic": "jīn tiān"
+        },
+        {
+          "english": "tomorrow",
+          "foreign": "明天",
+          "phonetic": "míng tiān"
+        },
+        {
+          "english": "yesterday",
+          "foreign": "昨天",
+          "phonetic": "zuó tiān"
+        },
+        {
+          "english": "now",
+          "foreign": "现在",
+          "phonetic": "xiàn zài"
+        },
+        {
+          "english": "later",
+          "foreign": "待会儿",
+          "phonetic": "dāi huì er"
+        },
+        {
+          "english": "hour",
+          "foreign": "小时",
+          "phonetic": "xiǎo shí"
+        },
+        {
+          "english": "minute",
+          "foreign": "分钟",
+          "phonetic": "fēn zhōng"
+        },
+        {
+          "english": "second",
+          "foreign": "秒",
+          "phonetic": "miǎo"
+        },
+        {
+          "english": "week",
+          "foreign": "星期",
+          "phonetic": "xīng qī"
+        },
+        {
+          "english": "month",
+          "foreign": "月",
+          "phonetic": "yuè"
+        },
+        {
+          "english": "year",
+          "foreign": "年",
+          "phonetic": "nián"
+        },
+        {
+          "english": "last week",
+          "foreign": "上星期",
+          "phonetic": "shàng xīng qī"
+        },
+        {
+          "english": "next week",
+          "foreign": "下星期",
+          "phonetic": "xià xīng qī"
+        },
+        {
+          "english": "last month",
+          "foreign": "上个月",
+          "phonetic": "shàng gè yuè"
+        },
+        {
+          "english": "next month",
+          "foreign": "下个月",
+          "phonetic": "xià gè yuè"
+        },
+        {
+          "english": "last year",
+          "foreign": "去年",
+          "phonetic": "qù nián"
+        },
+        {
+          "english": "next year",
+          "foreign": "明年",
+          "phonetic": "míng nián"
+        }
+      ]
+    },
+    "food": {
+      "name": "Food & Drink",
+      "description": "Food, drinks, and dining vocabulary",
+      "words": [
+        {
+          "english": "rice",
+          "foreign": "米饭",
+          "phonetic": "mǐ fàn"
+        },
+        {
+          "english": "noodles",
+          "foreign": "面条",
+          "phonetic": "miàn tiáo"
+        },
+        {
+          "english": "bread",
+          "foreign": "面包",
+          "phonetic": "miàn bāo"
+        },
+        {
+          "english": "meat",
+          "foreign": "肉",
+          "phonetic": "ròu"
+        },
+        {
+          "english": "fish",
+          "foreign": "鱼",
+          "phonetic": "yú"
+        },
+        {
+          "english": "chicken",
+          "foreign": "鸡肉",
+          "phonetic": "jī ròu"
+        },
+        {
+          "english": "beef",
+          "foreign": "牛肉",
+          "phonetic": "niú ròu"
+        },
+        {
+          "english": "pork",
+          "foreign": "猪肉",
+          "phonetic": "zhū ròu"
+        },
+        {
+          "english": "vegetables",
+          "foreign": "蔬菜",
+          "phonetic": "shū cài"
+        },
+        {
+          "english": "fruit",
+          "foreign": "水果",
+          "phonetic": "shuǐ guǒ"
+        },
+        {
+          "english": "apple",
+          "foreign": "苹果",
+          "phonetic": "píng guǒ"
+        },
+        {
+          "english": "banana",
+          "foreign": "香蕉",
+          "phonetic": "xiāng jiāo"
+        },
+        {
+          "english": "orange",
+          "foreign": "橙子",
+          "phonetic": "chéng zi"
+        },
+        {
+          "english": "water",
+          "foreign": "水",
+          "phonetic": "shuǐ"
+        },
+        {
+          "english": "tea",
+          "foreign": "茶",
+          "phonetic": "chá"
+        },
+        {
+          "english": "coffee",
+          "foreign": "咖啡",
+          "phonetic": "kā fēi"
+        },
+        {
+          "english": "milk",
+          "foreign": "牛奶",
+          "phonetic": "niú nǎi"
+        },
+        {
+          "english": "juice",
+          "foreign": "果汁",
+          "phonetic": "guǒ zhī"
+        },
+        {
+          "english": "beer",
+          "foreign": "啤酒",
+          "phonetic": "pí jiǔ"
+        },
+        {
+          "english": "wine",
+          "foreign": "红酒",
+          "phonetic": "hóng jiǔ"
+        },
+        {
+          "english": "breakfast",
+          "foreign": "早餐",
+          "phonetic": "zǎo cān"
+        },
+        {
+          "english": "lunch",
+          "foreign": "午餐",
+          "phonetic": "wǔ cān"
+        },
+        {
+          "english": "dinner",
+          "foreign": "晚餐",
+          "phonetic": "wǎn cān"
+        },
+        {
+          "english": "restaurant",
+          "foreign": "餐厅",
+          "phonetic": "cān tīng"
+        },
+        {
+          "english": "menu",
+          "foreign": "菜单",
+          "phonetic": "cài dān"
+        },
+        {
+          "english": "chopsticks",
+          "foreign": "筷子",
+          "phonetic": "kuài zi"
+        },
+        {
+          "english": "spoon",
+          "foreign": "勺子",
+          "phonetic": "sháo zi"
+        },
+        {
+          "english": "fork",
+          "foreign": "叉子",
+          "phonetic": "chā zi"
+        },
+        {
+          "english": "knife",
+          "foreign": "刀子",
+          "phonetic": "dāo zi"
+        },
+        {
+          "english": "plate",
+          "foreign": "盘子",
+          "phonetic": "pán zi"
+        },
+        {
+          "english": "bowl",
+          "foreign": "碗",
+          "phonetic": "wǎn"
+        },
+        {
+          "english": "cup",
+          "foreign": "杯子",
+          "phonetic": "bēi zi"
+        },
+        {
+          "english": "bottle",
+          "foreign": "瓶子",
+          "phonetic": "píng zi"
+        },
+        {
+          "english": "salt",
+          "foreign": "盐",
+          "phonetic": "yán"
+        },
+        {
+          "english": "pepper",
+          "foreign": "胡椒",
+          "phonetic": "hú jiāo"
+        },
+        {
+          "english": "sugar",
+          "foreign": "糖",
+          "phonetic": "táng"
+        },
+        {
+          "english": "soup",
+          "foreign": "汤",
+          "phonetic": "tāng"
+        },
+        {
+          "english": "salad",
+          "foreign": "沙拉",
+          "phonetic": "shā lā"
+        },
+        {
+          "english": "dessert",
+          "foreign": "甜点",
+          "phonetic": "tián diǎn"
+        },
+        {
+          "english": "ice cream",
+          "foreign": "冰淇淋",
+          "phonetic": "bīng qí lín"
+        }
+      ]
+    },
+    "numbers": {
+      "name": "Numbers",
+      "description": "Numbers and counting",
+      "words": [
+        {
+          "english": "zero",
+          "foreign": "零",
+          "phonetic": "líng"
+        },
+        {
+          "english": "one",
+          "foreign": "一",
+          "phonetic": "yī"
+        },
+        {
+          "english": "two",
+          "foreign": "二",
+          "phonetic": "èr"
+        },
+        {
+          "english": "three",
+          "foreign": "三",
+          "phonetic": "sān"
+        },
+        {
+          "english": "four",
+          "foreign": "四",
+          "phonetic": "sì"
+        },
+        {
+          "english": "five",
+          "foreign": "五",
+          "phonetic": "wǔ"
+        },
+        {
+          "english": "six",
+          "foreign": "六",
+          "phonetic": "liù"
+        },
+        {
+          "english": "seven",
+          "foreign": "七",
+          "phonetic": "qī"
+        },
+        {
+          "english": "eight",
+          "foreign": "八",
+          "phonetic": "bā"
+        },
+        {
+          "english": "nine",
+          "foreign": "九",
+          "phonetic": "jiǔ"
+        },
+        {
+          "english": "ten",
+          "foreign": "十",
+          "phonetic": "shí"
+        },
+        {
+          "english": "eleven",
+          "foreign": "十一",
+          "phonetic": "shí yī"
+        },
+        {
+          "english": "twelve",
+          "foreign": "十二",
+          "phonetic": "shí èr"
+        },
+        {
+          "english": "thirteen",
+          "foreign": "十三",
+          "phonetic": "shí sān"
+        },
+        {
+          "english": "fourteen",
+          "foreign": "十四",
+          "phonetic": "shí sì"
+        },
+        {
+          "english": "fifteen",
+          "foreign": "十五",
+          "phonetic": "shí wǔ"
+        },
+        {
+          "english": "twenty",
+          "foreign": "二十",
+          "phonetic": "èr shí"
+        },
+        {
+          "english": "thirty",
+          "foreign": "三十",
+          "phonetic": "sān shí"
+        },
+        {
+          "english": "forty",
+          "foreign": "四十",
+          "phonetic": "sì shí"
+        },
+        {
+          "english": "fifty",
+          "foreign": "五十",
+          "phonetic": "wǔ shí"
+        },
+        {
+          "english": "sixty",
+          "foreign": "六十",
+          "phonetic": "liù shí"
+        },
+        {
+          "english": "seventy",
+          "foreign": "七十",
+          "phonetic": "qī shí"
+        },
+        {
+          "english": "eighty",
+          "foreign": "八十",
+          "phonetic": "bā shí"
+        },
+        {
+          "english": "ninety",
+          "foreign": "九十",
+          "phonetic": "jiǔ shí"
+        },
+        {
+          "english": "hundred",
+          "foreign": "百",
+          "phonetic": "bǎi"
+        },
+        {
+          "english": "thousand",
+          "foreign": "千",
+          "phonetic": "qiān"
+        },
+        {
+          "english": "ten thousand",
+          "foreign": "万",
+          "phonetic": "wàn"
+        },
+        {
+          "english": "first",
+          "foreign": "第一",
+          "phonetic": "dì yī"
+        },
+        {
+          "english": "second",
+          "foreign": "第二",
+          "phonetic": "dì èr"
+        },
+        {
+          "english": "third",
+          "foreign": "第三",
+          "phonetic": "dì sān"
+        },
+        {
+          "english": "last",
+          "foreign": "最后",
+          "phonetic": "zuì hòu"
+        },
+        {
+          "english": "many",
+          "foreign": "很多",
+          "phonetic": "hěn duō"
+        },
+        {
+          "english": "few",
+          "foreign": "很少",
+          "phonetic": "hěn shǎo"
+        },
+        {
+          "english": "all",
+          "foreign": "全部",
+          "phonetic": "quán bù"
+        },
+        {
+          "english": "some",
+          "foreign": "一些",
+          "phonetic": "yī xiē"
+        },
+        {
+          "english": "half",
+          "foreign": "一半",
+          "phonetic": "yī bàn"
+        },
+        {
+          "english": "quarter",
+          "foreign": "四分之一",
+          "phonetic": "sì fēn zhī yī"
+        },
+        {
+          "english": "double",
+          "foreign": "双",
+          "phonetic": "shuāng"
+        },
+        {
+          "english": "triple",
+          "foreign": "三倍",
+          "phonetic": "sān bèi"
+        },
+        {
+          "english": "multiple",
+          "foreign": "倍",
+          "phonetic": "bèi"
+        }
+      ]
+    },
+    "family": {
+      "name": "Family",
+      "description": "Family members and relationships",
+      "words": [
+        {
+          "english": "mother",
+          "foreign": "妈妈",
+          "phonetic": "mā ma"
+        },
+        {
+          "english": "father",
+          "foreign": "爸爸",
+          "phonetic": "bà ba"
+        },
+        {
+          "english": "parents",
+          "foreign": "父母",
+          "phonetic": "fù mǔ"
+        },
+        {
+          "english": "sister",
+          "foreign": "姐妹",
+          "phonetic": "jiě mèi"
+        },
+        {
+          "english": "older sister",
+          "foreign": "姐姐",
+          "phonetic": "jiě jie"
+        },
+        {
+          "english": "younger sister",
+          "foreign": "妹妹",
+          "phonetic": "mèi mei"
+        },
+        {
+          "english": "brother",
+          "foreign": "兄弟",
+          "phonetic": "xiōng dì"
+        },
+        {
+          "english": "older brother",
+          "foreign": "哥哥",
+          "phonetic": "gē ge"
+        },
+        {
+          "english": "younger brother",
+          "foreign": "弟弟",
+          "phonetic": "dì di"
+        },
+        {
+          "english": "grandmother",
+          "foreign": "奶奶",
+          "phonetic": "nǎi nai"
+        },
+        {
+          "english": "grandfather",
+          "foreign": "爷爷",
+          "phonetic": "yé ye"
+        },
+        {
+          "english": "maternal grandmother",
+          "foreign": "外婆",
+          "phonetic": "wài pó"
+        },
+        {
+          "english": "maternal grandfather",
+          "foreign": "外公",
+          "phonetic": "wài gōng"
+        },
+        {
+          "english": "aunt",
+          "foreign": "阿姨",
+          "phonetic": "ā yí"
+        },
+        {
+          "english": "paternal aunt",
+          "foreign": "姑姑",
+          "phonetic": "gū gu"
+        },
+        {
+          "english": "maternal aunt",
+          "foreign": "姨妈",
+          "phonetic": "yí ma"
+        },
+        {
+          "english": "uncle",
+          "foreign": "叔叔",
+          "phonetic": "shū shu"
+        },
+        {
+          "english": "paternal uncle",
+          "foreign": "伯伯",
+          "phonetic": "bó bo"
+        },
+        {
+          "english": "maternal uncle",
+          "foreign": "舅舅",
+          "phonetic": "jiù jiu"
+        },
+        {
+          "english": "cousin",
+          "foreign": "表兄弟",
+          "phonetic": "biǎo xiōng dì"
+        },
+        {
+          "english": "female cousin",
+          "foreign": "表姐妹",
+          "phonetic": "biǎo jiě mèi"
+        },
+        {
+          "english": "niece",
+          "foreign": "侄女",
+          "phonetic": "zhí nǚ"
+        },
+        {
+          "english": "nephew",
+          "foreign": "侄子",
+          "phonetic": "zhí zi"
+        },
+        {
+          "english": "husband",
+          "foreign": "丈夫",
+          "phonetic": "zhàng fu"
+        },
+        {
+          "english": "wife",
+          "foreign": "妻子",
+          "phonetic": "qī zi"
+        },
+        {
+          "english": "son",
+          "foreign": "儿子",
+          "phonetic": "ér zi"
+        },
+        {
+          "english": "daughter",
+          "foreign": "女儿",
+          "phonetic": "nǚ ér"
+        },
+        {
+          "english": "children",
+          "foreign": "孩子",
+          "phonetic": "hái zi"
+        },
+        {
+          "english": "family",
+          "foreign": "家庭",
+          "phonetic": "jiā tíng"
+        },
+        {
+          "english": "relatives",
+          "foreign": "亲戚",
+          "phonetic": "qīn qi"
+        },
+        {
+          "english": "parents-in-law",
+          "foreign": "公婆",
+          "phonetic": "gōng pó"
+        },
+        {
+          "english": "father-in-law",
+          "foreign": "公公",
+          "phonetic": "gōng gong"
+        },
+        {
+          "english": "mother-in-law",
+          "foreign": "婆婆",
+          "phonetic": "pó po"
+        },
+        {
+          "english": "brother-in-law",
+          "foreign": "姐夫",
+          "phonetic": "jiě fu"
+        },
+        {
+          "english": "sister-in-law",
+          "foreign": "嫂子",
+          "phonetic": "sǎo zi"
+        },
+        {
+          "english": "daughter-in-law",
+          "foreign": "儿媳",
+          "phonetic": "ér xí"
+        },
+        {
+          "english": "son-in-law",
+          "foreign": "女婿",
+          "phonetic": "nǚ xu"
+        },
+        {
+          "english": "grandchild",
+          "foreign": "孙子",
+          "phonetic": "sūn zi"
+        },
+        {
+          "english": "granddaughter",
+          "foreign": "孙女",
+          "phonetic": "sūn nǚ"
+        },
+        {
+          "english": "great-grandparent",
+          "foreign": "曾祖父母",
+          "phonetic": "zēng zǔ fù mǔ"
+        }
+      ]
+    },
+    "travel": {
+      "name": "Travel",
+      "description": "Travel and transportation vocabulary",
+      "words": [
+        {
+          "english": "airport",
+          "foreign": "机场",
+          "phonetic": "jī chǎng"
+        },
+        {
+          "english": "train station",
+          "foreign": "火车站",
+          "phonetic": "huǒ chē zhàn"
+        },
+        {
+          "english": "bus station",
+          "foreign": "汽车站",
+          "phonetic": "qì chē zhàn"
+        },
+        {
+          "english": "subway",
+          "foreign": "地铁",
+          "phonetic": "dì tiě"
+        },
+        {
+          "english": "taxi",
+          "foreign": "出租车",
+          "phonetic": "chū zū chē"
+        },
+        {
+          "english": "bus",
+          "foreign": "公共汽车",
+          "phonetic": "gōng gòng qì chē"
+        },
+        {
+          "english": "train",
+          "foreign": "火车",
+          "phonetic": "huǒ chē"
+        },
+        {
+          "english": "airplane",
+          "foreign": "飞机",
+          "phonetic": "fēi jī"
+        },
+        {
+          "english": "boat",
+          "foreign": "船",
+          "phonetic": "chuán"
+        },
+        {
+          "english": "ticket",
+          "foreign": "票",
+          "phonetic": "piào"
+        },
+        {
+          "english": "passport",
+          "foreign": "护照",
+          "phonetic": "hù zhào"
+        },
+        {
+          "english": "visa",
+          "foreign": "签证",
+          "phonetic": "qiān zhèng"
+        },
+        {
+          "english": "luggage",
+          "foreign": "行李",
+          "phonetic": "xíng li"
+        },
+        {
+          "english": "suitcase",
+          "foreign": "箱子",
+          "phonetic": "xiāng zi"
+        },
+        {
+          "english": "hotel",
+          "foreign": "酒店",
+          "phonetic": "jiǔ diàn"
+        },
+        {
+          "english": "hostel",
+          "foreign": "旅馆",
+          "phonetic": "lǚ guǎn"
+        },
+        {
+          "english": "room",
+          "foreign": "房间",
+          "phonetic": "fáng jiān"
+        },
+        {
+          "english": "reservation",
+          "foreign": "预订",
+          "phonetic": "yù dìng"
+        },
+        {
+          "english": "map",
+          "foreign": "地图",
+          "phonetic": "dì tú"
+        },
+        {
+          "english": "tourist",
+          "foreign": "游客",
+          "phonetic": "yóu kè"
+        },
+        {
+          "english": "guide",
+          "foreign": "导游",
+          "phonetic": "dǎo yóu"
+        },
+        {
+          "english": "tour",
+          "foreign": "旅游",
+          "phonetic": "lǚ yóu"
+        },
+        {
+          "english": "vacation",
+          "foreign": "假期",
+          "phonetic": "jià qī"
+        },
+        {
+          "english": "beach",
+          "foreign": "海滩",
+          "phonetic": "hǎi tān"
+        },
+        {
+          "english": "mountain",
+          "foreign": "山",
+          "phonetic": "shān"
+        },
+        {
+          "english": "city",
+          "foreign": "城市",
+          "phonetic": "chéng shì"
+        },
+        {
+          "english": "street",
+          "foreign": "街道",
+          "phonetic": "jiē dào"
+        },
+        {
+          "english": "address",
+          "foreign": "地址",
+          "phonetic": "dì zhǐ"
+        },
+        {
+          "english": "entrance",
+          "foreign": "入口",
+          "phonetic": "rù kǒu"
+        },
+        {
+          "english": "exit",
+          "foreign": "出口",
+          "phonetic": "chū kǒu"
+        },
+        {
+          "english": "left",
+          "foreign": "左边",
+          "phonetic": "zuǒ biān"
+        },
+        {
+          "english": "right",
+          "foreign": "右边",
+          "phonetic": "yòu biān"
+        },
+        {
+          "english": "straight",
+          "foreign": "直走",
+          "phonetic": "zhí zǒu"
+        },
+        {
+          "english": "turn",
+          "foreign": "转弯",
+          "phonetic": "zhuǎn wān"
+        },
+        {
+          "english": "near",
+          "foreign": "近",
+          "phonetic": "jìn"
+        },
+        {
+          "english": "far",
+          "foreign": "远",
+          "phonetic": "yuǎn"
+        },
+        {
+          "english": "here",
+          "foreign": "这里",
+          "phonetic": "zhè lǐ"
+        },
+        {
+          "english": "there",
+          "foreign": "那里",
+          "phonetic": "nà lǐ"
+        },
+        {
+          "english": "where",
+          "foreign": "哪里",
+          "phonetic": "nǎ lǐ"
+        },
+        {
+          "english": "how far",
+          "foreign": "多远",
+          "phonetic": "duō yuǎn"
+        }
+      ]
+    },
+    "weather": {
+      "name": "Weather & Seasons",
+      "description": "Weather conditions and seasons",
+      "words": [
+        {
+          "english": "hot",
+          "foreign": "热",
+          "phonetic": "rè"
+        },
+        {
+          "english": "cold",
+          "foreign": "冷",
+          "phonetic": "lěng"
+        },
+        {
+          "english": "rain",
+          "foreign": "雨",
+          "phonetic": "yǔ"
+        },
+        {
+          "english": "snow",
+          "foreign": "雪",
+          "phonetic": "xuě"
+        }
+      ]
+    },
+    "shopping": {
+      "name": "Shopping",
+      "description": "Shopping and money-related terms",
+      "words": [
+        {
+          "english": "how much",
+          "foreign": "多少钱",
+          "phonetic": "duōshǎoqián"
+        },
+        {
+          "english": "expensive",
+          "foreign": "贵",
+          "phonetic": "guì"
+        },
+        {
+          "english": "cheap",
+          "foreign": "便宜",
+          "phonetic": "piányi"
+        },
+        {
+          "english": "money",
+          "foreign": "钱",
+          "phonetic": "qián"
+        }
+      ]
+    },
+    "colors": {
+      "name": "Colors",
+      "description": "Basic colors and shades",
+      "words": [
+        {
+          "english": "red",
+          "foreign": "红色",
+          "phonetic": "hóngsè"
+        },
+        {
+          "english": "blue",
+          "foreign": "蓝色",
+          "phonetic": "lánsè"
+        },
+        {
+          "english": "green",
+          "foreign": "绿色",
+          "phonetic": "lǜsè"
+        },
+        {
+          "english": "yellow",
+          "foreign": "黄色",
+          "phonetic": "huángsè"
+        }
+      ]
+    },
+    "emotions": {
+      "name": "Emotions & Feelings",
+      "description": "Expressing emotions and feelings",
+      "words": [
+        {
+          "english": "happy",
+          "foreign": "开心",
+          "phonetic": "kāixīn"
+        },
+        {
+          "english": "sad",
+          "foreign": "伤心",
+          "phonetic": "shānxīn"
+        },
+        {
+          "english": "tired",
+          "foreign": "累",
+          "phonetic": "lèi"
+        },
+        {
+          "english": "angry",
+          "foreign": "生气",
+          "phonetic": "shēngqì"
+        }
+      ]
+    },
+    "body": {
+      "name": "Body Parts",
+      "description": "Parts of the body and health terms",
+      "words": [
+        {
+          "english": "head",
+          "foreign": "头",
+          "phonetic": "tóu"
+        },
+        {
+          "english": "hand",
+          "foreign": "手",
+          "phonetic": "shǒu"
+        },
+        {
+          "english": "leg",
+          "foreign": "腿",
+          "phonetic": "tuǐ"
+        },
+        {
+          "english": "eye",
+          "foreign": "眼睛",
+          "phonetic": "yǎnjing"
+        }
+      ]
+    },
+    "animals": {
+      "name": "Animals",
+      "description": "Common animals and pets",
+      "words": [
+        {
+          "english": "cat",
+          "foreign": "猫",
+          "phonetic": "māo"
+        },
+        {
+          "english": "dog",
+          "foreign": "狗",
+          "phonetic": "gǒu"
+        },
+        {
+          "english": "bird",
+          "foreign": "鸟",
+          "phonetic": "niǎo"
+        },
+        {
+          "english": "fish",
+          "foreign": "鱼",
+          "phonetic": "yú"
+        }
+      ]
+    },
+    "home": {
+      "name": "Home & Furniture",
+      "description": "Items around the house",
+      "words": [
+        {
+          "english": "house",
+          "foreign": "房子",
+          "phonetic": "fángzi"
+        },
+        {
+          "english": "table",
+          "foreign": "桌子",
+          "phonetic": "zhuōzi"
+        },
+        {
+          "english": "chair",
+          "foreign": "椅子",
+          "phonetic": "yǐzi"
+        },
+        {
+          "english": "bed",
+          "foreign": "床",
+          "phonetic": "chuáng"
+        }
+      ]
+    }
+  }
+}

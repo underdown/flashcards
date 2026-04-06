@@ -17,7 +17,6 @@ import { useNavigate } from 'react-router-dom';
 import CategorySelector from './CategorySelector';
 import { languages, getLanguageCode, languageIds } from './assets/languages';
 import Modal from './Modal';
-import { ReactComponent as HelpIcon } from './assets/icon-help.svg';
 import {
   getJapaneseSpeechText,
   getKanjiEnglishSpeechText,
@@ -924,19 +923,22 @@ const App = () => {
           title="Help"
           onClick={() => setShowHelp(true)}
         >
-          <HelpIcon className="help-button-icon" />
+          <span className="help-button-mark" aria-hidden="true">?</span>
         </button>
         <Modal isOpen={showHelp}>
           <div className="help-modal">
-            <button
-              type="button"
-              className="help-modal-close"
-              aria-label="Close help"
-              onClick={() => setShowHelp(false)}
-            >
-              ×
-            </button>
-            <h3>How to use</h3>
+            <div className="help-modal-header">
+              <span className="help-modal-header-spacer" aria-hidden="true" />
+              <h3>How to use</h3>
+              <button
+                type="button"
+                className="help-modal-close"
+                aria-label="Close help"
+                onClick={() => setShowHelp(false)}
+              >
+                ×
+              </button>
+            </div>
             <div className="help-modal-body">
               <h4>Quick overview</h4>
               <p>

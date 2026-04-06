@@ -97,7 +97,9 @@ const App = () => {
   const [words, setWords] = useState([]);
   const [currentLanguage, setCurrentLanguage] = useState('');
   const [currentWord, setCurrentWord] = useState(null);
-  const [darkMode, setDarkMode] = useState(false);
+  const [darkMode, setDarkMode] = useState(
+    () => typeof window !== 'undefined' && window.location.pathname.split('/')[1] === 'japanese'
+  );
   const [listening, setListening] = useState(false);
   const [recognition, setRecognition] = useState(null);
   const [detectedSpeech, setDetectedSpeech] = useState('');

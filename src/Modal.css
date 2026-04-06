@@ -1,25 +1,51 @@
 .modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.8);
-    display: flex;
-    align-items: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 16px;
+  box-sizing: border-box;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.modal-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 5px;
+  text-align: center;
+  color: #4CAF50;
+  width: min(92vw, 900px);
+  max-width: 100%;
+  max-height: calc(100vh - 32px);
+  max-height: calc(100dvh - 32px);
+  overflow-y: auto;
+  box-sizing: border-box;
+  margin: auto;
+}
+
+.dark-mode .modal-content {
+  background-color: #333;
+  color: #c8e6c9;
+}
+
+@media (max-width: 768px) {
+  .modal-overlay {
+    align-items: flex-start;
     justify-content: center;
-    z-index: 1000;
-  }
-  
-  .modal-content {
-    background-color: white;
-    padding: 20px;
-    border-radius: 5px;
-    text-align: center;
-    color: #4CAF50;
+    padding: max(12px, env(safe-area-inset-top, 0px)) 12px max(16px, env(safe-area-inset-bottom, 0px)) 12px;
   }
 
-  .dark-mode .modal-content {
-    background-color: #333;
-    color: #c8e6c9;
+  .modal-content {
+    padding: 16px;
+    width: 100%;
+    /* Leave room for overlay padding + safe areas; inner scroll keeps header/close visible */
+    max-height: calc(100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px) - 40px);
   }
+}

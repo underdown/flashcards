@@ -23,6 +23,7 @@ import {
   speechMatchesExpected,
   getKanjiVariants,
 } from './kanjiVariants';
+import { isKanjiCategory } from './kanjiCategory';
 
 const DB_VERSION = 1;
 
@@ -130,7 +131,7 @@ const App = () => {
 
   useEffect(() => {
     if (!currentWord) return;
-    if (currentWord.categoryKey === 'kanji') {
+    if (isKanjiCategory(currentWord.categoryKey)) {
       const n = Math.max(1, getKanjiVariants(currentWord).length);
       const next = Math.floor(Math.random() * n);
       kanjiVariantIndexRef.current = next;
@@ -142,7 +143,7 @@ const App = () => {
   }, [currentWord]);
 
   const cycleKanjiVariant = useCallback(() => {
-    if (!currentWord || currentWord.categoryKey !== 'kanji') return;
+    if (!currentWord || !isKanjiCategory(currentWord.categoryKey)) return;
     const vars = getKanjiVariants(currentWord);
     if (vars.length <= 1) return;
     setKanjiVariantIndex((i) => {
@@ -772,7 +773,7 @@ const App = () => {
 
         if (!skipEnglishInAuto) {
           const englishSpeak =
-            word.categoryKey === 'kanji'
+            isKanjiCategory(word.categoryKey)
               ? getKanjiEnglishSpeechText(word, kanjiVariantIndexRef.current)
               : word.english;
           console.log('Speaking English word:', englishSpeak);
@@ -783,7 +784,7 @@ const App = () => {
 
         // Speak foreign word and wait for completion (active kana for kanji)
         const jpSpeak =
-          word.categoryKey === 'kanji'
+          isKanjiCategory(word.categoryKey)
             ? getJapaneseSpeechText(word, kanjiVariantIndexRef.current)
             : word.foreign;
         console.log('Speaking Japanese word:', jpSpeak);
@@ -913,13 +914,13 @@ const App = () => {
         {showSuccessGif && <img src={successGif} alt="Success GIF" className="success-gif" />}
         <Flashcard
           word={currentWord}
-          activeKanjiVariantIndex={currentWord?.categoryKey === 'kanji' ? kanjiVariantIndex : undefined}
-          onCycleKanjiVariant={currentWord?.categoryKey === 'kanji' ? cycleKanjiVariant : undefined}
+          activeKanjiVariantIndex={currentWord && isKanjiCategory(currentWord.categoryKey) ? kanjiVariantIndex : undefined}
+          onCycleKanjiVariant={currentWord && isKanjiCategory(currentWord.categoryKey) ? cycleKanjiVariant : undefined}
         />
         <button
           type="button"
           className={`help-button ${
-            currentWord?.categoryKey === 'kanji' ? 'help-button--kanji' : ''
+            currentWord && isKanjiCategory(currentWord.categoryKey) ? 'help-button--kanji' : ''
           }`}
           aria-label="Help"
           title="Help"
@@ -964,8 +965,9 @@ const App = () => {
               </p>
               <p>
                 <strong>Categories / Options</strong>: opens the category picker. For Japanese, you can enable:
-                <strong>Kanji</strong> (cards may include multiple meanings/readings; the app picks one active reading for Auto/Speak),
+                <strong>Kanji</strong>, <strong>Beginner II</strong> (another kanji deck with colors, time, school-related characters, and more),
                 and kana decks (hiragana/katakana) which are practiced together as a single kana-focused card.
+                Multi-reading kanji cards pick one active reading for Auto/Speak.
               </p>
 
               <h4>Kanji practice tip</h4>

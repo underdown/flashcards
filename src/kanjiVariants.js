@@ -1,8 +1,10 @@
+import { isKanjiCategory } from './kanjiCategory';
+
 /**
  * Parse slash-separated kanji card fields into aligned { english, kana, romaji } rows.
  */
 export function getKanjiVariants(word) {
-  if (!word || word.categoryKey !== 'kanji') return [];
+  if (!word || !isKanjiCategory(word.categoryKey)) return [];
   const sep = /\s*\/\s*/;
   const rawEn = (word.english || '').split(sep).map((s) => s.trim());
   const rawKana = (word.phonetic || '').split(sep).map((s) => s.trim());
@@ -30,7 +32,7 @@ export function getKanjiVariants(word) {
 
 /** Text for Japanese TTS: active kana reading, not the whole slash-separated line. */
 export function getJapaneseSpeechText(word, activeVariantIndex) {
-  if (!word || word.categoryKey !== 'kanji') return word?.foreign ?? '';
+  if (!word || !isKanjiCategory(word.categoryKey)) return word?.foreign ?? '';
   const variants = getKanjiVariants(word);
   const v = variants[activeVariantIndex];
   return (v && v.kana) || word.foreign;
@@ -38,7 +40,7 @@ export function getJapaneseSpeechText(word, activeVariantIndex) {
 
 /** English gloss for auto mode: only the active meaning when kanji. */
 export function getKanjiEnglishSpeechText(word, activeVariantIndex) {
-  if (!word || word.categoryKey !== 'kanji') return word?.english ?? '';
+  if (!word || !isKanjiCategory(word.categoryKey)) return word?.english ?? '';
   const variants = getKanjiVariants(word);
   const v = variants[activeVariantIndex];
   return (v && v.english) || word.english;
@@ -52,7 +54,7 @@ export function speechMatchesExpected(transcript, word, activeKanjiVariantIndex)
   const t = transcript.toLowerCase().trim();
   if (!word) return false;
 
-  if (word.categoryKey === 'kanji') {
+  if (isKanjiCategory(word.categoryKey)) {
     const variants = getKanjiVariants(word);
     const v = variants[activeKanjiVariantIndex];
     if (!v) return false;

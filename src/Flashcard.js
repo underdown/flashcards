@@ -1,5 +1,6 @@
 import React from 'react';
 import { getKanjiVariants } from './kanjiVariants';
+import { isKanjiCategory } from './kanjiCategory';
 
 const ROMAJIDESU_KANJI_BASE = 'https://www.romajidesu.com/kanji/';
 
@@ -8,7 +9,7 @@ const Flashcard = ({ word, activeKanjiVariantIndex = 0, onCycleKanjiVariant }) =
     return <div className="flashcard">Loading...</div>;
   }
 
-  const isKanji = word.categoryKey === 'kanji';
+  const isKanji = isKanjiCategory(word.categoryKey);
   const isKana = word.categoryKey === 'hiragana' || word.categoryKey === 'katakana';
   const variants = isKanji ? getKanjiVariants(word) : [];
   const activeIdx =

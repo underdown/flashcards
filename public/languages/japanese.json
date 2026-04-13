@@ -1027,6 +1027,90 @@
           "english": "inside / within",
           "phonetic": "うち / ない",
           "readingRomaji": "uchi / nai"
+        },
+        {
+          "english": "eye / vision",
+          "foreign": "目",
+          "phonetic": "め / もく",
+          "readingRomaji": "me / moku"
+        },
+        {
+          "english": "ear / hearing",
+          "foreign": "耳",
+          "phonetic": "みみ / じ",
+          "readingRomaji": "mimi / ji"
+        },
+        {
+          "english": "mouth / opening",
+          "foreign": "口",
+          "phonetic": "くち / こう",
+          "readingRomaji": "kuchi / kou"
+        },
+        {
+          "english": "hand / hand (counter)",
+          "foreign": "手",
+          "phonetic": "て / しゅ",
+          "readingRomaji": "te / shu"
+        },
+        {
+          "english": "foot / leg / sufficient",
+          "foreign": "足",
+          "phonetic": "あし / そく",
+          "readingRomaji": "ashi / soku"
+        },
+        {
+          "english": "heart / mind / spirit",
+          "foreign": "心",
+          "phonetic": "こころ / しん",
+          "readingRomaji": "kokoro / shin"
+        },
+        {
+          "english": "body / form",
+          "foreign": "体",
+          "phonetic": "からだ / たい",
+          "readingRomaji": "karada / tai"
+        },
+        {
+          "english": "head / chief",
+          "foreign": "頭",
+          "phonetic": "あたま / とう",
+          "readingRomaji": "atama / tou"
+        },
+        {
+          "english": "father / dad",
+          "foreign": "父",
+          "phonetic": "ちち / ふ",
+          "readingRomaji": "chichi / fu"
+        },
+        {
+          "english": "mother / mom",
+          "foreign": "母",
+          "phonetic": "はは / ぼ",
+          "readingRomaji": "haha / bo"
+        },
+        {
+          "english": "older brother",
+          "foreign": "兄",
+          "phonetic": "あに / きょう",
+          "readingRomaji": "ani / kyou"
+        },
+        {
+          "english": "older sister",
+          "foreign": "姉",
+          "phonetic": "あね / し",
+          "readingRomaji": "ane / shi"
+        },
+        {
+          "english": "younger brother",
+          "foreign": "弟",
+          "phonetic": "おとうと / てい",
+          "readingRomaji": "otouto / tei"
+        },
+        {
+          "english": "younger sister",
+          "foreign": "妹",
+          "phonetic": "いもうと / まい",
+          "readingRomaji": "imouto / mai"
         }
       ]
     }

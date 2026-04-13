@@ -965,7 +965,7 @@ const App = () => {
               </p>
               <p>
                 <strong>Categories / Options</strong>: opens the category picker. For Japanese, you can enable:
-                <strong>Kanji</strong>, <strong>Beginner II</strong> (another kanji deck with colors, time, school-related characters, and more),
+                <strong>Kanji Beginner I–III</strong> (three kanji decks of increasing breadth),
                 and kana decks (hiragana/katakana) which are practiced together as a single kana-focused card.
                 Multi-reading kanji cards pick one active reading for Auto/Speak.
               </p>

@@ -13,9 +13,8 @@ import successSound from './assets/success.wav';
 import failSound from './assets/fail.wav';
 import successGif from './assets/success.gif';
 import { openDB } from 'idb';
-import { useNavigate } from 'react-router-dom';
 import CategorySelector from './CategorySelector';
-import { languages, getLanguageCode, languageIds } from './assets/languages';
+import { languages, getLanguageCode } from './assets/languages';
 import Modal from './Modal';
 import {
   getJapaneseSpeechText,
@@ -93,14 +92,22 @@ function waitForRecognitionIdle(recognition) {
   });
 }
 
+/** Dark mode when OS / browser is set to dark, or false if unknown (e.g. no matchMedia). */
+function getSystemPrefersDark() {
+  if (typeof window === 'undefined') return false;
+  try {
+    return window.matchMedia('(prefers-color-scheme: dark)').matches;
+  } catch {
+    return false;
+  }
+}
+
 const App = () => {
-  const navigate = useNavigate();
   const [words, setWords] = useState([]);
   const [currentLanguage, setCurrentLanguage] = useState('');
   const [currentWord, setCurrentWord] = useState(null);
-  const [darkMode, setDarkMode] = useState(
-    () => typeof window !== 'undefined' && window.location.pathname.split('/')[1] === 'japanese'
-  );
+  const [darkMode, setDarkMode] = useState(() => getSystemPrefersDark());
+  const themeUserTouchedRef = useRef(false);
   const [listening, setListening] = useState(false);
   const [recognition, setRecognition] = useState(null);
   const [detectedSpeech, setDetectedSpeech] = useState('');
@@ -128,6 +135,17 @@ const App = () => {
   useEffect(() => {
     kanjiVariantIndexRef.current = kanjiVariantIndex;
   }, [kanjiVariantIndex]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const mq = window.matchMedia('(prefers-color-scheme: dark)');
+    const onChange = () => {
+      if (themeUserTouchedRef.current) return;
+      setDarkMode(mq.matches);
+    };
+    mq.addEventListener('change', onChange);
+    return () => mq.removeEventListener('change', onChange);
+  }, []);
 
   useEffect(() => {
     if (!currentWord) return;
@@ -414,7 +432,8 @@ const App = () => {
   }, [audioContext]);
 
   const toggleDarkMode = () => {
-    setDarkMode(!darkMode);
+    themeUserTouchedRef.current = true;
+    setDarkMode((prev) => !prev);
   };
 
   const startListening = useCallback(() => {
@@ -630,12 +649,6 @@ const App = () => {
       ctx.close();
     };
   }, []);
-
-  const handleLanguageChange = (event) => {
-    const selectedLanguage = event.target.value;
-    setCurrentLanguage(selectedLanguage);
-    navigate(`/${selectedLanguage}`);
-  };
 
   const currentWordStats = currentWord ? wordStatsMap[currentWord.foreign] : null;
 
@@ -892,15 +905,6 @@ const App = () => {
 
   return (
     <div className={`App ${darkMode ? 'dark-mode' : ''}`} style={{ position: 'relative', zIndex: 1 }}>
-      {currentLanguage !== 'japanese' && (
-        <select value={currentLanguage} onChange={handleLanguageChange} className="language-selector">
-          {languageIds.map((id) => (
-            <option key={id} value={id}>
-              {languages[id].name}
-            </option>
-          ))}
-        </select>
-      )}
       {showCategorySelector && (
         <CategorySelector
           categories={categories}

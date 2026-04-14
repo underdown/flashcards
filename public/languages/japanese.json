@@ -473,8 +473,8 @@
       ]
     },
     "kanji": {
-      "name": "Kanji",
-      "description": "Essential beginner kanji (readings)",
+      "name": "Kanji Beginner I",
+      "description": "Core beginner kanji: numbers, nature, directions, basic verbs (readings)",
       "words": [
         {
           "english": "sun / day",
@@ -1115,7 +1115,7 @@
       ]
     },
     "kanji_beginner_ii": {
-      "name": "Beginner II",
+      "name": "Kanji Beginner II",
       "description": "Colors, time, school, and useful compounds (readings)",
       "words": [
         {
@@ -1417,6 +1417,444 @@
           "foreign": "番",
           "phonetic": "つがい / ばん",
           "readingRomaji": "tsugai / ban"
+        }
+      ]
+    },
+    "kanji_beginner_iii": {
+      "name": "Kanji Beginner III",
+      "description": "Daily life, work, motion, and abstract kanji (readings)",
+      "words": [
+        {
+          "english": "thing / matter",
+          "foreign": "事",
+          "phonetic": "こと / じ",
+          "readingRomaji": "koto / ji"
+        },
+        {
+          "english": "reason / principle",
+          "foreign": "理",
+          "phonetic": "ことわり / り",
+          "readingRomaji": "kotowari / ri"
+        },
+        {
+          "english": "think / thought",
+          "foreign": "思",
+          "phonetic": "おもう / し",
+          "readingRomaji": "omou / shi"
+        },
+        {
+          "english": "know",
+          "foreign": "知",
+          "phonetic": "しる / ち",
+          "readingRomaji": "shiru / chi"
+        },
+        {
+          "english": "say",
+          "foreign": "言",
+          "phonetic": "いう / こと / げん",
+          "readingRomaji": "iu / koto / gen"
+        },
+        {
+          "english": "language / word",
+          "foreign": "語",
+          "phonetic": "かたる / ご",
+          "readingRomaji": "kataru / go"
+        },
+        {
+          "english": "translate / flip",
+          "foreign": "訳",
+          "phonetic": "わける / やく",
+          "readingRomaji": "wakeru / yaku"
+        },
+        {
+          "english": "question",
+          "foreign": "問",
+          "phonetic": "とう / もん",
+          "readingRomaji": "tou / mon"
+        },
+        {
+          "english": "answer",
+          "foreign": "答",
+          "phonetic": "こたえる / とう",
+          "readingRomaji": "kotaeru / tou"
+        },
+        {
+          "english": "teach",
+          "foreign": "教",
+          "phonetic": "おしえる / きょう",
+          "readingRomaji": "oshieru / kyou"
+        },
+        {
+          "english": "study",
+          "foreign": "習",
+          "phonetic": "ならう / しゅう",
+          "readingRomaji": "narau / shuu"
+        },
+        {
+          "english": "plan / measure",
+          "foreign": "計",
+          "phonetic": "はかる / けい",
+          "readingRomaji": "hakaru / kei"
+        },
+        {
+          "english": "decide / fix",
+          "foreign": "定",
+          "phonetic": "さだめる / てい",
+          "readingRomaji": "sadameru / tei"
+        },
+        {
+          "english": "use",
+          "foreign": "使",
+          "phonetic": "つかう / し",
+          "readingRomaji": "tsukau / shi"
+        },
+        {
+          "english": "make / stand",
+          "foreign": "作",
+          "phonetic": "つくる / さく",
+          "readingRomaji": "tsukuru / saku"
+        },
+        {
+          "english": "thing / tool",
+          "foreign": "具",
+          "phonetic": "そなえる / ぐ",
+          "readingRomaji": "sonaeru / gu"
+        },
+        {
+          "english": "prepare / equip",
+          "foreign": "備",
+          "phonetic": "そなえる / び",
+          "readingRomaji": "sonaeru / bi"
+        },
+        {
+          "english": "machine / opportunity",
+          "foreign": "機",
+          "phonetic": "はた / き",
+          "readingRomaji": "hata / ki"
+        },
+        {
+          "english": "picture / draw",
+          "foreign": "画",
+          "phonetic": "えがく / が / かく",
+          "readingRomaji": "egaku / ga / kaku"
+        },
+        {
+          "english": "music / comfort",
+          "foreign": "楽",
+          "phonetic": "たのしい / がく / らく",
+          "readingRomaji": "tanoshii / gaku / raku"
+        },
+        {
+          "english": "song",
+          "foreign": "歌",
+          "phonetic": "うた / か",
+          "readingRomaji": "uta / ka"
+        },
+        {
+          "english": "public / together",
+          "foreign": "共",
+          "phonetic": "とも / きょう",
+          "readingRomaji": "tomo / kyou"
+        },
+        {
+          "english": "same / equal",
+          "foreign": "同",
+          "phonetic": "おなじ / どう",
+          "readingRomaji": "onaji / dou"
+        },
+        {
+          "english": "different",
+          "foreign": "異",
+          "phonetic": "ことなる / い",
+          "readingRomaji": "kotonaru / i"
+        },
+        {
+          "english": "special / especially",
+          "foreign": "特",
+          "phonetic": "こと / とく",
+          "readingRomaji": "koto / toku"
+        },
+        {
+          "english": "example / ratio",
+          "foreign": "例",
+          "phonetic": "たとえる / れい",
+          "readingRomaji": "tatoeru / rei"
+        },
+        {
+          "english": "relation / cut off",
+          "foreign": "係",
+          "phonetic": "かかる / けい",
+          "readingRomaji": "kakaru / kei"
+        },
+        {
+          "english": "order / turn",
+          "foreign": "順",
+          "phonetic": "したがう / じゅん",
+          "readingRomaji": "shitagau / jun"
+        },
+        {
+          "english": "all / whole",
+          "foreign": "全",
+          "phonetic": "まったく / ぜん",
+          "readingRomaji": "mattaku / zen"
+        },
+        {
+          "english": "part / department",
+          "foreign": "部",
+          "phonetic": "ぶ",
+          "readingRomaji": "bu"
+        },
+        {
+          "english": "category / kind",
+          "foreign": "種",
+          "phonetic": "たね / しゅ",
+          "readingRomaji": "tane / shu"
+        },
+        {
+          "english": "kind / seedling",
+          "foreign": "類",
+          "phonetic": "たぐい / るい",
+          "readingRomaji": "tagui / rui"
+        },
+        {
+          "english": "point / score",
+          "foreign": "点",
+          "phonetic": "つく / てん",
+          "readingRomaji": "tsuku / ten"
+        },
+        {
+          "english": "line / route",
+          "foreign": "線",
+          "phonetic": "すじ / せん",
+          "readingRomaji": "suji / sen"
+        },
+        {
+          "english": "surface / table",
+          "foreign": "面",
+          "phonetic": "おも / めん",
+          "readingRomaji": "omo / men"
+        },
+        {
+          "english": "near / early",
+          "foreign": "近",
+          "phonetic": "ちかい / きん",
+          "readingRomaji": "chikai / kin"
+        },
+        {
+          "english": "far",
+          "foreign": "遠",
+          "phonetic": "とおい / えん",
+          "readingRomaji": "tooi / en"
+        },
+        {
+          "english": "early / fast",
+          "foreign": "早",
+          "phonetic": "はやい / そう / さっ",
+          "readingRomaji": "hayai / sou / sa"
+        },
+        {
+          "english": "late / slow",
+          "foreign": "遅",
+          "phonetic": "おそい / ち",
+          "readingRomaji": "osoi / chi"
+        },
+        {
+          "english": "stop",
+          "foreign": "止",
+          "phonetic": "とまる / し",
+          "readingRomaji": "tomaru / shi"
+        },
+        {
+          "english": "wait",
+          "foreign": "待",
+          "phonetic": "まつ / たい",
+          "readingRomaji": "matsu / tai"
+        },
+        {
+          "english": "send / spend",
+          "foreign": "送",
+          "phonetic": "おくる / そう",
+          "readingRomaji": "okuru / sou"
+        },
+        {
+          "english": "receive",
+          "foreign": "受",
+          "phonetic": "うける / じゅ",
+          "readingRomaji": "ukeru / ju"
+        },
+        {
+          "english": "take / hold",
+          "foreign": "持",
+          "phonetic": "もつ / じ",
+          "readingRomaji": "motsu / ji"
+        },
+        {
+          "english": "put / leave",
+          "foreign": "置",
+          "phonetic": "おく / ち",
+          "readingRomaji": "oku / chi"
+        },
+        {
+          "english": "stand / rise",
+          "foreign": "立",
+          "phonetic": "たつ / りつ",
+          "readingRomaji": "tatsu / ritsu"
+        },
+        {
+          "english": "sit",
+          "foreign": "座",
+          "phonetic": "すわる / ざ",
+          "readingRomaji": "suwaru / za"
+        },
+        {
+          "english": "live / reside",
+          "foreign": "住",
+          "phonetic": "すむ / じゅう",
+          "readingRomaji": "sumu / juu"
+        },
+        {
+          "english": "return",
+          "foreign": "返",
+          "phonetic": "かえす / へん",
+          "readingRomaji": "kaesu / hen"
+        },
+        {
+          "english": "change / strange",
+          "foreign": "変",
+          "phonetic": "かわる / へん",
+          "readingRomaji": "kawaru / hen"
+        },
+        {
+          "english": "move / motion",
+          "foreign": "動",
+          "phonetic": "うごく / どう",
+          "readingRomaji": "ugoku / dou"
+        },
+        {
+          "english": "run",
+          "foreign": "走",
+          "phonetic": "はしる / そう",
+          "readingRomaji": "hashiru / sou"
+        },
+        {
+          "english": "fly / skip",
+          "foreign": "飛",
+          "phonetic": "とぶ / ひ",
+          "readingRomaji": "tobu / hi"
+        },
+        {
+          "english": "swim",
+          "foreign": "泳",
+          "phonetic": "およぐ / えい",
+          "readingRomaji": "oyogu / ei"
+        },
+        {
+          "english": "carry / bear",
+          "foreign": "運",
+          "phonetic": "はこぶ / うん",
+          "readingRomaji": "hakobu / un"
+        },
+        {
+          "english": "open",
+          "foreign": "開",
+          "phonetic": "あく / かい",
+          "readingRomaji": "aku / kai"
+        },
+        {
+          "english": "close / shut",
+          "foreign": "閉",
+          "phonetic": "とじる / へい",
+          "readingRomaji": "tojiru / hei"
+        },
+        {
+          "english": "begin",
+          "foreign": "始",
+          "phonetic": "はじめる / し",
+          "readingRomaji": "hajimeru / shi"
+        },
+        {
+          "english": "end / finish",
+          "foreign": "終",
+          "phonetic": "おわる / しゅう",
+          "readingRomaji": "owaru / shuu"
+        },
+        {
+          "english": "continue",
+          "foreign": "続",
+          "phonetic": "つづく / ぞく",
+          "readingRomaji": "tsuzuku / zoku"
+        },
+        {
+          "english": "cut / judge",
+          "foreign": "断",
+          "phonetic": "たつ / だん",
+          "readingRomaji": "tatsu / dan"
+        },
+        {
+          "english": "decide / certainly",
+          "foreign": "決",
+          "phonetic": "きめる / けつ",
+          "readingRomaji": "kimeru / ketsu"
+        },
+        {
+          "english": "choose",
+          "foreign": "選",
+          "phonetic": "えらぶ / せん",
+          "readingRomaji": "erabu / sen"
+        },
+        {
+          "english": "win",
+          "foreign": "勝",
+          "phonetic": "かつ / しょう",
+          "readingRomaji": "katsu / shou"
+        },
+        {
+          "english": "lose / negative",
+          "foreign": "負",
+          "phonetic": "まける / ふ",
+          "readingRomaji": "makeru / fu"
+        },
+        {
+          "english": "get / obtain",
+          "foreign": "得",
+          "phonetic": "える / とく",
+          "readingRomaji": "eru / toku"
+        },
+        {
+          "english": "lose / fall",
+          "foreign": "失",
+          "phonetic": "うしなう / しつ",
+          "readingRomaji": "ushinau / shitsu"
+        },
+        {
+          "english": "help",
+          "foreign": "助",
+          "phonetic": "たすける / じょ",
+          "readingRomaji": "tasukeru / jo"
+        },
+        {
+          "english": "protect",
+          "foreign": "守",
+          "phonetic": "まもる / しゅ",
+          "readingRomaji": "mamoru / shu"
+        },
+        {
+          "english": "danger",
+          "foreign": "危",
+          "phonetic": "あぶない / き",
+          "readingRomaji": "abunai / ki"
+        },
+        {
+          "english": "happy / fortune",
+          "foreign": "幸",
+          "phonetic": "さいわい / しあわせ / こう",
+          "readingRomaji": "saiwai / shiawase / kou"
+        },
+        {
+          "english": "disaster / calamity",
+          "foreign": "災",
+          "phonetic": "わざわい / さい",
+          "readingRomaji": "wazawai / sai"
         }
       ]
     }

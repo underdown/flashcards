@@ -2,7 +2,13 @@ import React from 'react';
 import './CategorySelector.css';
 
 /** Kanji first, then kana decks, for Japanese category modal. */
-const JAPANESE_CATEGORY_ORDER = ['kanji', 'kanji_beginner_ii', 'hiragana', 'katakana'];
+const JAPANESE_CATEGORY_ORDER = [
+  'kanji',
+  'kanji_beginner_ii',
+  'kanji_beginner_iii',
+  'hiragana',
+  'katakana',
+];
 
 function getOrderedCategoryEntries(categories, language) {
   const entries = Object.entries(categories);

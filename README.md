@@ -35,6 +35,6 @@ Live demo: [https://kartochki.app](https://kartochki.app)
 ### Installation
 
 ```bash
-git clone https://github.com/YOURUSERNAME/kartochki.git
-cd kartochki
-npm install
+git clone https://github.com/underdown/flashcards.git
+cd flashcards
+yarn start

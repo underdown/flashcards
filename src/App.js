@@ -13,9 +13,8 @@ import successSound from './assets/success.wav';
 import failSound from './assets/fail.wav';
 import successGif from './assets/success.gif';
 import { openDB } from 'idb';
-import { useNavigate } from 'react-router-dom';
 import CategorySelector from './CategorySelector';
-import { languages, getLanguageCode, languageIds } from './assets/languages';
+import { languages, getLanguageCode } from './assets/languages';
 import Modal from './Modal';
 import {
   getJapaneseSpeechText,
@@ -94,13 +93,10 @@ function waitForRecognitionIdle(recognition) {
 }
 
 const App = () => {
-  const navigate = useNavigate();
   const [words, setWords] = useState([]);
   const [currentLanguage, setCurrentLanguage] = useState('');
   const [currentWord, setCurrentWord] = useState(null);
-  const [darkMode, setDarkMode] = useState(
-    () => typeof window !== 'undefined' && window.location.pathname.split('/')[1] === 'japanese'
-  );
+  const [darkMode, setDarkMode] = useState(true);
   const [listening, setListening] = useState(false);
   const [recognition, setRecognition] = useState(null);
   const [detectedSpeech, setDetectedSpeech] = useState('');
@@ -631,12 +627,6 @@ const App = () => {
     };
   }, []);
 
-  const handleLanguageChange = (event) => {
-    const selectedLanguage = event.target.value;
-    setCurrentLanguage(selectedLanguage);
-    navigate(`/${selectedLanguage}`);
-  };
-
   const currentWordStats = currentWord ? wordStatsMap[currentWord.foreign] : null;
 
   const readWord = useCallback((word, lang) => {
@@ -892,15 +882,6 @@ const App = () => {
 
   return (
     <div className={`App ${darkMode ? 'dark-mode' : ''}`} style={{ position: 'relative', zIndex: 1 }}>
-      {currentLanguage !== 'japanese' && (
-        <select value={currentLanguage} onChange={handleLanguageChange} className="language-selector">
-          {languageIds.map((id) => (
-            <option key={id} value={id}>
-              {languages[id].name}
-            </option>
-          ))}
-        </select>
-      )}
       {showCategorySelector && (
         <CategorySelector
           categories={categories}

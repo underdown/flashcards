@@ -2495,6 +2495,256 @@
           "english": "owl",
           "foreign": "сова",
           "phonetic": "sova"
+        },
+        {
+          "english": "sheep",
+          "foreign": "овца",
+          "phonetic": "ovtsa"
+        },
+        {
+          "english": "goat",
+          "foreign": "коза",
+          "phonetic": "koza"
+        },
+        {
+          "english": "turkey",
+          "foreign": "индейка",
+          "phonetic": "indeyka"
+        },
+        {
+          "english": "goose",
+          "foreign": "гусь",
+          "phonetic": "gus"
+        },
+        {
+          "english": "donkey",
+          "foreign": "осёл",
+          "phonetic": "osyol"
+        },
+        {
+          "english": "camel",
+          "foreign": "верблюд",
+          "phonetic": "verblyud"
+        },
+        {
+          "english": "giraffe",
+          "foreign": "жираф",
+          "phonetic": "zhiraf"
+        },
+        {
+          "english": "zebra",
+          "foreign": "зебра",
+          "phonetic": "zebra"
+        },
+        {
+          "english": "hippopotamus",
+          "foreign": "бегемот",
+          "phonetic": "begemot"
+        },
+        {
+          "english": "rhinoceros",
+          "foreign": "носорог",
+          "phonetic": "nosorog"
+        },
+        {
+          "english": "crocodile",
+          "foreign": "крокодил",
+          "phonetic": "krokodil"
+        },
+        {
+          "english": "penguin",
+          "foreign": "пингвин",
+          "phonetic": "pingvin"
+        },
+        {
+          "english": "seal",
+          "foreign": "тюлень",
+          "phonetic": "tyulen"
+        },
+        {
+          "english": "whale",
+          "foreign": "кит",
+          "phonetic": "kit"
+        },
+        {
+          "english": "dolphin",
+          "foreign": "дельфин",
+          "phonetic": "delfin"
+        },
+        {
+          "english": "shark",
+          "foreign": "акула",
+          "phonetic": "akula"
+        },
+        {
+          "english": "octopus",
+          "foreign": "осьминог",
+          "phonetic": "osminog"
+        },
+        {
+          "english": "crab",
+          "foreign": "краб",
+          "phonetic": "krab"
+        },
+        {
+          "english": "lobster",
+          "foreign": "омар",
+          "phonetic": "omar"
+        },
+        {
+          "english": "snail",
+          "foreign": "улитка",
+          "phonetic": "ulitka"
+        },
+        {
+          "english": "bee",
+          "foreign": "пчела",
+          "phonetic": "pchela"
+        },
+        {
+          "english": "ant",
+          "foreign": "муравей",
+          "phonetic": "muravey"
+        },
+        {
+          "english": "fly",
+          "foreign": "муха",
+          "phonetic": "mukha"
+        },
+        {
+          "english": "mosquito",
+          "foreign": "комар",
+          "phonetic": "komar"
+        },
+        {
+          "english": "eagle",
+          "foreign": "орёл",
+          "phonetic": "oryol"
+        },
+        {
+          "english": "hawk",
+          "foreign": "ястреб",
+          "phonetic": "yastreb"
+        },
+        {
+          "english": "crow",
+          "foreign": "ворона",
+          "phonetic": "vorona"
+        },
+        {
+          "english": "swan",
+          "foreign": "лебедь",
+          "phonetic": "lebed"
+        },
+        {
+          "english": "parrot",
+          "foreign": "попугай",
+          "phonetic": "popugay"
+        },
+        {
+          "english": "pigeon",
+          "foreign": "голубь",
+          "phonetic": "golub"
+        },
+        {
+          "english": "squirrel",
+          "foreign": "белка",
+          "phonetic": "belka"
+        },
+        {
+          "english": "hedgehog",
+          "foreign": "ёж",
+          "phonetic": "yozh"
+        },
+        {
+          "english": "mole",
+          "foreign": "крот",
+          "phonetic": "krot"
+        },
+        {
+          "english": "beaver",
+          "foreign": "бобр",
+          "phonetic": "bobr"
+        },
+        {
+          "english": "otter",
+          "foreign": "выдра",
+          "phonetic": "vydra"
+        },
+        {
+          "english": "raccoon",
+          "foreign": "енот",
+          "phonetic": "enot"
+        },
+        {
+          "english": "panda",
+          "foreign": "панда",
+          "phonetic": "panda"
+        },
+        {
+          "english": "kangaroo",
+          "foreign": "кенгуру",
+          "phonetic": "kenguru"
+        },
+        {
+          "english": "koala",
+          "foreign": "коала",
+          "phonetic": "koala"
+        },
+        {
+          "english": "cheetah",
+          "foreign": "гепард",
+          "phonetic": "gepard"
+        },
+        {
+          "english": "leopard",
+          "foreign": "леопард",
+          "phonetic": "leopard"
+        },
+        {
+          "english": "hyena",
+          "foreign": "гиена",
+          "phonetic": "giena"
+        },
+        {
+          "english": "jellyfish",
+          "foreign": "медуза",
+          "phonetic": "meduza"
+        },
+        {
+          "english": "lizard",
+          "foreign": "ящерица",
+          "phonetic": "yashcheritsa"
+        },
+        {
+          "english": "tortoise",
+          "foreign": "черепаха",
+          "phonetic": "cherepakha"
+        },
+        {
+          "english": "peacock",
+          "foreign": "павлин",
+          "phonetic": "pavlin"
+        },
+        {
+          "english": "stork",
+          "foreign": "аист",
+          "phonetic": "aist"
+        },
+        {
+          "english": "flamingo",
+          "foreign": "фламинго",
+          "phonetic": "flamingo"
+        },
+        {
+          "english": "beetle",
+          "foreign": "жук",
+          "phonetic": "zhuk"
+        },
+        {
+          "english": "worm",
+          "foreign": "червь",
+          "phonetic": "cherv"
         }
       ]
     },

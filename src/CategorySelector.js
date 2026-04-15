@@ -39,11 +39,21 @@ const CategorySelector = ({ categories, selectedCategories, onCategoryToggle, on
   };
 
   return (
-    <div className="category-modal-backdrop" onClick={handleBackdropClick}>
-      <div className="category-modal">
+    <div
+      className="category-modal-backdrop"
+      onClick={handleBackdropClick}
+      role="presentation"
+    >
+      <div
+        className="category-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="category-modal-title"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="category-modal-header">
-          <h3>Select Categories to Study</h3>
-          <button className="category-modal-close" onClick={onClose}>
+          <h3 id="category-modal-title">Select Categories to Study</h3>
+          <button type="button" className="category-modal-close" onClick={onClose} aria-label="Close">
             ×
           </button>
         </div>
@@ -66,6 +76,11 @@ const CategorySelector = ({ categories, selectedCategories, onCategoryToggle, on
               </div>
             ))}
           </div>
+        </div>
+        <div className="category-modal-footer">
+          <button type="button" className="category-modal-done" onClick={onClose}>
+            Done
+          </button>
         </div>
       </div>
     </div>

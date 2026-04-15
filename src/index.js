@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import HomePage from './HomePage'; // Your homepage component
 import App from './App'; // Your flashcard app component
+import { ThemeProvider } from './ThemeContext';
 import './index.css';
 
 const Root = () => {
@@ -23,6 +24,8 @@ const Root = () => {
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <Root />
+    <ThemeProvider>
+      <Root />
+    </ThemeProvider>
   </React.StrictMode>
 );

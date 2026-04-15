@@ -4,7 +4,19 @@ import { isKanjiCategory } from './kanjiCategory';
 
 const ROMAJIDESU_KANJI_BASE = 'https://www.romajidesu.com/kanji/';
 
-const Flashcard = ({ word, activeKanjiVariantIndex = 0, onCycleKanjiVariant }) => {
+/** English Wiktionary: broad coverage for Russian, Chinese, Spanish; includes IPA / pronunciation and definitions. */
+const EN_WIKTIONARY_BASE = 'https://en.wiktionary.org/wiki/';
+
+function englishWiktionaryUrl(foreign) {
+  if (!foreign || typeof foreign !== 'string') return null;
+  const title = foreign.trim().replace(/\s+/g, '_');
+  if (!title) return null;
+  return `${EN_WIKTIONARY_BASE}${encodeURIComponent(title)}`;
+}
+
+const WIKTIONARY_LOOKUP_LANGUAGES = new Set(['russian', 'chinese', 'spanish']);
+
+const Flashcard = ({ word, currentLanguage = '', activeKanjiVariantIndex = 0, onCycleKanjiVariant }) => {
   if (!word) {
     return <div className="flashcard">Loading...</div>;
   }
@@ -22,6 +34,11 @@ const Flashcard = ({ word, activeKanjiVariantIndex = 0, onCycleKanjiVariant }) =
   const kanjiLookupUrl =
     isKanji && word.foreign
       ? `${ROMAJIDESU_KANJI_BASE}${encodeURIComponent(word.foreign)}`
+      : null;
+
+  const wiktionaryLookupUrl =
+    WIKTIONARY_LOOKUP_LANGUAGES.has(currentLanguage) && word.foreign
+      ? englishWiktionaryUrl(word.foreign)
       : null;
 
   return (
@@ -125,6 +142,16 @@ const Flashcard = ({ word, activeKanjiVariantIndex = 0, onCycleKanjiVariant }) =
                       rel="noopener noreferrer"
                       className="foreign-kanji-link"
                       title="Look up this kanji on RomajiDesu"
+                    >
+                      {word.foreign}
+                    </a>
+                  ) : wiktionaryLookupUrl ? (
+                    <a
+                      href={wiktionaryLookupUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="foreign-kanji-link"
+                      title="Open in English Wiktionary (pronunciation and definitions)"
                     >
                       {word.foreign}
                     </a>

@@ -23,6 +23,7 @@ import {
   getKanjiVariants,
 } from './kanjiVariants';
 import { isKanjiCategory } from './kanjiCategory';
+import { useTheme } from './ThemeContext';
 
 const DB_VERSION = 1;
 
@@ -92,22 +93,11 @@ function waitForRecognitionIdle(recognition) {
   });
 }
 
-/** Dark mode when OS / browser is set to dark, or false if unknown (e.g. no matchMedia). */
-function getSystemPrefersDark() {
-  if (typeof window === 'undefined') return false;
-  try {
-    return window.matchMedia('(prefers-color-scheme: dark)').matches;
-  } catch {
-    return false;
-  }
-}
-
 const App = () => {
+  const { darkMode, toggleDarkMode } = useTheme();
   const [words, setWords] = useState([]);
   const [currentLanguage, setCurrentLanguage] = useState('');
   const [currentWord, setCurrentWord] = useState(null);
-  const [darkMode, setDarkMode] = useState(() => getSystemPrefersDark());
-  const themeUserTouchedRef = useRef(false);
   const [listening, setListening] = useState(false);
   const [recognition, setRecognition] = useState(null);
   const [detectedSpeech, setDetectedSpeech] = useState('');
@@ -135,17 +125,6 @@ const App = () => {
   useEffect(() => {
     kanjiVariantIndexRef.current = kanjiVariantIndex;
   }, [kanjiVariantIndex]);
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const mq = window.matchMedia('(prefers-color-scheme: dark)');
-    const onChange = () => {
-      if (themeUserTouchedRef.current) return;
-      setDarkMode(mq.matches);
-    };
-    mq.addEventListener('change', onChange);
-    return () => mq.removeEventListener('change', onChange);
-  }, []);
 
   useEffect(() => {
     if (!currentWord) return;
@@ -394,11 +373,6 @@ const App = () => {
   }, [currentLanguage]);
 
   useEffect(() => {
-    document.documentElement.style.backgroundColor = darkMode ? '#333' : '#fff';
-    document.body.style.backgroundColor = darkMode ? '#333' : '#fff';
-  }, [darkMode]);
-
-  useEffect(() => {
     const ensureAudioContextRunning = async () => {
       if (audioContext && audioContext.state !== 'running') {
         try {
@@ -430,11 +404,6 @@ const App = () => {
       audio.play().catch(error => console.error('Error playing sound:', error));
     });
   }, [audioContext]);
-
-  const toggleDarkMode = () => {
-    themeUserTouchedRef.current = true;
-    setDarkMode((prev) => !prev);
-  };
 
   const startListening = useCallback(() => {
     if (!recognition) return;
@@ -918,6 +887,7 @@ const App = () => {
         {showSuccessGif && <img src={successGif} alt="Success GIF" className="success-gif" />}
         <Flashcard
           word={currentWord}
+          currentLanguage={currentLanguage}
           activeKanjiVariantIndex={currentWord && isKanjiCategory(currentWord.categoryKey) ? kanjiVariantIndex : undefined}
           onCycleKanjiVariant={currentWord && isKanjiCategory(currentWord.categoryKey) ? cycleKanjiVariant : undefined}
         />

@@ -1,5 +1,13 @@
 {
   "rewrites": [
+    { "source": "/russian", "destination": "/russian/index.html" },
+    { "source": "/russian/", "destination": "/russian/index.html" },
+    { "source": "/chinese", "destination": "/chinese/index.html" },
+    { "source": "/chinese/", "destination": "/chinese/index.html" },
+    { "source": "/spanish", "destination": "/spanish/index.html" },
+    { "source": "/spanish/", "destination": "/spanish/index.html" },
+    { "source": "/japanese", "destination": "/japanese/index.html" },
+    { "source": "/japanese/", "destination": "/japanese/index.html" },
     { "source": "/(.*)", "destination": "/index.html" }
   ],
   "headers": [

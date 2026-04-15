@@ -12,6 +12,7 @@
     "web-vitals": "^2.1.0"
   },
   "devDependencies": {
+    "@microsoft/eslint-formatter-sarif": "^3.1.0",
     "@testing-library/jest-dom": "^5.14.1",
     "@testing-library/react": "^13.0.0",
     "@testing-library/user-event": "^13.2.1"
@@ -40,5 +41,13 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "overrides": {
+    "@tootallnate/once": "^3.0.1",
+    "nth-check": "^2.1.1",
+    "resolve-url-loader": "^5.0.0",
+    "serialize-javascript": "^7.0.5",
+    "underscore": "~1.13.7",
+    "webpack-dev-server": "^5.2.2"
   }
 }

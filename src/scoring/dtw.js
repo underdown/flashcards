@@ -16,8 +16,8 @@ const N_MFCC = 12;
 const FMIN = 0;
 const FMAX = 8000;
 
-export const SCORE_CENTER = 50;
-export const SCORE_SCALE = 0.12;
+export const SCORE_CENTER = 58;
+export const SCORE_SCALE = 0.1;
 
 function hzToMel(hz) {
   return 2595 * Math.log10(1 + hz / 700);

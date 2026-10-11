@@ -27,8 +27,8 @@ import { useTheme } from './ThemeContext';
 import HelpModalBody from './HelpModalBody';
 import { loadMfccCache, recordAndScoreWord, releaseMic } from './scoring/dtw';
 
-/** DTW pass bar — calibrated on cross-voice Russian refs (mean same≈67, mean diff≈24). */
-const DTW_PASS_SCORE = 55;
+/** DTW pass bar — slightly loosened vs original same≈67 / diff≈24 calibration. */
+const DTW_PASS_SCORE = 50;
 
 const DB_VERSION = 1;
 

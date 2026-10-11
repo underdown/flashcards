@@ -107,6 +107,9 @@ const App = () => {
   const [recognition, setRecognition] = useState(null);
   const [detectedSpeech, setDetectedSpeech] = useState('');
   const [lastDtwScore, setLastDtwScore] = useState(null);
+  /** Brief corner badge after a scored attempt: { score, pass, visible }. */
+  const [scoreFlash, setScoreFlash] = useState(null);
+  const scoreFlashTimerRef = useRef(null);
   const [showSuccessGif, setShowSuccessGif] = useState(false);
   const [speechStatus, setSpeechStatus] = useState('idle');
   const [wordStats, setWordStats] = useState({ successes: 0, failures: 0 });
@@ -131,6 +134,28 @@ const App = () => {
   useEffect(() => {
     kanjiVariantIndexRef.current = kanjiVariantIndex;
   }, [kanjiVariantIndex]);
+
+  const showScoreFlash = useCallback((score, pass) => {
+    if (scoreFlashTimerRef.current) {
+      clearTimeout(scoreFlashTimerRef.current);
+      scoreFlashTimerRef.current = null;
+    }
+    setScoreFlash({
+      score: typeof score === 'number' ? score : null,
+      pass: Boolean(pass),
+      visible: true,
+    });
+    scoreFlashTimerRef.current = setTimeout(() => {
+      setScoreFlash((prev) => (prev ? { ...prev, visible: false } : null));
+      scoreFlashTimerRef.current = null;
+    }, 2200);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (scoreFlashTimerRef.current) clearTimeout(scoreFlashTimerRef.current);
+    };
+  }, []);
 
   useEffect(() => {
     if (!currentWord) return;
@@ -418,6 +443,7 @@ const App = () => {
     const runDtwPath = async () => {
       setListening(true);
       setLastDtwScore(null);
+      setScoreFlash(null);
       setDetectedSpeech('');
       setSpeechStatus('listening');
       successHandledRef.current = false;
@@ -440,6 +466,7 @@ const App = () => {
         setDetectedSpeech(`DTW ${score}/100`);
         console.log('DTW score', score, 'distance', result.distance);
         const pass = score >= DTW_PASS_SCORE;
+        showScoreFlash(score, pass);
         if (pass) {
           successHandledRef.current = true;
           playSound(successSound);
@@ -550,6 +577,7 @@ const App = () => {
             successHandledRef.current = true;
             recognition.abort();
             playSound(successSound);
+            showScoreFlash(null, true);
             setShowSuccessGif(true);
             setWordStats((prev) => ({ ...prev, successes: prev.successes + 1 }));
             updateWordStats(currentWord.foreign, true, 1);
@@ -972,6 +1000,7 @@ const App = () => {
           currentLanguage={currentLanguage}
           activeKanjiVariantIndex={currentWord && isKanjiCategory(currentWord.categoryKey) ? kanjiVariantIndex : undefined}
           onCycleKanjiVariant={currentWord && isKanjiCategory(currentWord.categoryKey) ? cycleKanjiVariant : undefined}
+          scoreFlash={scoreFlash}
         />
         <button
           type="button"

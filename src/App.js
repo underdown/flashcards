@@ -15,7 +15,6 @@ import successGif from './assets/success.gif';
 import { openDB } from 'idb';
 import CategorySelector from './CategorySelector';
 import { languages, getLanguageCode } from './assets/languages';
-import Modal from './Modal';
 import {
   getJapaneseSpeechText,
   getKanjiEnglishSpeechText,
@@ -24,8 +23,6 @@ import {
 } from './kanjiVariants';
 import { isKanjiCategory } from './kanjiCategory';
 import { useTheme } from './ThemeContext';
-import HelpModalBody from './HelpModalBody';
-import SpectrumBars from './SpectrumBars';
 import { loadMfccCache, recordAndScoreWord, releaseMic, primeMicAudio } from './scoring/dtw';
 
 /** DTW pass bar — slightly loosened vs original same≈67 / diff≈24 calibration. */
@@ -128,7 +125,6 @@ const App = () => {
   const [showCategorySelector, setShowCategorySelector] = useState(false);
   const [kanjiVariantIndex, setKanjiVariantIndex] = useState(0);
   const kanjiVariantIndexRef = useRef(0);
-  const [showHelp, setShowHelp] = useState(false);
 
   useEffect(() => {
     kanjiVariantIndexRef.current = kanjiVariantIndex;
@@ -1173,40 +1169,7 @@ const App = () => {
             activeKanjiVariantIndex={currentWord && isKanjiCategory(currentWord.categoryKey) ? kanjiVariantIndex : undefined}
             onCycleKanjiVariant={currentWord && isKanjiCategory(currentWord.categoryKey) ? cycleKanjiVariant : undefined}
           />
-          <div className="card-eq">
-            <SpectrumBars height={56} />
-          </div>
         </div>
-        <button
-          type="button"
-          className={`help-button ${
-            currentWord && isKanjiCategory(currentWord.categoryKey) ? 'help-button--kanji' : ''
-          }`}
-          aria-label="Help"
-          title="Help"
-          onClick={() => setShowHelp(true)}
-        >
-          <span className="help-button-mark" aria-hidden="true">?</span>
-        </button>
-        <Modal isOpen={showHelp}>
-          <div className="help-modal">
-            <div className="help-modal-header">
-              <span className="help-modal-header-spacer" aria-hidden="true" />
-              <h3>How to use</h3>
-              <button
-                type="button"
-                className="help-modal-close"
-                aria-label="Close help"
-                onClick={() => setShowHelp(false)}
-              >
-                ×
-              </button>
-            </div>
-            <div className="help-modal-body">
-              <HelpModalBody languageId={currentLanguage} />
-            </div>
-          </div>
-        </Modal>
       </div>
       <div className="speech-status">
         {speechStatus === 'listening' && <p>Listening… speak the word</p>}

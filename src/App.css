@@ -63,7 +63,8 @@ html, body, #root {
 .flashcard {
   background-color: #f0f0f0;
   border: 1px solid #ccc;
-  border-radius: 8px;
+  border-bottom: none;
+  border-radius: 8px 8px 0 0;
   width: 80vw;
   max-width: 500px;
   height: 40vh;
@@ -149,142 +150,6 @@ html, body, #root {
     opacity: 0;
     transform: translateY(-4px) scale(0.98);
   }
-}
-
-.help-button {
-  position: absolute;
-  bottom: 6px;
-  right: 6px;
-  z-index: 20;
-  width: 36px;
-  height: 36px;
-  border: none;
-  border-radius: 50%;
-  background-color: #594242;
-  color: #f0f0f0;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 2px 2px rgba(0, 0, 0, 0.15);
-}
-
-.help-button:hover {
-  background-color: #45a049;
-}
-
-.help-button--kanji {
-  background-color: rgba(129, 199, 132, 0.2);
-  border: 1px solid rgba(129, 199, 132, 0.5);
-  box-shadow: none;
-  color: #c8e6c9;
-}
-
-.help-button--kanji:hover {
-  background-color: rgba(129, 199, 132, 0.25);
-}
-
-.help-button-mark {
-  font-size: 1.35rem;
-  font-weight: 700;
-  line-height: 1;
-  pointer-events: none;
-  user-select: none;
-}
-
-.help-modal {
-  position: relative;
-  text-align: left;
-}
-
-.help-modal-header {
-  display: grid;
-  grid-template-columns: 44px minmax(0, 1fr) 44px;
-  align-items: center;
-  gap: 8px;
-  margin: -4px 0 12px;
-}
-
-.help-modal-header-spacer {
-  width: 44px;
-  height: 44px;
-  flex-shrink: 0;
-}
-
-.help-modal-header h3 {
-  margin: 0;
-  text-align: center;
-  font-size: 1.25rem;
-  line-height: 1.3;
-  grid-column: 2;
-}
-
-.help-modal-close {
-  grid-column: 3;
-  justify-self: end;
-  flex-shrink: 0;
-  width: 44px;
-  height: 44px;
-  min-width: 44px;
-  min-height: 44px;
-  border-radius: 50%;
-  border: none;
-  background: rgba(0, 0, 0, 0.12);
-  color: inherit;
-  cursor: pointer;
-  font-size: 22px;
-  line-height: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-}
-
-.help-modal-close:hover {
-  background: rgba(0, 0, 0, 0.18);
-}
-
-.help-modal-body {
-  text-align: left;
-  max-width: 780px;
-  margin: 0 auto;
-  padding-right: 10px;
-}
-
-.help-modal-body p {
-  margin: 10px 0;
-}
-
-.dark-mode .help-button {
-  background-color: #1b5e20;
-  color: #333;
-}
-
-.dark-mode .help-button:hover {
-  background-color: #2e7d32;
-}
-
-.dark-mode .help-button--kanji {
-  background-color: rgba(129, 199, 132, 0.2);
-  border: 1px solid rgba(129, 199, 132, 0.5);
-  box-shadow: none;
-  color: #c8e6c9;
-}
-
-.dark-mode .help-button--kanji:hover {
-  background-color: rgba(129, 199, 132, 0.25);
-}
-
-.dark-mode .help-modal-body {
-  color: #e0e0e0;
-}
-
-.dark-mode .help-modal-close {
-  background: rgba(255, 255, 255, 0.14);
-}
-
-.dark-mode .help-modal-close:hover {
-  background: rgba(255, 255, 255, 0.2);
 }
 
 .content {
@@ -402,10 +267,12 @@ html, body, #root {
   /*font-style: italic;*/
 }
 
-/* EQ footer built into the flashcard — spans the full card width and
-   blends into the card surface (inherits light/dark card colors). */
+/* EQ footer built into the flashcard — part of the card surface,
+   same background as the card so card + EQ read as one piece. */
 .card-eq {
   width: 100%;
+  background-color: inherit;
+  margin-top: auto;
   padding: 0 8px 8px;
   box-sizing: border-box;
   pointer-events: none;
@@ -495,7 +362,6 @@ html, body, #root {
   background-color: #333;
   border-color: #555;
 }
-
 .dark-mode .phonetic {
   color: #b0b0b0;
 }

@@ -1,6 +1,7 @@
 import React from 'react';
 import { getKanjiVariants } from './kanjiVariants';
 import { isKanjiCategory } from './kanjiCategory';
+import SpectrumBars from './SpectrumBars';
 
 const ROMAJIDESU_KANJI_BASE = 'https://www.romajidesu.com/kanji/';
 
@@ -172,6 +173,9 @@ const Flashcard = ({
             )}
           </>
         )}
+      </div>
+      <div className="card-eq">
+        <SpectrumBars height={56} />
       </div>
     </div>
   );

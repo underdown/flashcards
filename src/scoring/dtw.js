@@ -306,7 +306,6 @@ export function resampleTo16k(input, sampleRate) {
 /** Shared AudioContext — creating+closing one per attempt is the main flaky-mic cause. */
 let sharedCtx = null;
 let sharedStream = null;
-let sharedStreamAt = 0;
 let recordLock = Promise.resolve();
 
 function getSharedAudioContext() {
@@ -383,7 +382,6 @@ async function getMicStream() {
         autoGainControl: true,
       },
     });
-    sharedStreamAt = Date.now();
   } else {
     // Unmute / enable if a prior path muted tracks.
     sharedStream.getAudioTracks().forEach((t) => {
@@ -407,7 +405,6 @@ export function releaseMic() {
     }
     sharedStream = null;
   }
-  sharedStreamAt = 0;
 }
 
 function rmsOf(buf) {

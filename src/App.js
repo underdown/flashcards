@@ -1099,6 +1099,7 @@ const App = () => {
       }
       // Reset states
       setSpeechStatus('idle');
+      setSpeakPrompt(true);
       // Start auto practice
       autoPractice();
     } else {
@@ -1111,6 +1112,7 @@ const App = () => {
         recognition.abort();
       }
       setSpeechStatus('idle');
+      setSpeakPrompt(false);
     }
   };
 

@@ -106,6 +106,8 @@ const App = () => {
   /** Brief corner badge after a scored attempt: { score, pass, visible }. */
   const [scoreFlash, setScoreFlash] = useState(null);
   const scoreFlashTimerRef = useRef(null);
+  /** While listening: show "SPEAK" in the score's spot. */
+  const [speakPrompt, setSpeakPrompt] = useState(false);
   const [showSuccessGif, setShowSuccessGif] = useState(false);
   const [speechStatus, setSpeechStatus] = useState('idle');
   const [wordStats, setWordStats] = useState({ successes: 0, failures: 0 });
@@ -135,6 +137,8 @@ const App = () => {
       clearTimeout(scoreFlashTimerRef.current);
       scoreFlashTimerRef.current = null;
     }
+    // A real score replaces any SPEAK prompt.
+    setSpeakPrompt(false);
     const id = Date.now();
     const passed = Boolean(pass);
     // Only show a real 0–100. Never invent 100 just because it passed (that made
@@ -478,12 +482,14 @@ const App = () => {
     const runDtwPath = async () => {
       setListening(true);
       setSpeechStatus('listening');
+      setSpeakPrompt(true);
       successHandledRef.current = false;
       // Hard unlock so a hung recorder never permanently disables the mic button.
       // Fresh-stream + one silent retry can take ~7s; keep headroom.
       const unlockTimer = setTimeout(() => {
         setListening(false);
         setSpeechStatus((s) => (s === 'listening' || s === 'processing' ? 'idle' : s));
+        setSpeakPrompt(false);
       }, 14000);
       try {
         try {
@@ -550,6 +556,7 @@ const App = () => {
         console.error('DTW listening failed:', err);
         setListening(false);
         setSpeechStatus('error');
+        setSpeakPrompt(false);
         showScoreFlash(0, false);
         return true; // don't fall to ASR on mic errors for ref words
       } finally {
@@ -571,6 +578,7 @@ const App = () => {
           console.log('Speech recognition started');
           setSpeechStatus('listening');
           setListening(true);
+          setSpeakPrompt(true);
           successHandledRef.current = false;
 
           timeoutId = setTimeout(() => {
@@ -1156,13 +1164,11 @@ const App = () => {
             activeKanjiVariantIndex={currentWord && isKanjiCategory(currentWord.categoryKey) ? kanjiVariantIndex : undefined}
             onCycleKanjiVariant={currentWord && isKanjiCategory(currentWord.categoryKey) ? cycleKanjiVariant : undefined}
             scoreFlash={scoreFlash}
+            speakPrompt={speakPrompt}
           />
         </div>
       </div>
       <div className="speech-status">
-        {speechStatus === 'listening' && <p>Listening… speak the word</p>}
-        {speechStatus === 'ready' && <p>Ready! Please speak now.</p>}
-        {speechStatus === 'speaking' && <p>Listening...</p>}
         {speechStatus === 'processing' && <p>Scoring pronunciation (MFCC + DTW)…</p>}
         {speechStatus === 'error' && <p>Error occurred. Please try again.</p>}
       </div>

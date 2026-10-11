@@ -98,8 +98,9 @@ html, body, #root {
 }
 
 .score-flash-value {
-  font-size: 1.6rem;
-  letter-spacing: -0.02em;
+  font-size: 1.85rem;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.03em;
 }
 
 .score-flash-label {

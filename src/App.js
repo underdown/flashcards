@@ -141,10 +141,19 @@ const App = () => {
       scoreFlashTimerRef.current = null;
     }
     const id = Date.now();
+    const passed = Boolean(pass);
+    // Always show a 0–100 number on the badge (DTW score, or 100/0 for ASR match).
+    let n =
+      typeof score === 'number' && Number.isFinite(score)
+        ? Math.round(score)
+        : passed
+          ? 100
+          : 0;
+    n = Math.max(0, Math.min(100, n));
     setScoreFlash({
       id,
-      score: typeof score === 'number' ? score : null,
-      pass: Boolean(pass),
+      score: n,
+      pass: passed,
       visible: true,
     });
     // Hold solid ~3s, then hide (CSS fade handles the last half-second).
@@ -1052,14 +1061,10 @@ const App = () => {
               role="status"
               aria-live="polite"
             >
-              {typeof scoreFlash.score === 'number' ? (
-                <>
-                  <span className="score-flash-value">{Math.round(scoreFlash.score)}</span>
-                  <span className="score-flash-label">{scoreFlash.pass ? 'pass' : 'try again'}</span>
-                </>
-              ) : (
-                <span className="score-flash-value">{scoreFlash.pass ? '✓' : '✗'}</span>
-              )}
+              <span className="score-flash-value">
+                {typeof scoreFlash.score === 'number' ? Math.round(scoreFlash.score) : scoreFlash.pass ? 100 : 0}
+              </span>
+              <span className="score-flash-label">{scoreFlash.pass ? 'pass' : 'try again'}</span>
             </div>
           )}
           <Flashcard

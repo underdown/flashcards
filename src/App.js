@@ -25,6 +25,10 @@ import {
 import { isKanjiCategory } from './kanjiCategory';
 import { useTheme } from './ThemeContext';
 import HelpModalBody from './HelpModalBody';
+import { loadMfccCache, recordAndScoreWord } from './scoring/dtw';
+
+/** DTW pass bar — calibrated on cross-voice Russian refs (mean same≈67, mean diff≈24). */
+const DTW_PASS_SCORE = 55;
 
 const DB_VERSION = 1;
 
@@ -102,6 +106,7 @@ const App = () => {
   const [listening, setListening] = useState(false);
   const [recognition, setRecognition] = useState(null);
   const [detectedSpeech, setDetectedSpeech] = useState('');
+  const [lastDtwScore, setLastDtwScore] = useState(null);
   const [showSuccessGif, setShowSuccessGif] = useState(false);
   const [speechStatus, setSpeechStatus] = useState('idle');
   const [wordStats, setWordStats] = useState({ successes: 0, failures: 0 });
@@ -407,88 +412,44 @@ const App = () => {
   }, [audioContext]);
 
   const startListening = useCallback(() => {
-    if (!recognition) return;
+    if (!currentWord?.foreign) return;
+    if (listening) return;
 
-    waitForRecognitionIdle(recognition).then(() => {
-      let timeoutId;
-
-      recognition.onstart = () => {
-        console.log('Speech recognition started');
-        setSpeechStatus('listening');
-        setListening(true);
-        successHandledRef.current = false; // Reset the success handled flag
-
-        timeoutId = setTimeout(() => {
-          console.log('Speech recognition timed out');
-          recognition.abort();
-        }, 5000); // 5 seconds timeout
-      };
-
-      recognition.onaudiostart = () => {
-        console.log('Audio capturing started');
-        setSpeechStatus('ready');
-      };
-
-      recognition.onspeechstart = () => {
-        console.log('Speech started');
-        setSpeechStatus('speaking');
-      };
-
-      recognition.onspeechend = () => {
-        console.log('Speech ended');
+    const runDtwPath = async () => {
+      setListening(true);
+      setLastDtwScore(null);
+      setDetectedSpeech('');
+      setSpeechStatus('listening');
+      successHandledRef.current = false;
+      try {
+        const result = await recordAndScoreWord(currentLanguage, currentWord.foreign, {
+          maxMs: 4500,
+          minMs: 350,
+          silenceMs: 650,
+        });
         setSpeechStatus('processing');
-      };
-
-      recognition.onend = () => {
-        console.log('Speech recognition ended');
-        setListening(false);
-        setSpeechStatus('idle');
-        clearTimeout(timeoutId); // Clear the timeout if recognition ends
-
-        if (!successHandledRef.current) {
-          console.log('Failure');
-          playSound(failSound);
-          setWordStats(prev => ({ ...prev, failures: prev.failures + 1 }));
-          updateWordStats(currentWord.foreign, false, 0); // 0% similarity
-
-          setTimeout(() => {
-            setDetectedSpeech('');
-            setSpeechStatus('idle');
-          }, 100);
+        if (!result.ok) {
+          // No refs / mic failure — fall through to Web Speech ASR
+          console.warn('DTW path unavailable:', result.reason);
+          setListening(false);
+          setSpeechStatus('idle');
+          return false;
         }
-      };
-
-      recognition.onerror = (event) => {
-        console.error('Speech recognition error', event.error);
-        setListening(false);
-        setSpeechStatus('error');
-        clearTimeout(timeoutId); // Clear the timeout on error
-      };
-
-      recognition.onresult = (event) => {
-        const transcript = Array.from(event.results)
-          .map(result => result[0].transcript)
-          .join('');
-
-        const cleanTranscript = transcript.toLowerCase().trim();
-        setDetectedSpeech(cleanTranscript);
-
-        if (
-          speechMatchesExpected(cleanTranscript, currentWord, kanjiVariantIndexRef.current) &&
-          !successHandledRef.current
-        ) {
-          console.log('Success detected');
+        const score = result.score;
+        setLastDtwScore(score);
+        setDetectedSpeech(`DTW ${score}/100`);
+        console.log('DTW score', score, 'distance', result.distance);
+        const pass = score >= DTW_PASS_SCORE;
+        if (pass) {
           successHandledRef.current = true;
-          recognition.abort();
           playSound(successSound);
           setShowSuccessGif(true);
-          setWordStats(prev => ({ ...prev, successes: prev.successes + 1 }));
-          updateWordStats(currentWord.foreign, true, 1);
-
+          setWordStats((prev) => ({ ...prev, successes: prev.successes + 1 }));
+          updateWordStats(currentWord.foreign, true, score / 100);
           setTimeout(() => {
-            setDetectedSpeech('');
             setShowSuccessGif(false);
             setSpeechStatus('idle');
+            setListening(false);
             if (autoPracticeActiveRef.current) {
               nextRandomWord();
               nextWordTimeoutRef.current = setTimeout(() => {
@@ -496,20 +457,140 @@ const App = () => {
               }, 2000);
             }
           }, 1200);
+        } else {
+          playSound(failSound);
+          setWordStats((prev) => ({ ...prev, failures: prev.failures + 1 }));
+          updateWordStats(currentWord.foreign, false, score / 100);
+          setSpeechStatus('idle');
+          setListening(false);
         }
-      };
-
-      try {
-        recognition.start();
-      } catch (error) {
-        console.error('Error starting speech recognition:', error);
+        return true;
+      } catch (err) {
+        console.error('DTW listening failed:', err);
+        setListening(false);
         setSpeechStatus('error');
-        clearTimeout(timeoutId);
+        return false;
+      }
+    };
+
+    const runAsrPath = () => {
+      if (!recognition) {
+        setSpeechStatus('error');
+        return;
+      }
+      waitForRecognitionIdle(recognition).then(() => {
+        let timeoutId;
+
+        recognition.onstart = () => {
+          console.log('Speech recognition started');
+          setSpeechStatus('listening');
+          setListening(true);
+          successHandledRef.current = false;
+
+          timeoutId = setTimeout(() => {
+            console.log('Speech recognition timed out');
+            recognition.abort();
+          }, 5000);
+        };
+
+        recognition.onaudiostart = () => {
+          console.log('Audio capturing started');
+          setSpeechStatus('ready');
+        };
+
+        recognition.onspeechstart = () => {
+          console.log('Speech started');
+          setSpeechStatus('speaking');
+        };
+
+        recognition.onspeechend = () => {
+          console.log('Speech ended');
+          setSpeechStatus('processing');
+        };
+
+        recognition.onend = () => {
+          console.log('Speech recognition ended');
+          setListening(false);
+          setSpeechStatus('idle');
+          clearTimeout(timeoutId);
+
+          if (!successHandledRef.current) {
+            console.log('Failure');
+            playSound(failSound);
+            setWordStats((prev) => ({ ...prev, failures: prev.failures + 1 }));
+            updateWordStats(currentWord.foreign, false, 0);
+
+            setTimeout(() => {
+              setDetectedSpeech('');
+              setSpeechStatus('idle');
+            }, 100);
+          }
+        };
+
+        recognition.onerror = (event) => {
+          console.error('Speech recognition error', event.error);
+          setListening(false);
+          setSpeechStatus('error');
+          clearTimeout(timeoutId);
+        };
+
+        recognition.onresult = (event) => {
+          const transcript = Array.from(event.results)
+            .map((result) => result[0].transcript)
+            .join('');
+
+          const cleanTranscript = transcript.toLowerCase().trim();
+          setDetectedSpeech(cleanTranscript);
+
+          if (
+            speechMatchesExpected(cleanTranscript, currentWord, kanjiVariantIndexRef.current) &&
+            !successHandledRef.current
+          ) {
+            console.log('Success detected');
+            successHandledRef.current = true;
+            recognition.abort();
+            playSound(successSound);
+            setShowSuccessGif(true);
+            setWordStats((prev) => ({ ...prev, successes: prev.successes + 1 }));
+            updateWordStats(currentWord.foreign, true, 1);
+
+            setTimeout(() => {
+              setDetectedSpeech('');
+              setShowSuccessGif(false);
+              setSpeechStatus('idle');
+              if (autoPracticeActiveRef.current) {
+                nextRandomWord();
+                nextWordTimeoutRef.current = setTimeout(() => {
+                  autoPractice();
+                }, 2000);
+              }
+            }, 1200);
+          }
+        };
+
+        try {
+          recognition.start();
+        } catch (error) {
+          console.error('Error starting speech recognition:', error);
+          setSpeechStatus('error');
+          clearTimeout(timeoutId);
+        }
+      });
+    };
+
+    // Prefer DTW when we have reference MFCCs for this language/word (Russian first).
+    loadMfccCache(currentLanguage).then((cache) => {
+      const hasRefs = Boolean(cache?.by_word?.[currentWord.foreign]);
+      if (hasRefs) {
+        runDtwPath().then((used) => {
+          if (!used) runAsrPath();
+        });
+      } else {
+        runAsrPath();
       }
     });
-    // nextRandomWord/autoPractice omitted to avoid resetting recognition handlers every word
     // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional
-  }, [recognition, currentWord, playSound, updateWordStats]);
+  }, [recognition, currentWord, currentLanguage, listening, playSound, updateWordStats]);
 
   useEffect(() => {
     return () => {
@@ -926,6 +1007,11 @@ const App = () => {
       <div className="detected-speech">
         <p>
           {detectedSpeech || 'No speech detected yet'}
+          {lastDtwScore != null && (
+            <span style={{ marginLeft: 8, opacity: 0.85 }}>
+              (pass ≥ {DTW_PASS_SCORE})
+            </span>
+          )}
           {showSuccessGif && (
             <img
               src={successGif}
@@ -936,10 +1022,10 @@ const App = () => {
         </p>
       </div>
       <div className="speech-status">
-        {speechStatus === 'listening' && <p>LIstening...</p>}
+        {speechStatus === 'listening' && <p>Listening… speak the word</p>}
         {speechStatus === 'ready' && <p>Ready! Please speak now.</p>}
         {speechStatus === 'speaking' && <p>Listening...</p>}
-        {speechStatus === 'processing' && <p>Processing...</p>}
+        {speechStatus === 'processing' && <p>Scoring pronunciation (MFCC + DTW)…</p>}
         {speechStatus === 'error' && <p>Error occurred. Please try again.</p>}
       </div>
       <div className="button-container" style={{ position: 'relative', zIndex: 2 }}>

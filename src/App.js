@@ -1238,22 +1238,24 @@ const App = () => {
       </div>
       <div className="detected-speech">
         <div className="spectrum-wrap">
-          <SpectrumBars height={44} />
-          <span className="spectrum-caption">
-            {detectedSpeech || 'Listening…'}
-            {lastDtwScore != null && (
-              <span style={{ marginLeft: 8, opacity: 0.85 }}>
-                (pass ≥ {DTW_PASS_SCORE})
-              </span>
-            )}
-            {showSuccessGif && (
-              <img
-                src={successGif}
-                alt="Success"
-                style={{ width: '16px', height: '16px', marginLeft: '5px', verticalAlign: 'middle' }}
-              />
-            )}
-          </span>
+          <SpectrumBars height={64} />
+          {(detectedSpeech || lastDtwScore != null || showSuccessGif) && (
+            <span className="spectrum-caption">
+              {detectedSpeech}
+              {lastDtwScore != null && (
+                <span style={{ marginLeft: 8, opacity: 0.85 }}>
+                  (pass ≥ {DTW_PASS_SCORE})
+                </span>
+              )}
+              {showSuccessGif && (
+                <img
+                  src={successGif}
+                  alt="Success"
+                  style={{ width: '16px', height: '16px', marginLeft: '5px', verticalAlign: 'middle' }}
+                />
+              )}
+            </span>
+          )}
         </div>
       </div>
       <div className="speech-status">

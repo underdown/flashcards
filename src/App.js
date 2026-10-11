@@ -142,14 +142,10 @@ const App = () => {
     }
     const id = Date.now();
     const passed = Boolean(pass);
-    // Always show a 0–100 number on the badge (DTW score, or 100/0 for ASR match).
-    let n =
-      typeof score === 'number' && Number.isFinite(score)
-        ? Math.round(score)
-        : passed
-          ? 100
-          : 0;
-    n = Math.max(0, Math.min(100, n));
+    // Only show a real 0–100. Never invent 100 just because it passed (that made
+    // ASR look like a binary 0/100 and hid DTW granularity).
+    const raw = typeof score === 'number' ? score : Number(score);
+    const n = Number.isFinite(raw) ? Math.max(0, Math.min(100, Math.round(raw))) : 0;
     setScoreFlash({
       id,
       score: n,
@@ -161,6 +157,22 @@ const App = () => {
       setScoreFlash((prev) => (prev && prev.id === id ? { ...prev, visible: false } : prev));
       scoreFlashTimerRef.current = null;
     }, 3500);
+  }, []);
+
+  /** Best Web Speech confidence → 0–100, or null if browser didn't report one. */
+  const asrScoreFromResults = useCallback((results) => {
+    if (!results?.length) return null;
+    let best = 0;
+    let saw = false;
+    for (let i = 0; i < results.length; i++) {
+      const c = results[i]?.[0]?.confidence;
+      if (typeof c === 'number' && Number.isFinite(c) && c > 0) {
+        saw = true;
+        if (c > best) best = c;
+      }
+    }
+    if (!saw) return null;
+    return Math.max(0, Math.min(100, Math.round(best * 100)));
   }, []);
 
   useEffect(() => {
@@ -481,23 +493,22 @@ const App = () => {
         setSpeechStatus('processing');
         if (!result.ok) {
           console.warn('DTW path unavailable:', result.reason);
-          // Mic/speech miss — stay on DTW path message; don't silently drop to ASR
-          // for russian words that have refs (ASR is a different skill).
-          if (result.reason === 'no-speech' || result.reason === 'too-short' || result.reason === 'empty-recording') {
-            setDetectedSpeech('No speech heard — try again');
-            showScoreFlash(null, false);
-            setSpeechStatus('idle');
-            setListening(false);
-            playSound(failSound);
-            return true; // handled; don't fall through to ASR
-          }
-          setListening(false);
+          // Word has refs — stay on DTW. Do NOT fall through to ASR (that was
+          // flashing fake 0/100 and hiding real pronunciation scores).
+          const silent =
+            result.reason === 'no-speech' ||
+            result.reason === 'too-short' ||
+            result.reason === 'empty-recording';
+          setDetectedSpeech(silent ? 'No speech heard — try again' : `Mic error — try again`);
+          showScoreFlash(0, false);
           setSpeechStatus('idle');
-          return false;
+          setListening(false);
+          playSound(failSound);
+          return true;
         }
-        const score = result.score;
+        const score = Number(result.score);
         setLastDtwScore(score);
-        setDetectedSpeech(`DTW ${score}/100`);
+        setDetectedSpeech(`DTW ${Math.round(score)}/100`);
         console.log('DTW score', score, 'distance', result.distance, 'pcm', result.pcmLength);
         const pass = score >= DTW_PASS_SCORE;
         showScoreFlash(score, pass);
@@ -536,7 +547,7 @@ const App = () => {
         );
         setListening(false);
         setSpeechStatus('error');
-        showScoreFlash(null, false);
+        showScoreFlash(0, false);
         return true; // don't fall to ASR on mic errors for ref words
       } finally {
         clearTimeout(unlockTimer);
@@ -551,6 +562,7 @@ const App = () => {
       }
       waitForRecognitionIdle(recognition).then(() => {
         let timeoutId;
+        let lastAsrScore = 0;
 
         recognition.onstart = () => {
           console.log('Speech recognition started');
@@ -588,8 +600,9 @@ const App = () => {
           if (!successHandledRef.current) {
             console.log('Failure');
             playSound(failSound);
+            showScoreFlash(lastAsrScore, false);
             setWordStats((prev) => ({ ...prev, failures: prev.failures + 1 }));
-            updateWordStats(currentWord.foreign, false, 0);
+            updateWordStats(currentWord.foreign, false, lastAsrScore / 100);
 
             setTimeout(() => {
               setDetectedSpeech('');
@@ -612,6 +625,8 @@ const App = () => {
 
           const cleanTranscript = transcript.toLowerCase().trim();
           setDetectedSpeech(cleanTranscript);
+          const confScore = asrScoreFromResults(event.results);
+          if (typeof confScore === 'number') lastAsrScore = confScore;
 
           if (
             speechMatchesExpected(cleanTranscript, currentWord, kanjiVariantIndexRef.current) &&
@@ -621,10 +636,13 @@ const App = () => {
             successHandledRef.current = true;
             recognition.abort();
             playSound(successSound);
-            showScoreFlash(null, true);
+            // Prefer browser confidence; if missing, still don't fake 100 — use 0
+            // only when conf unknown is worse UX, so default matched-unknown to 70.
+            const score = typeof confScore === 'number' ? confScore : 70;
+            showScoreFlash(score, true);
             setShowSuccessGif(true);
             setWordStats((prev) => ({ ...prev, successes: prev.successes + 1 }));
-            updateWordStats(currentWord.foreign, true, 1);
+            updateWordStats(currentWord.foreign, true, score / 100);
 
             setTimeout(() => {
               setDetectedSpeech('');
@@ -655,15 +673,14 @@ const App = () => {
     loadMfccCache(currentLanguage).then((cache) => {
       const hasRefs = Boolean(cache?.by_word?.[currentWord.foreign]);
       if (hasRefs) {
-        runDtwPath().then((used) => {
-          if (!used) runAsrPath();
-        });
+        // Refs exist → DTW only (no ASR fallback).
+        runDtwPath();
       } else {
         runAsrPath();
       }
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional
-  }, [recognition, currentWord, currentLanguage, listening, playSound, updateWordStats, showScoreFlash, audioContext]);
+  }, [recognition, currentWord, currentLanguage, listening, playSound, updateWordStats, showScoreFlash, audioContext, asrScoreFromResults]);
 
   useEffect(() => {
     return () => {
@@ -814,93 +831,171 @@ const App = () => {
   }, []);
 
   const startRecognition = useCallback(() => {
-    if (!recognition) {
+    const wordNow = currentWordRef.current;
+    if (!wordNow?.foreign) {
       return Promise.resolve(false);
     }
 
-    return waitForRecognitionIdle(recognition).then(() => {
-      return new Promise((resolve) => {
-        let finished = false;
-        let listenTimeoutId;
-
-        const finish = (value) => {
-          if (finished) return;
-          finished = true;
-          clearTimeout(listenTimeoutId);
-          resolve(value);
-        };
-
+    // Auto-practice: same DTW preference as the mic button.
+    return loadMfccCache(currentLanguage).then(async (cache) => {
+      const hasRefs = Boolean(cache?.by_word?.[wordNow.foreign]);
+      if (hasRefs) {
+        setListening(true);
+        setSpeechStatus('listening');
         successHandledRef.current = false;
-
-        recognition.onresult = (event) => {
-          const transcript = Array.from(event.results)
-            .map((result) => result[0].transcript)
-            .join('')
-            .toLowerCase()
-            .trim();
-
-          console.log('Transcript:', transcript);
-          setDetectedSpeech(transcript);
-
-          const wordNow = currentWordRef.current;
-          const idx = kanjiVariantIndexRef.current;
-          const ok = speechMatchesExpected(transcript, wordNow, idx);
-          console.log('Speech match (variant', idx, '):', ok);
-
-          if (ok) {
-            console.log('Success! Transcript matches expected word');
-            successHandledRef.current = true;
+        try {
+          if (audioContext && audioContext.state !== 'running') {
             try {
-              recognition.abort();
-            } catch (e) {
-              console.error(e);
+              await audioContext.resume();
+            } catch {
+              /* ignore */
             }
+          }
+          const result = await recordAndScoreWord(currentLanguage, wordNow.foreign, {
+            maxMs: 5000,
+            minMs: 900,
+            silenceMs: 900,
+            speechRms: 0.012,
+          });
+          setSpeechStatus('processing');
+          if (!result.ok) {
+            showScoreFlash(0, false);
+            playSound(failSound);
+            setWordStats((prev) => ({ ...prev, failures: prev.failures + 1 }));
+            updateWordStats(wordNow.foreign, false, 0);
+            setListening(false);
+            setSpeechStatus('idle');
+            return false;
+          }
+          const score = Number(result.score);
+          const pass = score >= DTW_PASS_SCORE;
+          setLastDtwScore(score);
+          setDetectedSpeech(`DTW ${Math.round(score)}/100`);
+          showScoreFlash(score, pass);
+          if (pass) {
+            successHandledRef.current = true;
             playSound(successSound);
-            showScoreFlash(null, true);
             setShowSuccessGif(true);
             setWordStats((prev) => ({ ...prev, successes: prev.successes + 1 }));
-            updateWordStats(currentWordRef.current.foreign, true, 1);
-            finish(true);
+            updateWordStats(wordNow.foreign, true, score / 100);
+            setListening(false);
+            return true;
           }
-        };
-
-        recognition.onerror = (event) => {
-          if (finished || event.error === 'aborted') return;
-          console.log('Recognition error:', event.error);
-        };
-
-        recognition.onend = () => {
-          if (!successHandledRef.current) {
-            console.log('Recognition ended without success');
-            playSound(failSound);
-            showScoreFlash(null, false);
-            setWordStats((prev) => ({ ...prev, failures: prev.failures + 1 }));
-            updateWordStats(currentWordRef.current.foreign, false, 0);
-            finish(false);
-          }
-        };
-
-        try {
-          recognition.start();
-          setSpeechStatus('listening');
-        } catch (e) {
-          console.error('recognition.start failed:', e);
-          finish(false);
-          return;
+          playSound(failSound);
+          setWordStats((prev) => ({ ...prev, failures: prev.failures + 1 }));
+          updateWordStats(wordNow.foreign, false, score / 100);
+          setListening(false);
+          setSpeechStatus('idle');
+          return false;
+        } catch (err) {
+          console.error('DTW auto-practice failed:', err);
+          showScoreFlash(0, false);
+          playSound(failSound);
+          setListening(false);
+          setSpeechStatus('error');
+          return false;
         }
+      }
 
-        listenTimeoutId = setTimeout(() => {
-          if (!successHandledRef.current) {
-            try {
-              recognition.abort();
-            } catch (err) {
-              console.error(err);
+      if (!recognition) {
+        return false;
+      }
+
+      return waitForRecognitionIdle(recognition).then(() => {
+        return new Promise((resolve) => {
+          let finished = false;
+          let listenTimeoutId;
+          let lastAsrScore = 0;
+
+          const finish = (value) => {
+            if (finished) return;
+            finished = true;
+            clearTimeout(listenTimeoutId);
+            resolve(value);
+          };
+
+          successHandledRef.current = false;
+
+          recognition.onresult = (event) => {
+            const transcript = Array.from(event.results)
+              .map((result) => result[0].transcript)
+              .join('')
+              .toLowerCase()
+              .trim();
+
+            console.log('Transcript:', transcript);
+            setDetectedSpeech(transcript);
+            const confScore = asrScoreFromResults(event.results);
+            if (typeof confScore === 'number') lastAsrScore = confScore;
+
+            const idx = kanjiVariantIndexRef.current;
+            const ok = speechMatchesExpected(transcript, currentWordRef.current, idx);
+            console.log('Speech match (variant', idx, '):', ok);
+
+            if (ok) {
+              console.log('Success! Transcript matches expected word');
+              successHandledRef.current = true;
+              try {
+                recognition.abort();
+              } catch (e) {
+                console.error(e);
+              }
+              const score = typeof confScore === 'number' ? confScore : 70;
+              playSound(successSound);
+              showScoreFlash(score, true);
+              setShowSuccessGif(true);
+              setWordStats((prev) => ({ ...prev, successes: prev.successes + 1 }));
+              updateWordStats(currentWordRef.current.foreign, true, score / 100);
+              finish(true);
             }
+          };
+
+          recognition.onerror = (event) => {
+            if (finished || event.error === 'aborted') return;
+            console.log('Recognition error:', event.error);
+          };
+
+          recognition.onend = () => {
+            if (!successHandledRef.current) {
+              console.log('Recognition ended without success');
+              playSound(failSound);
+              showScoreFlash(lastAsrScore, false);
+              setWordStats((prev) => ({ ...prev, failures: prev.failures + 1 }));
+              updateWordStats(currentWordRef.current.foreign, false, lastAsrScore / 100);
+              finish(false);
+            }
+          };
+
+          try {
+            recognition.start();
+            setSpeechStatus('listening');
+          } catch (e) {
+            console.error('recognition.start failed:', e);
+            finish(false);
+            return;
           }
-        }, 12000);
+
+          listenTimeoutId = setTimeout(() => {
+            if (!successHandledRef.current) {
+              try {
+                recognition.abort();
+              } catch (err) {
+                console.error(err);
+              }
+            }
+          }, 12000);
+        });
       });
     });
-  }, [recognition, playSound, updateWordStats, showScoreFlash]);
+  }, [
+    recognition,
+    playSound,
+    updateWordStats,
+    showScoreFlash,
+    currentLanguage,
+    audioContext,
+    asrScoreFromResults,
+  ]);
 
   useEffect(() => {
     currentWordRef.current = currentWord;

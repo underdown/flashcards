@@ -487,10 +487,11 @@ const App = () => {
       setSpeechStatus('listening');
       successHandledRef.current = false;
       // Hard unlock so a hung recorder never permanently disables the mic button.
+      // Fresh-stream + one silent retry can take ~7s; keep headroom.
       const unlockTimer = setTimeout(() => {
         setListening(false);
         setSpeechStatus((s) => (s === 'listening' || s === 'processing' ? 'idle' : s));
-      }, 10000);
+      }, 14000);
       try {
         try {
           primeMicAudio();

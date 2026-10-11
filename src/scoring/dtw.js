@@ -303,12 +303,15 @@ export function resampleTo16k(input, sampleRate) {
   return out;
 }
 
-/** Shared AudioContext — creating+closing one per attempt is the main flaky-mic cause. */
+/** Shared AudioContext — keep one for the page session. */
 let sharedCtx = null;
+/** Live mic stream — refreshed often; stale streams go silent after a few MediaRecorder cycles. */
 let sharedStream = null;
-/** In-flight getUserMedia started under a user gesture (click). */
 let pendingStreamPromise = null;
 let recordLock = Promise.resolve();
+/** After a silent take, next acquire must be forced fresh. */
+let forceFreshStream = false;
+let streamGeneration = 0;
 
 function getSharedAudioContext() {
   const AC = window.AudioContext || window.webkitAudioContext;
@@ -319,11 +322,56 @@ function getSharedAudioContext() {
   return sharedCtx;
 }
 
+function stopStreamTracks(stream) {
+  if (!stream) return;
+  try {
+    stream.getTracks().forEach((t) => {
+      try {
+        t.onended = null;
+        t.stop();
+      } catch {
+        /* ignore */
+      }
+    });
+  } catch {
+    /* ignore */
+  }
+}
+
+function wireTrackEnded(stream, gen) {
+  try {
+    stream.getAudioTracks().forEach((t) => {
+      t.onended = () => {
+        if (streamGeneration === gen && sharedStream === stream) {
+          sharedStream = null;
+          pendingStreamPromise = null;
+          forceFreshStream = true;
+        }
+      };
+    });
+  } catch {
+    /* ignore */
+  }
+}
+
+function isStreamUsable(stream) {
+  if (!stream) return false;
+  const tracks = stream.getAudioTracks();
+  if (!tracks.length) return false;
+  return tracks.every((t) => {
+    if (t.readyState !== "live") return false;
+    if (t.enabled === false) return false;
+    // muted=true often means the OS/browser has duck the track — treat as dead.
+    if (t.muted === true) return false;
+    return true;
+  });
+}
+
 /**
  * MUST be called synchronously inside the mic-button click handler.
- * Unlocks AudioContext + kicks off getUserMedia while the user gesture is live.
- * Calling getUserMedia only after await loadMfccCache() loses the gesture and
- * many browsers then hand back a silent/denied stream.
+ * Resumes AudioContext and starts a FRESH getUserMedia under the user gesture.
+ * Reusing one MediaStream across many MediaRecorder start/stop cycles is the
+ * main "works a couple times then dies until refresh" failure mode in Chrome.
  */
 export function primeMicAudio() {
   const ctx = getSharedAudioContext();
@@ -335,22 +383,26 @@ export function primeMicAudio() {
       /* ignore */
     }
   }
-  // Start mic acquire immediately under the gesture (do not await here).
-  ensureMicAcquireStarted();
+  // Always kick a fresh acquire on the gesture. Permission is cached after first grant.
+  beginFreshMicAcquire();
   return ctx;
 }
 
-/** Kick off getUserMedia if we don't already hold a live stream. */
-function ensureMicAcquireStarted() {
-  if (sharedStream && sharedStream.getTracks().every((t) => t.readyState === "live")) {
-    return pendingStreamPromise || Promise.resolve(sharedStream);
-  }
-  if (pendingStreamPromise) return pendingStreamPromise;
+function beginFreshMicAcquire() {
+  // Tear down previous stream so the device isn't held in a half-dead state.
+  const old = sharedStream;
+  sharedStream = null;
+  pendingStreamPromise = null;
+  streamGeneration += 1;
+  const gen = streamGeneration;
+  stopStreamTracks(old);
+  forceFreshStream = false;
 
   const request = async () => {
+    let stream;
     try {
       try {
-        sharedStream = await navigator.mediaDevices.getUserMedia({
+        stream = await navigator.mediaDevices.getUserMedia({
           audio: {
             channelCount: { ideal: 1 },
             echoCancellation: false,
@@ -359,40 +411,48 @@ function ensureMicAcquireStarted() {
           },
         });
       } catch {
-        sharedStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       }
-      sharedStream.getAudioTracks().forEach((t) => {
-        try {
-          t.enabled = true;
-        } catch {
-          /* ignore */
-        }
-      });
-      return sharedStream;
-    } finally {
-      // Allow a later retry if this attempt failed (sharedStream still null).
-      if (!sharedStream) pendingStreamPromise = null;
+    } catch (err) {
+      if (streamGeneration === gen) pendingStreamPromise = null;
+      throw err;
     }
+    // A newer prime superseded this request — drop the orphan stream.
+    if (streamGeneration !== gen) {
+      stopStreamTracks(stream);
+      return sharedStream;
+    }
+    stream.getAudioTracks().forEach((t) => {
+      try {
+        t.enabled = true;
+      } catch {
+        /* ignore */
+      }
+    });
+    wireTrackEnded(stream, gen);
+    sharedStream = stream;
+    return stream;
   };
 
   pendingStreamPromise = request().catch((err) => {
-    pendingStreamPromise = null;
+    if (streamGeneration === gen) pendingStreamPromise = null;
     throw err;
   });
   return pendingStreamPromise;
 }
 
 async function ensureCtxRunning(ctx) {
-  for (let i = 0; i < 6; i++) {
-    if (ctx.state === "running") return;
+  for (let i = 0; i < 8; i++) {
+    if (ctx.state === "running") return true;
     try {
       await ctx.resume();
     } catch {
       /* ignore */
     }
-    if (ctx.state === "running") return;
-    await new Promise((r) => setTimeout(r, 25 + i * 25));
+    if (ctx.state === "running") return true;
+    await new Promise((r) => setTimeout(r, 20 + i * 20));
   }
+  return ctx.state === "running";
 }
 
 function pickRecorderMime() {
@@ -402,11 +462,9 @@ function pickRecorderMime() {
     "audio/webm",
     "audio/mp4",
     "audio/ogg;codecs=opus",
-    "",
   ];
   for (const t of candidates) {
     try {
-      if (!t) return ""; // bare MediaRecorder()
       if (MediaRecorder.isTypeSupported(t)) return t;
     } catch {
       /* ignore */
@@ -415,23 +473,24 @@ function pickRecorderMime() {
   return "";
 }
 
-async function getMicStream() {
-  // Prefer the stream started under the click gesture.
+async function getMicStream({ force = false } = {}) {
+  if (force || forceFreshStream) {
+    return beginFreshMicAcquire();
+  }
+
   if (pendingStreamPromise) {
     try {
       const s = await pendingStreamPromise;
-      if (s && s.getTracks().every((t) => t.readyState === "live")) {
+      if (isStreamUsable(s)) {
         sharedStream = s;
         return sharedStream;
       }
     } catch {
-      /* fall through and retry */
+      /* fall through */
     }
   }
 
-  const live =
-    sharedStream && sharedStream.getTracks().every((t) => t.readyState === "live");
-  if (live) {
+  if (isStreamUsable(sharedStream)) {
     sharedStream.getAudioTracks().forEach((t) => {
       try {
         t.enabled = true;
@@ -442,29 +501,17 @@ async function getMicStream() {
     return sharedStream;
   }
 
-  if (sharedStream) {
-    try {
-      sharedStream.getTracks().forEach((t) => t.stop());
-    } catch {
-      /* ignore */
-    }
-    sharedStream = null;
-  }
-  pendingStreamPromise = null;
-  return ensureMicAcquireStarted();
+  return beginFreshMicAcquire();
 }
 
-/** Drop the held mic (call on page hide or explicit reset). */
+/** Drop the held mic (call on page hide). */
 export function releaseMic() {
+  forceFreshStream = true;
   pendingStreamPromise = null;
-  if (sharedStream) {
-    try {
-      sharedStream.getTracks().forEach((t) => t.stop());
-    } catch {
-      /* ignore */
-    }
-    sharedStream = null;
-  }
+  streamGeneration += 1;
+  const old = sharedStream;
+  sharedStream = null;
+  stopStreamTracks(old);
 }
 
 function peakOf(buf) {
@@ -497,21 +544,23 @@ function trackInfo(stream) {
     const t = stream?.getAudioTracks?.()[0];
     if (!t) return "no-track";
     const s = t.getSettings ? t.getSettings() : {};
-    return `${t.readyState}/en=${t.enabled}/muted=${t.muted}/sr=${s.sampleRate || "?"}`;
+    return `${t.readyState}/en=${t.enabled}/muted=${!!t.muted}/sr=${s.sampleRate || "?"}`;
   } catch {
     return "track-err";
   }
 }
 
 /**
- * Fixed-window capture (no early VAD cut). User speaks during the listening window.
- * MediaRecorder on the MediaStream is primary; ScriptProcessor is a parallel backup.
- * Returns Float64Array PCM @ 16 kHz, with ._diag attached for UI debugging.
+ * Fixed-window capture. Fresh MediaStream each prime; MediaRecorder primary;
+ * ScriptProcessor backup. One automatic silent-retry with a forced-fresh stream.
  */
-export async function recordPcm16k({
-  maxMs = 2800,
-  noSpeechPeak = 0.0005,
-} = {}) {
+export async function recordPcm16k(opts = {}) {
+  const {
+    maxMs = 2800,
+    noSpeechPeak = 0.0005,
+    _retry = 0,
+  } = opts;
+
   let releaseLock = () => {};
   const prev = recordLock;
   recordLock = new Promise((r) => {
@@ -519,19 +568,63 @@ export async function recordPcm16k({
   });
   await prev;
 
-  const ctx = primeMicAudio();
+  try {
+    return await captureOnce({
+      maxMs,
+      noSpeechPeak,
+      _retry,
+      forceStream: _retry > 0 || forceFreshStream,
+    });
+  } catch (err) {
+    // One automatic retry on silence with a brand-new stream (permission already granted).
+    const silent =
+      err?.code === "no-speech" ||
+      err?.code === "too-short" ||
+      /no-speech|empty-recording|too-short/i.test(String(err?.message || ""));
+    if (silent && _retry < 1) {
+      forceFreshStream = true;
+      try {
+        return await captureOnce({
+          maxMs,
+          noSpeechPeak,
+          _retry: _retry + 1,
+          forceStream: true,
+        });
+      } catch (err2) {
+        throw err2;
+      }
+    }
+    forceFreshStream = true;
+    throw err;
+  } finally {
+    releaseLock();
+  }
+}
+
+async function captureOnce({ maxMs, noSpeechPeak, _retry, forceStream }) {
+  const ctx = getSharedAudioContext();
+  // Resume again after awaits — browsers re-suspend freely.
   await ensureCtxRunning(ctx);
 
   let stream;
   try {
-    stream = await getMicStream();
+    stream = await getMicStream({ force: forceStream });
   } catch (err) {
-    releaseLock();
     err.code = err.code || "mic-permission";
     throw err;
   }
 
   await ensureCtxRunning(ctx);
+
+  // Brief settle so a brand-new track actually delivers samples.
+  await new Promise((r) => setTimeout(r, 80));
+
+  // If the track claims live but is muted, force a fresh stream once.
+  if (!isStreamUsable(stream) || stream.getAudioTracks().some((t) => t.muted)) {
+    stream = await getMicStream({ force: true });
+    await ensureCtxRunning(ctx);
+    await new Promise((r) => setTimeout(r, 80));
+  }
 
   const mime = pickRecorderMime();
   const diag = {
@@ -539,18 +632,17 @@ export async function recordPcm16k({
     track: trackInfo(stream),
     mime: mime || "default",
     maxMs,
+    retry: _retry,
   };
 
-  // Fixed window — no VAD. Early silence-cut was eating real takes.
   const recordMs = Math.max(1200, Math.min(6000, maxMs || 2800));
 
+  // --- ScriptProcessor backup (direct PCM) ---
   const spChunks = [];
   let spTap = null;
   let spProc = null;
   let spMute = null;
   let spPeak = 0;
-
-  // ScriptProcessor backup while MediaRecorder runs (only if ctx is running).
   if (ctx.state === "running" && typeof ctx.createScriptProcessor === "function") {
     try {
       spProc = ctx.createScriptProcessor(4096, 1, 1);
@@ -585,17 +677,12 @@ export async function recordPcm16k({
       } catch (err) {
         mrErr = String(err?.message || err);
       }
+    } else {
+      // No MediaRecorder — wait the window for ScriptProcessor alone.
+      await new Promise((r) => setTimeout(r, recordMs));
     }
 
-    // Stop script processor
-    try {
-      if (spProc) spProc.onaudioprocess = null;
-      if (spProc) spProc.disconnect();
-      if (spTap) spTap.disconnect();
-      if (spMute) spMute.disconnect();
-    } catch {
-      /* ignore */
-    }
+    teardownSp();
 
     let spPcm = null;
     if (spChunks.length) {
@@ -608,9 +695,9 @@ export async function recordPcm16k({
         off += c.length;
       }
       spPcm = resampleTo16k(merged, ctx.sampleRate);
+      if (spPcm) spPeak = peakOf(spPcm);
     }
 
-    // Pick louder take
     let best = null;
     let bestPeak = -1;
     let path = "none";
@@ -637,10 +724,11 @@ export async function recordPcm16k({
       const err = new Error(mrErr || "empty-recording");
       err.code = "too-short";
       err.diag = diag;
+      forceFreshStream = true;
       throw err;
     }
 
-    let pcm = normalizePcmPeak(best);
+    const pcm = normalizePcmPeak(best);
     const peak = peakOf(pcm);
     diag.peak = Number(peak.toFixed(5));
     diag.samples = pcm.length;
@@ -652,13 +740,19 @@ export async function recordPcm16k({
       );
       err.code = peak < noSpeechPeak ? "no-speech" : "too-short";
       err.diag = diag;
+      forceFreshStream = true;
       throw err;
     }
 
-    // Attach diag for callers that want it (non-enumerable-ish via property)
+    // Success — keep stream for the next tap only briefly; next prime still refreshes.
+    forceFreshStream = false;
     pcm._diag = diag;
     return pcm;
   } finally {
+    teardownSp();
+  }
+
+  function teardownSp() {
     try {
       if (spProc) spProc.onaudioprocess = null;
       if (spProc) spProc.disconnect();
@@ -667,7 +761,9 @@ export async function recordPcm16k({
     } catch {
       /* ignore */
     }
-    releaseLock();
+    spProc = null;
+    spTap = null;
+    spMute = null;
   }
 }
 
@@ -682,18 +778,28 @@ async function recordFixedMediaRecorder(stream, ctx, mime, recordMs) {
     recorder = new MediaRecorder(stream);
   }
 
+  let sawError = null;
   const stopped = new Promise((resolve) => {
     recorder.onstop = () => resolve();
-    recorder.onerror = () => resolve();
+    recorder.onerror = (e) => {
+      sawError = e?.error?.message || "recorder-error";
+      resolve();
+    };
   });
 
   recorder.ondataavailable = (e) => {
     if (e.data && e.data.size > 0) chunks.push(e.data);
   };
 
-  recorder.start(50);
+  try {
+    recorder.start(50);
+  } catch (err) {
+    throw err;
+  }
+
   await new Promise((r) => setTimeout(r, recordMs));
-  if (recorder.state !== "inactive") {
+
+  if (recorder.state === "recording" || recorder.state === "paused") {
     try {
       recorder.requestData?.();
     } catch {
@@ -707,6 +813,7 @@ async function recordFixedMediaRecorder(stream, ctx, mime, recordMs) {
   }
   await Promise.race([stopped, new Promise((r) => setTimeout(r, 2500))]);
 
+  if (sawError) throw new Error(sawError);
   if (!chunks.length) throw new Error("empty-recording");
   const blob = new Blob(chunks, {
     type: recorder.mimeType || mime || "audio/webm",
@@ -715,9 +822,14 @@ async function recordFixedMediaRecorder(stream, ctx, mime, recordMs) {
 
   const ab = await blob.arrayBuffer();
   await ensureCtxRunning(ctx);
-  // decodeAudioData detaches/consumes the buffer in some browsers — pass a copy
   const copy = ab.slice(0);
-  const audioBuf = await ctx.decodeAudioData(copy);
+  let audioBuf;
+  try {
+    audioBuf = await ctx.decodeAudioData(copy);
+  } catch (err) {
+    // decodeAudioData can fail intermittently; bubble up so SP path can win.
+    throw new Error(`decode-failed:${err?.message || err}`);
+  }
   const ch0 = audioBuf.getChannelData(0);
   let mono = ch0;
   if (audioBuf.numberOfChannels > 1) {
@@ -768,6 +880,7 @@ function formatDiag(diag) {
     diag.path && `path=${diag.path}`,
     diag.peak != null && `peak=${diag.peak}`,
     diag.seconds != null && `t=${diag.seconds}s`,
+    diag.retry != null && `retry=${diag.retry}`,
     diag.ctx && `ctx=${diag.ctx}`,
     diag.mrErr && `mr=${diag.mrErr}`,
     diag.track && `tr=${diag.track}`,
@@ -777,16 +890,18 @@ function formatDiag(diag) {
 
 /** Convenience: record + score one word. Falls back null if no cache. */
 export async function recordAndScoreWord(language, foreign, opts) {
-  // Load cache in parallel with recording so we don't delay mic start.
   const cacheP = loadMfccCache(language);
   let pcm;
   let diag = null;
   try {
-    // Ensure mic acquire already started (no-op if primeMicAudio ran on click).
-    ensureMicAcquireStarted();
+    // primeMicAudio on click already started acquire; this is a safety net.
+    if (!pendingStreamPromise && !isStreamUsable(sharedStream)) {
+      beginFreshMicAcquire();
+    }
     pcm = await recordPcm16k(opts);
     diag = pcm?._diag || null;
   } catch (err) {
+    forceFreshStream = true;
     diag = err?.diag || null;
     const code = err?.code || "";
     const msg = String(err?.message || err || "");

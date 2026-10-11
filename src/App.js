@@ -25,6 +25,7 @@ import {
 import { isKanjiCategory } from './kanjiCategory';
 import { useTheme } from './ThemeContext';
 import HelpModalBody from './HelpModalBody';
+import SpectrumBars from './SpectrumBars';
 import { loadMfccCache, recordAndScoreWord, releaseMic, primeMicAudio } from './scoring/dtw';
 
 /** DTW pass bar — slightly loosened vs original same≈67 / diff≈24 calibration. */
@@ -1236,21 +1237,24 @@ const App = () => {
         </Modal>
       </div>
       <div className="detected-speech">
-        <p>
-          {detectedSpeech || 'No speech detected yet'}
-          {lastDtwScore != null && (
-            <span style={{ marginLeft: 8, opacity: 0.85 }}>
-              (pass ≥ {DTW_PASS_SCORE})
-            </span>
-          )}
-          {showSuccessGif && (
-            <img
-              src={successGif}
-              alt="Success"
-              style={{ width: '16px', height: '16px', marginLeft: '5px', verticalAlign: 'middle' }}
-            />
-          )}
-        </p>
+        <div className="spectrum-wrap">
+          <SpectrumBars height={44} />
+          <span className="spectrum-caption">
+            {detectedSpeech || 'Listening…'}
+            {lastDtwScore != null && (
+              <span style={{ marginLeft: 8, opacity: 0.85 }}>
+                (pass ≥ {DTW_PASS_SCORE})
+              </span>
+            )}
+            {showSuccessGif && (
+              <img
+                src={successGif}
+                alt="Success"
+                style={{ width: '16px', height: '16px', marginLeft: '5px', verticalAlign: 'middle' }}
+              />
+            )}
+          </span>
+        </div>
       </div>
       <div className="speech-status">
         {speechStatus === 'listening' && <p>Listening… speak the word</p>}

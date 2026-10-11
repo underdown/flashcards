@@ -514,6 +514,50 @@ export function releaseMic() {
   stopStreamTracks(old);
 }
 
+// --- Live spectrum tap for the visualizer ---
+// One analyser on the SHARED context. connectMicTap() re-binds to the
+// current sharedStream whenever the stream is refreshed, so the visualizer
+// always watches the same source the scoring path records from — never a
+// second getUserMedia.
+let sharedAnalyser = null;
+let tapSource = null;
+
+function ensureSharedAnalyser(ctx) {
+  if (!sharedAnalyser) {
+    sharedAnalyser = ctx.createAnalyser();
+    sharedAnalyser.fftSize = 256; // low latency: 128 bins
+    sharedAnalyser.smoothingTimeConstant = 0.55;
+  }
+  return sharedAnalyser;
+}
+
+/**
+ * Return the shared AnalyserNode, connected to the current live mic stream.
+ * Call after primeMicAudio()/getUserMedia. Safe to call repeatedly — each
+ * call re-binds to the freshest stream (stale sources are disconnected).
+ * Returns null when no live stream exists yet.
+ */
+export function getMicAnalyser() {
+  try {
+    const ctx = getSharedAudioContext();
+    const analyser = ensureSharedAnalyser(ctx);
+    if (!isStreamUsable(sharedStream)) return null;
+    // Re-bind if the stream changed since the last tap.
+    if (tapSource && tapSource.stream !== sharedStream) {
+      try { tapSource.node.disconnect(); } catch { /* ignore */ }
+      tapSource = null;
+    }
+    if (!tapSource) {
+      const node = ctx.createMediaStreamSource(sharedStream);
+      node.connect(analyser);
+      tapSource = { node, stream: sharedStream };
+    }
+    return analyser;
+  } catch {
+    return null;
+  }
+}
+
 function peakOf(buf) {
   let p = 0;
   for (let i = 0; i < buf.length; i++) {

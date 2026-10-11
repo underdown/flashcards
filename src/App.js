@@ -854,6 +854,7 @@ const App = () => {
       if (hasRefs) {
         setListening(true);
         setSpeechStatus('listening');
+        setSpeakPrompt(true);
         successHandledRef.current = false;
         try {
           try {
@@ -910,6 +911,10 @@ const App = () => {
         }
       }
 
+      if (!hasRefs) {
+        setSpeakPrompt(false);
+      }
+
       if (!recognition) {
         return false;
       }
@@ -928,6 +933,7 @@ const App = () => {
           };
 
           successHandledRef.current = false;
+          setSpeakPrompt(true);
 
           recognition.onresult = (event) => {
             const transcript = Array.from(event.results)

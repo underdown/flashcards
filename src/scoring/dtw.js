@@ -306,6 +306,8 @@ export function resampleTo16k(input, sampleRate) {
 /** Shared AudioContext — creating+closing one per attempt is the main flaky-mic cause. */
 let sharedCtx = null;
 let sharedStream = null;
+/** In-flight getUserMedia started under a user gesture (click). */
+let pendingStreamPromise = null;
 let recordLock = Promise.resolve();
 
 function getSharedAudioContext() {
@@ -319,8 +321,9 @@ function getSharedAudioContext() {
 
 /**
  * MUST be called synchronously inside the mic-button click handler.
- * Creates/resumes the shared AudioContext while the user gesture is still live.
- * App's separate AudioContext does NOT unlock this one.
+ * Unlocks AudioContext + kicks off getUserMedia while the user gesture is live.
+ * Calling getUserMedia only after await loadMfccCache() loses the gesture and
+ * many browsers then hand back a silent/denied stream.
  */
 export function primeMicAudio() {
   const ctx = getSharedAudioContext();
@@ -332,11 +335,55 @@ export function primeMicAudio() {
       /* ignore */
     }
   }
+  // Start mic acquire immediately under the gesture (do not await here).
+  ensureMicAcquireStarted();
   return ctx;
 }
 
+/** Kick off getUserMedia if we don't already hold a live stream. */
+function ensureMicAcquireStarted() {
+  if (sharedStream && sharedStream.getTracks().every((t) => t.readyState === "live")) {
+    return pendingStreamPromise || Promise.resolve(sharedStream);
+  }
+  if (pendingStreamPromise) return pendingStreamPromise;
+
+  const request = async () => {
+    try {
+      try {
+        sharedStream = await navigator.mediaDevices.getUserMedia({
+          audio: {
+            channelCount: { ideal: 1 },
+            echoCancellation: false,
+            noiseSuppression: false,
+            autoGainControl: true,
+          },
+        });
+      } catch {
+        sharedStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      }
+      sharedStream.getAudioTracks().forEach((t) => {
+        try {
+          t.enabled = true;
+        } catch {
+          /* ignore */
+        }
+      });
+      return sharedStream;
+    } finally {
+      // Allow a later retry if this attempt failed (sharedStream still null).
+      if (!sharedStream) pendingStreamPromise = null;
+    }
+  };
+
+  pendingStreamPromise = request().catch((err) => {
+    pendingStreamPromise = null;
+    throw err;
+  });
+  return pendingStreamPromise;
+}
+
 async function ensureCtxRunning(ctx) {
-  for (let i = 0; i < 4; i++) {
+  for (let i = 0; i < 6; i++) {
     if (ctx.state === "running") return;
     try {
       await ctx.resume();
@@ -344,7 +391,7 @@ async function ensureCtxRunning(ctx) {
       /* ignore */
     }
     if (ctx.state === "running") return;
-    await new Promise((r) => setTimeout(r, 30 + i * 20));
+    await new Promise((r) => setTimeout(r, 25 + i * 25));
   }
 }
 
@@ -355,9 +402,11 @@ function pickRecorderMime() {
     "audio/webm",
     "audio/mp4",
     "audio/ogg;codecs=opus",
+    "",
   ];
   for (const t of candidates) {
     try {
+      if (!t) return ""; // bare MediaRecorder()
       if (MediaRecorder.isTypeSupported(t)) return t;
     } catch {
       /* ignore */
@@ -367,35 +416,22 @@ function pickRecorderMime() {
 }
 
 async function getMicStream() {
-  // Only refresh when the track is dead — never timer-kill a live stream.
-  const fresh =
-    !sharedStream ||
-    sharedStream.getTracks().some((t) => t.readyState !== "live");
-
-  if (fresh) {
-    if (sharedStream) {
-      try {
-        sharedStream.getTracks().forEach((t) => t.stop());
-      } catch {
-        /* ignore */
-      }
-      sharedStream = null;
-    }
-    // Prefer raw voice. AEC/NS often zero the mic after TTS / with speakers on.
-    // Try strict constraints first; fall back to plain audio if the device rejects them.
+  // Prefer the stream started under the click gesture.
+  if (pendingStreamPromise) {
     try {
-      sharedStream = await navigator.mediaDevices.getUserMedia({
-        audio: {
-          channelCount: { ideal: 1 },
-          echoCancellation: false,
-          noiseSuppression: false,
-          autoGainControl: true,
-        },
-      });
+      const s = await pendingStreamPromise;
+      if (s && s.getTracks().every((t) => t.readyState === "live")) {
+        sharedStream = s;
+        return sharedStream;
+      }
     } catch {
-      sharedStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      /* fall through and retry */
     }
-  } else {
+  }
+
+  const live =
+    sharedStream && sharedStream.getTracks().every((t) => t.readyState === "live");
+  if (live) {
     sharedStream.getAudioTracks().forEach((t) => {
       try {
         t.enabled = true;
@@ -403,12 +439,9 @@ async function getMicStream() {
         /* ignore */
       }
     });
+    return sharedStream;
   }
-  return sharedStream;
-}
 
-/** Drop the held mic (call on page hide or explicit reset). */
-export function releaseMic() {
   if (sharedStream) {
     try {
       sharedStream.getTracks().forEach((t) => t.stop());
@@ -417,12 +450,21 @@ export function releaseMic() {
     }
     sharedStream = null;
   }
+  pendingStreamPromise = null;
+  return ensureMicAcquireStarted();
 }
 
-function rmsOf(buf) {
-  let sum = 0;
-  for (let i = 0; i < buf.length; i++) sum += buf[i] * buf[i];
-  return Math.sqrt(sum / Math.max(1, buf.length));
+/** Drop the held mic (call on page hide or explicit reset). */
+export function releaseMic() {
+  pendingStreamPromise = null;
+  if (sharedStream) {
+    try {
+      sharedStream.getTracks().forEach((t) => t.stop());
+    } catch {
+      /* ignore */
+    }
+    sharedStream = null;
+  }
 }
 
 function peakOf(buf) {
@@ -434,13 +476,12 @@ function peakOf(buf) {
   return p;
 }
 
-/** Soft peak normalize so quiet-but-real speech still scores. */
-function normalizePcmPeak(pcm, targetPeak = 0.35) {
+function normalizePcmPeak(pcm, targetPeak = 0.4) {
   if (!pcm?.length) return pcm;
   const p = peakOf(pcm);
   if (!(p > 1e-6)) return pcm;
-  if (p >= targetPeak * 0.85) return pcm;
-  const gain = Math.min(16, targetPeak / p);
+  if (p >= targetPeak * 0.8) return pcm;
+  const gain = Math.min(20, targetPeak / p);
   const out = new Float64Array(pcm.length);
   for (let i = 0; i < pcm.length; i++) {
     let v = pcm[i] * gain;
@@ -451,25 +492,25 @@ function normalizePcmPeak(pcm, targetPeak = 0.35) {
   return out;
 }
 
+function trackInfo(stream) {
+  try {
+    const t = stream?.getAudioTracks?.()[0];
+    if (!t) return "no-track";
+    const s = t.getSettings ? t.getSettings() : {};
+    return `${t.readyState}/en=${t.enabled}/muted=${t.muted}/sr=${s.sampleRate || "?"}`;
+  } catch {
+    return "track-err";
+  }
+}
+
 /**
- * Record mic for maxMs (or until silence after speech), return 16 kHz mono Float64.
- *
- * Capture strategy (dual path — pick louder):
- * 1. MediaRecorder on the MediaStream (works even if AudioContext is weird)
- * 2. ScriptProcessor PCM tap (best when AudioContext is running)
- *
- * VAD never ends before holdMs from button press, and needs sustained speech
- * frames before marking spoken (stops ambient blips cutting the take short).
+ * Fixed-window capture (no early VAD cut). User speaks during the listening window.
+ * MediaRecorder on the MediaStream is primary; ScriptProcessor is a parallel backup.
+ * Returns Float64Array PCM @ 16 kHz, with ._diag attached for UI debugging.
  */
 export async function recordPcm16k({
-  maxMs = 5000,
-  silenceMs = 900,
-  minMs = 500,
-  holdMs = 1600,
-  speechRms = 0.003,
-  speechPeak = 0.01,
-  noSpeechPeak = 0.0008,
-  speechFramesNeeded = 3,
+  maxMs = 2800,
+  noSpeechPeak = 0.0005,
 } = {}) {
   let releaseLock = () => {};
   const prev = recordLock;
@@ -478,7 +519,6 @@ export async function recordPcm16k({
   });
   await prev;
 
-  // Gesture may already have primed this; resume again after awaits.
   const ctx = primeMicAudio();
   await ensureCtxRunning(ctx);
 
@@ -487,221 +527,172 @@ export async function recordPcm16k({
     stream = await getMicStream();
   } catch (err) {
     releaseLock();
+    err.code = err.code || "mic-permission";
     throw err;
   }
 
-  // After getUserMedia, browsers often re-suspend — resume again.
   await ensureCtxRunning(ctx);
 
   const mime = pickRecorderMime();
-  const started = performance.now();
-  let spoken = false;
-  let spokenAt = 0;
-  let silentFor = 0;
-  let peak = 0;
-  let hotFrames = 0;
+  const diag = {
+    ctx: ctx.state,
+    track: trackInfo(stream),
+    mime: mime || "default",
+    maxMs,
+  };
 
-  let source = null;
-  let analyser = null;
-  let graphMute = null;
-  const timeData = new Float32Array(2048);
+  // Fixed window — no VAD. Early silence-cut was eating real takes.
+  const recordMs = Math.max(1200, Math.min(6000, maxMs || 2800));
 
-  try {
-    source = ctx.createMediaStreamSource(stream);
-    analyser = ctx.createAnalyser();
-    analyser.fftSize = 2048;
-    analyser.smoothingTimeConstant = 0.15;
-    source.connect(analyser);
-    // Keep graph alive so Chrome doesn't throttle ScriptProcessor / analyser.
-    graphMute = ctx.createGain();
-    graphMute.gain.value = 0;
-    source.connect(graphMute);
-    graphMute.connect(ctx.destination);
-  } catch {
-    // Analyser optional — MediaRecorder path still works off the stream.
+  const spChunks = [];
+  let spTap = null;
+  let spProc = null;
+  let spMute = null;
+  let spPeak = 0;
+
+  // ScriptProcessor backup while MediaRecorder runs (only if ctx is running).
+  if (ctx.state === "running" && typeof ctx.createScriptProcessor === "function") {
+    try {
+      spProc = ctx.createScriptProcessor(4096, 1, 1);
+      spMute = ctx.createGain();
+      spMute.gain.value = 0;
+      spTap = ctx.createMediaStreamSource(stream);
+      spProc.onaudioprocess = (e) => {
+        const input = e.inputBuffer.getChannelData(0);
+        spChunks.push(Float32Array.from(input));
+        const p = peakOf(input);
+        if (p > spPeak) spPeak = p;
+      };
+      spTap.connect(spProc);
+      spProc.connect(spMute);
+      spMute.connect(ctx.destination);
+    } catch {
+      spProc = null;
+    }
   }
 
-  let stopped = false;
-  let hardTimer = null;
-  let vadTimer = null;
-  const stopWaiters = [];
+  let mrPcm = null;
+  let mrErr = null;
+  let mrPeak = 0;
+  let mrBytes = 0;
 
-  const finish = () => {
-    if (stopped) return;
-    stopped = true;
-    if (hardTimer) clearTimeout(hardTimer);
-    if (vadTimer) clearInterval(vadTimer);
+  try {
+    if (typeof MediaRecorder !== "undefined") {
+      try {
+        mrPcm = await recordFixedMediaRecorder(stream, ctx, mime, recordMs);
+        mrPeak = peakOf(mrPcm);
+        mrBytes = mrPcm.length;
+      } catch (err) {
+        mrErr = String(err?.message || err);
+      }
+    }
+
+    // Stop script processor
     try {
-      if (source) source.disconnect();
-      if (graphMute) graphMute.disconnect();
+      if (spProc) spProc.onaudioprocess = null;
+      if (spProc) spProc.disconnect();
+      if (spTap) spTap.disconnect();
+      if (spMute) spMute.disconnect();
     } catch {
       /* ignore */
     }
-    stopWaiters.forEach((fn) => fn());
-  };
 
-  const waitStop = () =>
-    new Promise((resolve) => {
-      if (stopped) resolve();
-      else stopWaiters.push(resolve);
-    });
-
-  const noteEnergy = (rms, p, elapsed, { trackSilence = true } = {}) => {
-    if (p > peak) peak = p;
-    const hot = rms >= speechRms || p >= speechPeak;
-    if (hot) {
-      hotFrames += 1;
-      if (!spoken && hotFrames >= speechFramesNeeded) {
-        spoken = true;
-        spokenAt = elapsed;
+    let spPcm = null;
+    if (spChunks.length) {
+      let total = 0;
+      for (const c of spChunks) total += c.length;
+      const merged = new Float32Array(total);
+      let off = 0;
+      for (const c of spChunks) {
+        merged.set(c, off);
+        off += c.length;
       }
-      if (spoken) silentFor = 0;
-    } else {
-      hotFrames = 0;
-      if (spoken && trackSilence) silentFor += 50;
-    }
-  };
-
-  const tickVad = () => {
-    if (stopped) return;
-    const elapsed = performance.now() - started;
-    if (analyser) {
-      try {
-        analyser.getFloatTimeDomainData(timeData);
-        noteEnergy(rmsOf(timeData), peakOf(timeData), elapsed, {
-          trackSilence: true,
-        });
-      } catch {
-        /* ignore */
-      }
-    }
-    // Never end before holdMs — gives the user time to start speaking after tap.
-    // End-on-silence only after sustained speech + min speech duration.
-    const spokenFor = spoken ? elapsed - spokenAt : 0;
-    if (elapsed >= maxMs) {
-      finish();
-      return;
-    }
-    if (
-      elapsed >= holdMs &&
-      spoken &&
-      spokenFor >= minMs &&
-      silentFor >= silenceMs
-    ) {
-      finish();
-    }
-  };
-
-  hardTimer = setTimeout(finish, maxMs + 300);
-  vadTimer = setInterval(tickVad, 50);
-
-  try {
-    const jobs = [];
-
-    // Path A: MediaRecorder — captures the MediaStream without needing a live graph.
-    if (mime && typeof MediaRecorder !== "undefined") {
-      jobs.push(
-        recordViaMediaRecorder({ stream, ctx, mime, waitStop, finish })
-          .then((pcm) => ({ pcm, path: "mediarecorder" }))
-          .catch((err) => ({ pcm: null, path: "mediarecorder", err }))
-      );
+      spPcm = resampleTo16k(merged, ctx.sampleRate);
     }
 
-    // Path B: ScriptProcessor direct PCM when available.
-    if (typeof ctx.createScriptProcessor === "function") {
-      jobs.push(
-        recordViaScriptProcessor({ stream, ctx, waitStop, finish, onFrame: (input) => {
-          noteEnergy(
-            rmsOf(input),
-            peakOf(input),
-            performance.now() - started,
-            { trackSilence: false }
-          );
-        } })
-          .then((pcm) => ({ pcm, path: "scriptprocessor" }))
-          .catch((err) => ({ pcm: null, path: "scriptprocessor", err }))
-      );
-    }
-
-    if (!jobs.length) {
-      finish();
-      throw new Error("No audio capture path available");
-    }
-
-    const results = await Promise.all(jobs);
-    // Prefer the take with the highest peak (real speech beats near-silence).
+    // Pick louder take
     let best = null;
     let bestPeak = -1;
-    for (const r of results) {
-      if (!r?.pcm?.length) continue;
-      const p = peakOf(r.pcm);
-      if (p > bestPeak) {
-        bestPeak = p;
-        best = r.pcm;
-      }
+    let path = "none";
+    if (mrPcm && mrPcm.length && mrPeak >= bestPeak) {
+      best = mrPcm;
+      bestPeak = mrPeak;
+      path = "mediarecorder";
+    }
+    if (spPcm && spPcm.length && spPeak > bestPeak) {
+      best = spPcm;
+      bestPeak = spPeak;
+      path = "scriptprocessor";
     }
 
+    diag.path = path;
+    diag.mrPeak = Number(mrPeak.toFixed(5));
+    diag.spPeak = Number(spPeak.toFixed(5));
+    diag.mrErr = mrErr;
+    diag.mrSamples = mrBytes;
+    diag.spSamples = spPcm ? spPcm.length : 0;
+    diag.ctxAfter = ctx.state;
+
     if (!best || !best.length) {
-      const errs = results
-        .map((r) => r?.err?.message || r?.err)
-        .filter(Boolean)
-        .join("; ");
-      const err = new Error(errs || "empty-recording");
+      const err = new Error(mrErr || "empty-recording");
       err.code = "too-short";
+      err.diag = diag;
       throw err;
     }
 
     let pcm = normalizePcmPeak(best);
-    const pcmPeak = peakOf(pcm);
-    if (pcmPeak > peak) peak = pcmPeak;
+    const peak = peakOf(pcm);
+    diag.peak = Number(peak.toFixed(5));
+    diag.samples = pcm.length;
+    diag.seconds = Number((pcm.length / SR).toFixed(2));
 
-    // Only reject true noise-floor / empty takes.
     if (pcm.length < SR * 0.08 || peak < noSpeechPeak) {
       const err = new Error(
         peak < noSpeechPeak ? "no-speech-detected" : "recording-too-short"
       );
       err.code = peak < noSpeechPeak ? "no-speech" : "too-short";
+      err.diag = diag;
       throw err;
     }
+
+    // Attach diag for callers that want it (non-enumerable-ish via property)
+    pcm._diag = diag;
     return pcm;
   } finally {
-    finish();
+    try {
+      if (spProc) spProc.onaudioprocess = null;
+      if (spProc) spProc.disconnect();
+      if (spTap) spTap.disconnect();
+      if (spMute) spMute.disconnect();
+    } catch {
+      /* ignore */
+    }
     releaseLock();
   }
 }
 
-async function recordViaMediaRecorder({ stream, ctx, mime, waitStop, finish }) {
+async function recordFixedMediaRecorder(stream, ctx, mime, recordMs) {
   const chunks = [];
   let recorder;
   try {
-    recorder = new MediaRecorder(stream, {
-      mimeType: mime,
-      audioBitsPerSecond: 128000,
-    });
+    recorder = mime
+      ? new MediaRecorder(stream, { mimeType: mime, audioBitsPerSecond: 128000 })
+      : new MediaRecorder(stream);
   } catch {
     recorder = new MediaRecorder(stream);
   }
 
   const stopped = new Promise((resolve) => {
     recorder.onstop = () => resolve();
-    recorder.onerror = () => {
-      finish();
-      resolve();
-    };
+    recorder.onerror = () => resolve();
   });
 
   recorder.ondataavailable = (e) => {
     if (e.data && e.data.size > 0) chunks.push(e.data);
   };
 
-  try {
-    recorder.start(100);
-  } catch (err) {
-    finish();
-    throw err;
-  }
-
-  await waitStop();
+  recorder.start(50);
+  await new Promise((r) => setTimeout(r, recordMs));
   if (recorder.state !== "inactive") {
     try {
       recorder.requestData?.();
@@ -714,25 +705,19 @@ async function recordViaMediaRecorder({ stream, ctx, mime, waitStop, finish }) {
       /* ignore */
     }
   }
-  await Promise.race([stopped, new Promise((r) => setTimeout(r, 2000))]);
+  await Promise.race([stopped, new Promise((r) => setTimeout(r, 2500))]);
 
   if (!chunks.length) throw new Error("empty-recording");
-
   const blob = new Blob(chunks, {
     type: recorder.mimeType || mime || "audio/webm",
   });
-  if (blob.size < 64) throw new Error("empty-recording");
+  if (blob.size < 32) throw new Error("empty-recording");
 
   const ab = await blob.arrayBuffer();
   await ensureCtxRunning(ctx);
-  let audioBuf;
-  try {
-    audioBuf = await ctx.decodeAudioData(ab.slice(0));
-  } catch (err) {
-    // Some browsers need a fresh copy / OfflineAudioContext fallback isn't worth it —
-    // surface empty so the dual-path can use ScriptProcessor.
-    throw err;
-  }
+  // decodeAudioData detaches/consumes the buffer in some browsers — pass a copy
+  const copy = ab.slice(0);
+  const audioBuf = await ctx.decodeAudioData(copy);
   const ch0 = audioBuf.getChannelData(0);
   let mono = ch0;
   if (audioBuf.numberOfChannels > 1) {
@@ -741,56 +726,6 @@ async function recordViaMediaRecorder({ stream, ctx, mime, waitStop, finish }) {
     for (let i = 0; i < ch0.length; i++) mono[i] = 0.5 * (ch0[i] + ch1[i]);
   }
   return resampleTo16k(mono, audioBuf.sampleRate);
-}
-
-async function recordViaScriptProcessor({ stream, ctx, waitStop, finish, onFrame }) {
-  if (typeof ctx.createScriptProcessor !== "function") {
-    throw new Error("ScriptProcessor not available");
-  }
-  await ensureCtxRunning(ctx);
-  if (ctx.state !== "running") {
-    // ScriptProcessor is silent while suspended — fail this path fast.
-    throw new Error("AudioContext not running");
-  }
-
-  const bufferSize = 4096;
-  const processor = ctx.createScriptProcessor(bufferSize, 1, 1);
-  const chunks = [];
-  processor.onaudioprocess = (e) => {
-    const input = e.inputBuffer.getChannelData(0);
-    // Copy — the buffer is reused by the browser.
-    chunks.push(Float32Array.from(input));
-    if (onFrame) onFrame(input);
-  };
-
-  const mute = ctx.createGain();
-  mute.gain.value = 0;
-  const tap = ctx.createMediaStreamSource(stream);
-  tap.connect(processor);
-  // Must connect to destination or Chrome won't fire onaudioprocess.
-  processor.connect(mute);
-  mute.connect(ctx.destination);
-
-  await waitStop();
-  try {
-    processor.onaudioprocess = null;
-    processor.disconnect();
-    tap.disconnect();
-    mute.disconnect();
-  } catch {
-    /* ignore */
-  }
-
-  let total = 0;
-  for (const c of chunks) total += c.length;
-  if (!total) throw new Error("empty-recording");
-  const merged = new Float32Array(total);
-  let off = 0;
-  for (const c of chunks) {
-    merged.set(c, off);
-    off += c.length;
-  }
-  return resampleTo16k(merged, ctx.sampleRate);
 }
 
 /** Lazy-loaded MFCC cache per language. */
@@ -827,26 +762,62 @@ export function scorePcmAgainstWord(pcm16k, foreign, cache) {
   };
 }
 
+function formatDiag(diag) {
+  if (!diag) return "";
+  const bits = [
+    diag.path && `path=${diag.path}`,
+    diag.peak != null && `peak=${diag.peak}`,
+    diag.seconds != null && `t=${diag.seconds}s`,
+    diag.ctx && `ctx=${diag.ctx}`,
+    diag.mrErr && `mr=${diag.mrErr}`,
+    diag.track && `tr=${diag.track}`,
+  ].filter(Boolean);
+  return bits.join(" ");
+}
+
 /** Convenience: record + score one word. Falls back null if no cache. */
 export async function recordAndScoreWord(language, foreign, opts) {
-  const cache = await loadMfccCache(language);
-  if (!cache?.by_word?.[foreign]) {
-    return { ok: false, reason: "no-refs" };
-  }
+  // Load cache in parallel with recording so we don't delay mic start.
+  const cacheP = loadMfccCache(language);
+  let pcm;
+  let diag = null;
   try {
-    const pcm = await recordPcm16k(opts);
-    const result = scorePcmAgainstWord(pcm, foreign, cache);
-    if (!result) return { ok: false, reason: "score-failed" };
-    return { ok: true, ...result, pcmLength: pcm.length };
+    // Ensure mic acquire already started (no-op if primeMicAudio ran on click).
+    ensureMicAcquireStarted();
+    pcm = await recordPcm16k(opts);
+    diag = pcm?._diag || null;
   } catch (err) {
+    diag = err?.diag || null;
     const code = err?.code || "";
     const msg = String(err?.message || err || "");
+    const detail = formatDiag(diag);
     if (code === "no-speech" || msg.includes("no-speech")) {
-      return { ok: false, reason: "no-speech" };
+      return { ok: false, reason: "no-speech", diag, detail };
     }
-    if (code === "too-short" || msg.includes("too-short") || msg.includes("empty-recording")) {
-      return { ok: false, reason: "too-short" };
+    if (
+      code === "too-short" ||
+      msg.includes("too-short") ||
+      msg.includes("empty-recording")
+    ) {
+      return { ok: false, reason: "too-short", diag, detail };
     }
-    return { ok: false, reason: msg || "record-failed" };
+    if (code === "mic-permission" || /Permission|NotAllowed|NotFound/i.test(msg)) {
+      return { ok: false, reason: "mic-permission", diag, detail: msg };
+    }
+    return { ok: false, reason: msg || "record-failed", diag, detail };
   }
+
+  const cache = await cacheP;
+  if (!cache?.by_word?.[foreign]) {
+    return { ok: false, reason: "no-refs", diag };
+  }
+  const result = scorePcmAgainstWord(pcm, foreign, cache);
+  if (!result) return { ok: false, reason: "score-failed", diag };
+  return {
+    ok: true,
+    ...result,
+    pcmLength: pcm.length,
+    diag,
+    detail: formatDiag(diag),
+  };
 }

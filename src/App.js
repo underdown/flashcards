@@ -498,24 +498,33 @@ const App = () => {
           /* ignore */
         }
         const result = await recordAndScoreWord(currentLanguage, currentWord.foreign, {
-          maxMs: 5500,
-          minMs: 500,
-          holdMs: 1600,
-          silenceMs: 900,
-          speechRms: 0.003,
-          speechPeak: 0.01,
-          noSpeechPeak: 0.0008,
+          maxMs: 2800,
+          noSpeechPeak: 0.0005,
         });
         setSpeechStatus('processing');
         if (!result.ok) {
-          console.warn('DTW path unavailable:', result.reason);
+          console.warn('DTW path unavailable:', result.reason, result.diag || result.detail);
+          // No refs for this word → let caller fall through to ASR.
+          if (result.reason === 'no-refs') {
+            setListening(false);
+            setSpeechStatus('idle');
+            return false;
+          }
           // Word has refs — stay on DTW. Do NOT fall through to ASR (that was
           // flashing fake 0/100 and hiding real pronunciation scores).
           const silent =
             result.reason === 'no-speech' ||
             result.reason === 'too-short' ||
             result.reason === 'empty-recording';
-          setDetectedSpeech(silent ? 'No speech heard — try again' : `Mic error — try again`);
+          const perm = result.reason === 'mic-permission';
+          const detail = result.detail ? ` (${result.detail})` : '';
+          setDetectedSpeech(
+            perm
+              ? `Mic blocked — allow microphone${detail}`
+              : silent
+                ? `No speech heard — try again${detail}`
+                : `Mic error — try again${detail}`
+          );
           showScoreFlash(0, false);
           setSpeechStatus('idle');
           setListening(false);
@@ -524,8 +533,10 @@ const App = () => {
         }
         const score = Number(result.score);
         setLastDtwScore(score);
-        setDetectedSpeech(`DTW ${Math.round(score)}/100`);
-        console.log('DTW score', score, 'distance', result.distance, 'pcm', result.pcmLength);
+        setDetectedSpeech(
+          `DTW ${Math.round(score)}/100${result.detail ? ` · ${result.detail}` : ''}`
+        );
+        console.log('DTW score', score, 'distance', result.distance, 'pcm', result.pcmLength, result.diag);
         const pass = score >= DTW_PASS_SCORE;
         showScoreFlash(score, pass);
         if (pass) {
@@ -685,18 +696,19 @@ const App = () => {
       });
     };
 
-    // Prefer DTW when we have reference MFCCs for this language/word (Russian first).
-    loadMfccCache(currentLanguage).then((cache) => {
-      const hasRefs = Boolean(cache?.by_word?.[currentWord.foreign]);
-      if (hasRefs) {
-        // Refs exist → DTW only (no ASR fallback).
-        runDtwPath();
-      } else {
-        runAsrPath();
-      }
+    // Start recording IMMEDIATELY — do not wait for the ~8MB MFCC cache fetch.
+    // Cache loads in parallel inside recordAndScoreWord. Waiting first made users
+    // speak before the mic was actually open.
+    runDtwPath().then((handled) => {
+      if (!handled) runAsrPath();
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional
   }, [recognition, currentWord, currentLanguage, listening, playSound, updateWordStats, showScoreFlash, audioContext, asrScoreFromResults]);
+
+  // Preload MFCC cache when language is set so the first mic tap isn't cold.
+  useEffect(() => {
+    if (currentLanguage) loadMfccCache(currentLanguage);
+  }, [currentLanguage]);
 
   useEffect(() => {
     return () => {
@@ -707,13 +719,16 @@ const App = () => {
   }, [recognition]);
 
   useEffect(() => {
+    // Only release on real tab hide. Do NOT release on effect cleanup —
+    // React StrictMode remount would kill a just-acquired stream.
     const onHide = () => {
       if (document.visibilityState === 'hidden') releaseMic();
     };
     document.addEventListener('visibilitychange', onHide);
+    window.addEventListener('pagehide', releaseMic);
     return () => {
       document.removeEventListener('visibilitychange', onHide);
-      releaseMic();
+      window.removeEventListener('pagehide', releaseMic);
     };
   }, []);
 
@@ -873,13 +888,8 @@ const App = () => {
             }
           }
           const result = await recordAndScoreWord(currentLanguage, wordNow.foreign, {
-            maxMs: 5500,
-            minMs: 500,
-            holdMs: 1600,
-            silenceMs: 900,
-            speechRms: 0.003,
-            speechPeak: 0.01,
-            noSpeechPeak: 0.0008,
+            maxMs: 2800,
+            noSpeechPeak: 0.0005,
           });
           setSpeechStatus('processing');
           if (!result.ok) {

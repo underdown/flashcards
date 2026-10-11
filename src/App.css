@@ -412,6 +412,138 @@ html, body, #root {
   border-bottom-color: #90caf9;
 }
 
+/* ── Russian card: high-tech dense redesign ─────────────────────────── */
+
+.flashcard--ru {
+  background:
+    linear-gradient(135deg, rgba(20, 26, 34, 0.92), rgba(10, 14, 20, 0.96)),
+    repeating-linear-gradient(0deg, transparent 0 31px, rgba(0, 229, 255, 0.045) 31px 32px),
+    repeating-linear-gradient(90deg, transparent 0 31px, rgba(0, 229, 255, 0.045) 31px 32px);
+  border: 1px solid rgba(0, 229, 255, 0.28);
+  border-bottom: none;
+  border-top: none;
+  border-radius: 0;
+  box-shadow: 0 0 24px rgba(0, 229, 255, 0.14), inset 0 0 40px rgba(0, 229, 255, 0.05);
+  padding: 14px 18px 0;
+}
+
+.flashcard--ru .content--ru {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  flex: 1;
+  justify-content: center;
+}
+
+.ru-head {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: 'SF Mono', 'Roboto Mono', Menlo, Consolas, monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: 0.62rem;
+}
+
+.ru-tag {
+  color: #00e5ff;
+  border: 1px solid rgba(0, 229, 255, 0.5);
+  padding: 2px 7px;
+  border-radius: 2px;
+  text-shadow: 0 0 8px rgba(0, 229, 255, 0.8);
+}
+
+.ru-sub {
+  color: rgba(255, 255, 255, 0.42);
+}
+
+.english--ru {
+  color: rgba(255, 255, 255, 0.58);
+  font-size: 0.95rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.ru-main {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  width: 100%;
+}
+
+.foreign--ru {
+  color: #ffffff;
+  font-size: 3.4rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  margin: 0;
+  text-shadow: 0 0 22px rgba(0, 229, 255, 0.55);
+  line-height: 1.1;
+}
+
+.phonetic--ru {
+  color: #00e5ff;
+  font-family: 'SF Mono', 'Roboto Mono', Menlo, Consolas, monospace;
+  font-size: 0.95rem;
+  letter-spacing: 0.08em;
+  margin: 0;
+  opacity: 0.9;
+}
+
+.phonetic-latin--ru {
+  color: rgba(255, 255, 255, 0.5);
+  font-family: 'SF Mono', 'Roboto Mono', Menlo, Consolas, monospace;
+  font-size: 0.78rem;
+  letter-spacing: 0.1em;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.ru-stats {
+  width: 100%;
+  display: flex;
+  justify-content: space-around;
+  border-top: 1px solid rgba(0, 229, 255, 0.18);
+  padding-top: 8px;
+  margin-top: 4px;
+  font-family: 'SF Mono', 'Roboto Mono', Menlo, Consolas, monospace;
+}
+
+.ru-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+}
+
+.ru-stat-value {
+  color: #ffffff;
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.ru-stat-label {
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 0.58rem;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+}
+
+.dark-mode .flashcard--ru {
+  background:
+    linear-gradient(135deg, rgba(20, 26, 34, 0.92), rgba(10, 14, 20, 0.96)),
+    repeating-linear-gradient(0deg, transparent 0 31px, rgba(0, 229, 255, 0.045) 31px 32px),
+    repeating-linear-gradient(90deg, transparent 0 31px, rgba(0, 229, 255, 0.045) 31px 32px);
+}
+
+/* ── end Russian card ──────────────────────────────────────────────── */
+
 .kanji-variant-block {
   display: flex;
   flex-direction: column;

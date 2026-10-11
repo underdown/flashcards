@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import Flashcard from './Flashcard';
+import RussianCard from './RussianCard';
 import './App.css';
 import sunIcon from './assets/sun.svg';
 import moonIcon from './assets/moon.svg';
@@ -1184,14 +1185,23 @@ const App = () => {
       <div className="flashcard-container">
         {showSuccessGif && <img src={successGif} alt="Success GIF" className="success-gif" />}
         <div className="flashcard-frame">
-          <Flashcard
-            word={currentWord}
-            currentLanguage={currentLanguage}
-            activeKanjiVariantIndex={currentWord && isKanjiCategory(currentWord.categoryKey) ? kanjiVariantIndex : undefined}
-            onCycleKanjiVariant={currentWord && isKanjiCategory(currentWord.categoryKey) ? cycleKanjiVariant : undefined}
-            scoreFlash={scoreFlash}
-            speakPrompt={speakPrompt}
-          />
+          {currentLanguage === 'russian' ? (
+            <RussianCard
+              word={currentWord}
+              scoreFlash={scoreFlash}
+              speakPrompt={speakPrompt}
+              wordStats={currentWordStats}
+            />
+          ) : (
+            <Flashcard
+              word={currentWord}
+              currentLanguage={currentLanguage}
+              activeKanjiVariantIndex={currentWord && isKanjiCategory(currentWord.categoryKey) ? kanjiVariantIndex : undefined}
+              onCycleKanjiVariant={currentWord && isKanjiCategory(currentWord.categoryKey) ? cycleKanjiVariant : undefined}
+              scoreFlash={scoreFlash}
+              speakPrompt={speakPrompt}
+            />
+          )}
         </div>
       </div>
       <div className="speech-status">

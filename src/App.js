@@ -552,7 +552,6 @@ const App = () => {
         return true;
       } catch (err) {
         console.error('DTW listening failed:', err);
-        const code = err?.code || err?.message || '';
         setListening(false);
         setSpeechStatus('error');
         showScoreFlash(0, false);

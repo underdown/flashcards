@@ -40,6 +40,7 @@ html, body, #root {
   width: 80vw;
   max-width: 500px;
   display: flex;
+  flex-direction: column;
   justify-content: center;
 }
 
@@ -401,29 +402,26 @@ html, body, #root {
   /*font-style: italic;*/
 }
 
-.spectrum-wrap {
-  position: relative;
-}
-
-.spectrum-bars {
-  border-radius: 4px;
-  opacity: 0.9;
-}
-
-.spectrum-caption {
-  position: absolute;
-  left: 6px;
-  bottom: 2px;
-  font-size: 12px;
-  line-height: 1.2;
-  color: inherit;
-  opacity: 0.92;
-  text-shadow: 0 0 4px rgba(0, 0, 0, 0.55), 0 0 2px rgba(0, 0, 0, 0.6);
+/* EQ footer built into the flashcard — spans the full card width and
+   blends into the card surface (inherits light/dark card colors). */
+.card-eq {
+  width: 100%;
+  padding: 0 8px 8px;
+  box-sizing: border-box;
   pointer-events: none;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: calc(100% - 12px);
+}
+
+.card-eq .spectrum-bars {
+  border-radius: 4px;
+  opacity: 0.55;
+  width: 100%;
+  display: block;
+  mask-image: linear-gradient(to right, transparent, black 6%, black 94%, transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, black 6%, black 94%, transparent);
+}
+
+.dark-mode .card-eq .spectrum-bars {
+  opacity: 0.65;
 }
 
 .button-container {

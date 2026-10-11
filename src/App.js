@@ -1204,6 +1204,9 @@ const App = () => {
             activeKanjiVariantIndex={currentWord && isKanjiCategory(currentWord.categoryKey) ? kanjiVariantIndex : undefined}
             onCycleKanjiVariant={currentWord && isKanjiCategory(currentWord.categoryKey) ? cycleKanjiVariant : undefined}
           />
+          <div className="card-eq">
+            <SpectrumBars height={56} />
+          </div>
         </div>
         <button
           type="button"
@@ -1235,28 +1238,6 @@ const App = () => {
             </div>
           </div>
         </Modal>
-      </div>
-      <div className="detected-speech">
-        <div className="spectrum-wrap">
-          <SpectrumBars height={64} />
-          {(detectedSpeech || lastDtwScore != null || showSuccessGif) && (
-            <span className="spectrum-caption">
-              {detectedSpeech}
-              {lastDtwScore != null && (
-                <span style={{ marginLeft: 8, opacity: 0.85 }}>
-                  (pass ≥ {DTW_PASS_SCORE})
-                </span>
-              )}
-              {showSuccessGif && (
-                <img
-                  src={successGif}
-                  alt="Success"
-                  style={{ width: '16px', height: '16px', marginLeft: '5px', verticalAlign: 'middle' }}
-                />
-              )}
-            </span>
-          )}
-        </div>
       </div>
       <div className="speech-status">
         {speechStatus === 'listening' && <p>Listening… speak the word</p>}

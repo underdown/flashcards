@@ -1,4 +1,9 @@
 {
+  "build": {
+    "env": {
+      "NODE_VERSION": "24.x"
+    }
+  },
   "rewrites": [
     { "source": "/russian", "destination": "/russian/index.html" },
     { "source": "/russian/", "destination": "/russian/index.html" },
@@ -18,4 +23,4 @@
       ]
     }
   ]
-} 
+}

@@ -482,6 +482,17 @@ const App = () => {
     const runDtwPath = async () => {
       setListening(true);
       setSpeechStatus('listening');
+      // Wait for the mic permission grant (first run) / fresh stream before
+      // showing the SPEAK prompt — the prompt means "mic is live now".
+      try {
+        try {
+          await primeMicAudio();
+        } catch {
+          /* ignore */
+        }
+      } catch {
+        /* ignore */
+      }
       setSpeakPrompt(true);
       successHandledRef.current = false;
       // Hard unlock so a hung recorder never permanently disables the mic button.
@@ -492,11 +503,6 @@ const App = () => {
         setSpeakPrompt(false);
       }, 14000);
       try {
-        try {
-          primeMicAudio();
-        } catch {
-          /* ignore */
-        }
         const result = await recordAndScoreWord(currentLanguage, currentWord.foreign, {
           maxMs: 2800,
           noSpeechPeak: 0.0005,
@@ -854,14 +860,24 @@ const App = () => {
       if (hasRefs) {
         setListening(true);
         setSpeechStatus('listening');
-        setSpeakPrompt(true);
-        successHandledRef.current = false;
+        // Don't show SPEAK until the mic permission grant / fresh stream is live.
         try {
           try {
-            primeMicAudio();
+            await primeMicAudio();
           } catch {
             /* ignore */
           }
+        } catch {
+          /* ignore */
+        }
+        if (!autoPracticeActiveRef.current) {
+          setListening(false);
+          setSpeechStatus('idle');
+          return false;
+        }
+        setSpeakPrompt(true);
+        successHandledRef.current = false;
+        try {
           if (audioContext && audioContext.state !== 'running') {
             try {
               await audioContext.resume();

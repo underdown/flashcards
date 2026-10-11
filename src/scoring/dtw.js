@@ -384,8 +384,7 @@ export function primeMicAudio() {
     }
   }
   // Always kick a fresh acquire on the gesture. Permission is cached after first grant.
-  beginFreshMicAcquire();
-  return ctx;
+  return beginFreshMicAcquire();
 }
 
 function beginFreshMicAcquire() {

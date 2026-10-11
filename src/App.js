@@ -1121,7 +1121,9 @@ const App = () => {
       }
       // Reset states
       setSpeechStatus('idle');
-      setSpeakPrompt(true);
+      // SPEAK prompt is armed by startRecognition once the mic is live,
+      // not here — toggling on must not show it before permission/TTS.
+      setSpeakPrompt(false);
       // Start auto practice
       autoPractice();
     } else {

@@ -35,6 +35,18 @@ html, body, #root {
   position: relative;
 }
 
+.flashcard-frame {
+  position: relative;
+  width: 80vw;
+  max-width: 500px;
+  display: flex;
+  justify-content: center;
+}
+
+.flashcard-frame .flashcard {
+  width: 100%;
+}
+
 .success-gif {
   position: absolute;
   top: 10px; /* Adjust as needed */
@@ -61,76 +73,79 @@ html, body, #root {
   transition: transform 0.2s;
   position: relative;
   flex-direction: column;
+  overflow: visible;
 }
 
 /* Brief post-attempt score chip — top-left of the card */
 .score-flash {
   position: absolute;
-  top: 10px;
-  left: 10px;
-  z-index: 12;
+  top: 8px;
+  left: 8px;
+  z-index: 40;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 1px;
-  padding: 6px 10px;
-  border-radius: 10px;
-  font-weight: 700;
-  line-height: 1.1;
+  gap: 2px;
+  min-width: 64px;
+  padding: 8px 12px;
+  border-radius: 12px;
+  font-weight: 800;
+  line-height: 1.05;
   pointer-events: none;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.18);
-  animation: score-flash-in-out 2.2s ease forwards;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.28);
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  animation: score-flash-in-out 3.5s ease forwards;
 }
 
 .score-flash-value {
-  font-size: 1.35rem;
+  font-size: 1.6rem;
   letter-spacing: -0.02em;
 }
 
 .score-flash-label {
-  font-size: 0.68rem;
-  font-weight: 600;
+  font-size: 0.72rem;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
-  opacity: 0.92;
+  letter-spacing: 0.05em;
+  opacity: 0.95;
 }
 
 .score-flash--pass {
-  background: rgba(46, 125, 50, 0.92);
-  color: #e8f5e9;
+  background: #2e7d32;
+  color: #ffffff;
 }
 
 .score-flash--fail {
-  background: rgba(183, 28, 28, 0.92);
-  color: #ffebee;
+  background: #c62828;
+  color: #ffffff;
 }
 
 .dark-mode .score-flash--pass {
-  background: rgba(76, 175, 80, 0.92);
-  color: #0b1a0c;
+  background: #43a047;
+  color: #ffffff;
 }
 
 .dark-mode .score-flash--fail {
-  background: rgba(229, 57, 53, 0.92);
-  color: #1a0505;
+  background: #e53935;
+  color: #ffffff;
 }
 
 @keyframes score-flash-in-out {
   0% {
-    opacity: 0;
-    transform: translateY(-6px) scale(0.92);
+    opacity: 1;
+    transform: translateY(-4px) scale(0.96);
   }
-  12% {
+  8% {
     opacity: 1;
     transform: translateY(0) scale(1);
   }
-  70% {
+  82% {
     opacity: 1;
     transform: translateY(0) scale(1);
   }
   100% {
     opacity: 0;
-    transform: translateY(-4px) scale(0.96);
+    transform: translateY(-4px) scale(0.98);
   }
 }
 
@@ -785,6 +800,10 @@ input:checked + .slider:before {
     width: 90vw;
     height: 35vh;
     min-height: 200px;
+  }
+
+  .flashcard-frame {
+    width: 90vw;
   }
 
   .button-container {

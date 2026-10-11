@@ -21,7 +21,6 @@ const Flashcard = ({
   currentLanguage = '',
   activeKanjiVariantIndex = 0,
   onCycleKanjiVariant,
-  scoreFlash = null,
 }) => {
   if (!word) {
     return <div className="flashcard">Loading...</div>;
@@ -47,31 +46,8 @@ const Flashcard = ({
       ? englishWiktionaryUrl(word.foreign)
       : null;
 
-  const showScoreFlash = Boolean(scoreFlash?.visible);
-  const scorePassed = Boolean(scoreFlash?.pass);
-  const scoreValue =
-    typeof scoreFlash?.score === 'number' && Number.isFinite(scoreFlash.score)
-      ? Math.round(scoreFlash.score)
-      : null;
-
   return (
     <div className="flashcard">
-      {showScoreFlash && (
-        <div
-          className={`score-flash ${scorePassed ? 'score-flash--pass' : 'score-flash--fail'}`}
-          role="status"
-          aria-live="polite"
-        >
-          {scoreValue != null ? (
-            <>
-              <span className="score-flash-value">{scoreValue}</span>
-              <span className="score-flash-label">{scorePassed ? 'pass' : 'try again'}</span>
-            </>
-          ) : (
-            <span className="score-flash-value">{scorePassed ? '✓' : '✗'}</span>
-          )}
-        </div>
-      )}
       <div className="content">
         {showVariantUi ? (
           <div

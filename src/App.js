@@ -140,15 +140,18 @@ const App = () => {
       clearTimeout(scoreFlashTimerRef.current);
       scoreFlashTimerRef.current = null;
     }
+    const id = Date.now();
     setScoreFlash({
+      id,
       score: typeof score === 'number' ? score : null,
       pass: Boolean(pass),
       visible: true,
     });
+    // Hold solid ~3s, then hide (CSS fade handles the last half-second).
     scoreFlashTimerRef.current = setTimeout(() => {
-      setScoreFlash((prev) => (prev ? { ...prev, visible: false } : null));
+      setScoreFlash((prev) => (prev && prev.id === id ? { ...prev, visible: false } : prev));
       scoreFlashTimerRef.current = null;
-    }, 2200);
+    }, 3500);
   }, []);
 
   useEffect(() => {
@@ -443,7 +446,6 @@ const App = () => {
     const runDtwPath = async () => {
       setListening(true);
       setLastDtwScore(null);
-      setScoreFlash(null);
       setDetectedSpeech('');
       setSpeechStatus('listening');
       successHandledRef.current = false;
@@ -496,6 +498,7 @@ const App = () => {
         console.error('DTW listening failed:', err);
         setListening(false);
         setSpeechStatus('error');
+        showScoreFlash(null, false);
         return false;
       }
     };
@@ -618,7 +621,7 @@ const App = () => {
       }
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional
-  }, [recognition, currentWord, currentLanguage, listening, playSound, updateWordStats]);
+  }, [recognition, currentWord, currentLanguage, listening, playSound, updateWordStats, showScoreFlash]);
 
   useEffect(() => {
     return () => {
@@ -800,6 +803,7 @@ const App = () => {
               console.error(e);
             }
             playSound(successSound);
+            showScoreFlash(null, true);
             setShowSuccessGif(true);
             setWordStats((prev) => ({ ...prev, successes: prev.successes + 1 }));
             updateWordStats(currentWordRef.current.foreign, true, 1);
@@ -816,6 +820,7 @@ const App = () => {
           if (!successHandledRef.current) {
             console.log('Recognition ended without success');
             playSound(failSound);
+            showScoreFlash(null, false);
             setWordStats((prev) => ({ ...prev, failures: prev.failures + 1 }));
             updateWordStats(currentWordRef.current.foreign, false, 0);
             finish(false);
@@ -842,7 +847,7 @@ const App = () => {
         }, 12000);
       });
     });
-  }, [recognition, playSound, updateWordStats]);
+  }, [recognition, playSound, updateWordStats, showScoreFlash]);
 
   useEffect(() => {
     currentWordRef.current = currentWord;
@@ -995,13 +1000,31 @@ const App = () => {
       )}
       <div className="flashcard-container">
         {showSuccessGif && <img src={successGif} alt="Success GIF" className="success-gif" />}
-        <Flashcard
-          word={currentWord}
-          currentLanguage={currentLanguage}
-          activeKanjiVariantIndex={currentWord && isKanjiCategory(currentWord.categoryKey) ? kanjiVariantIndex : undefined}
-          onCycleKanjiVariant={currentWord && isKanjiCategory(currentWord.categoryKey) ? cycleKanjiVariant : undefined}
-          scoreFlash={scoreFlash}
-        />
+        <div className="flashcard-frame">
+          {scoreFlash?.visible && (
+            <div
+              key={scoreFlash.id || 'score'}
+              className={`score-flash ${scoreFlash.pass ? 'score-flash--pass' : 'score-flash--fail'}`}
+              role="status"
+              aria-live="polite"
+            >
+              {typeof scoreFlash.score === 'number' ? (
+                <>
+                  <span className="score-flash-value">{Math.round(scoreFlash.score)}</span>
+                  <span className="score-flash-label">{scoreFlash.pass ? 'pass' : 'try again'}</span>
+                </>
+              ) : (
+                <span className="score-flash-value">{scoreFlash.pass ? '✓' : '✗'}</span>
+              )}
+            </div>
+          )}
+          <Flashcard
+            word={currentWord}
+            currentLanguage={currentLanguage}
+            activeKanjiVariantIndex={currentWord && isKanjiCategory(currentWord.categoryKey) ? kanjiVariantIndex : undefined}
+            onCycleKanjiVariant={currentWord && isKanjiCategory(currentWord.categoryKey) ? cycleKanjiVariant : undefined}
+          />
+        </div>
         <button
           type="button"
           className={`help-button ${

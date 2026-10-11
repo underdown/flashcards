@@ -312,29 +312,39 @@ function getSharedAudioContext() {
   const AC = window.AudioContext || window.webkitAudioContext;
   if (!AC) throw new Error("AudioContext not available");
   if (!sharedCtx || sharedCtx.state === "closed") {
-    sharedCtx = new AC();
+    sharedCtx = new AC({ latencyHint: "interactive" });
   }
   return sharedCtx;
 }
 
-async function ensureCtxRunning(ctx) {
+/**
+ * MUST be called synchronously inside the mic-button click handler.
+ * Creates/resumes the shared AudioContext while the user gesture is still live.
+ * App's separate AudioContext does NOT unlock this one.
+ */
+export function primeMicAudio() {
+  const ctx = getSharedAudioContext();
   if (ctx.state === "suspended") {
+    try {
+      const p = ctx.resume();
+      if (p && typeof p.catch === "function") p.catch(() => {});
+    } catch {
+      /* ignore */
+    }
+  }
+  return ctx;
+}
+
+async function ensureCtxRunning(ctx) {
+  for (let i = 0; i < 4; i++) {
+    if (ctx.state === "running") return;
     try {
       await ctx.resume();
     } catch {
-      /* ignore — caller still tries */
+      /* ignore */
     }
-  }
-  // Brief settle helps some Chromium builds after resume.
-  if (ctx.state !== "running") {
-    await new Promise((r) => setTimeout(r, 40));
-    if (ctx.state === "suspended") {
-      try {
-        await ctx.resume();
-      } catch {
-        /* ignore */
-      }
-    }
+    if (ctx.state === "running") return;
+    await new Promise((r) => setTimeout(r, 30 + i * 20));
   }
 }
 
@@ -357,8 +367,7 @@ function pickRecorderMime() {
 }
 
 async function getMicStream() {
-  // Only refresh when the track is dead. A 45s forced recycle was stopping a
-  // live stream mid-session and made later attempts "hear nothing" until refresh.
+  // Only refresh when the track is dead — never timer-kill a live stream.
   const fresh =
     !sharedStream ||
     sharedStream.getTracks().some((t) => t.readyState !== "live");
@@ -372,18 +381,21 @@ async function getMicStream() {
       }
       sharedStream = null;
     }
-    // Pronunciation scoring needs the real voice. Echo cancel + noise suppress
-    // often zero out the mic right after TTS / with speakers on.
-    sharedStream = await navigator.mediaDevices.getUserMedia({
-      audio: {
-        channelCount: 1,
-        echoCancellation: false,
-        noiseSuppression: false,
-        autoGainControl: true,
-      },
-    });
+    // Prefer raw voice. AEC/NS often zero the mic after TTS / with speakers on.
+    // Try strict constraints first; fall back to plain audio if the device rejects them.
+    try {
+      sharedStream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          channelCount: { ideal: 1 },
+          echoCancellation: false,
+          noiseSuppression: false,
+          autoGainControl: true,
+        },
+      });
+    } catch {
+      sharedStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    }
   } else {
-    // Unmute / enable if a prior path muted tracks.
     sharedStream.getAudioTracks().forEach((t) => {
       try {
         t.enabled = true;
@@ -427,9 +439,8 @@ function normalizePcmPeak(pcm, targetPeak = 0.35) {
   if (!pcm?.length) return pcm;
   const p = peakOf(pcm);
   if (!(p > 1e-6)) return pcm;
-  // Only boost quiet takes; never crush loud ones hard.
   if (p >= targetPeak * 0.85) return pcm;
-  const gain = Math.min(12, targetPeak / p);
+  const gain = Math.min(16, targetPeak / p);
   const out = new Float64Array(pcm.length);
   for (let i = 0; i < pcm.length; i++) {
     let v = pcm[i] * gain;
@@ -442,18 +453,24 @@ function normalizePcmPeak(pcm, targetPeak = 0.35) {
 
 /**
  * Record mic for maxMs (or until silence after speech), return 16 kHz mono Float64.
- * Primary: ScriptProcessor direct PCM (what MFCC needs; no codec level loss).
- * Fallback: MediaRecorder + decodeAudioData.
+ *
+ * Capture strategy (dual path — pick louder):
+ * 1. MediaRecorder on the MediaStream (works even if AudioContext is weird)
+ * 2. ScriptProcessor PCM tap (best when AudioContext is running)
+ *
+ * VAD never ends before holdMs from button press, and needs sustained speech
+ * frames before marking spoken (stops ambient blips cutting the take short).
  */
 export async function recordPcm16k({
   maxMs = 5000,
-  silenceMs = 700,
-  minMs = 450,
-  speechRms = 0.004,
-  speechPeak = 0.015,
-  noSpeechPeak = 0.0015,
+  silenceMs = 900,
+  minMs = 500,
+  holdMs = 1600,
+  speechRms = 0.003,
+  speechPeak = 0.01,
+  noSpeechPeak = 0.0008,
+  speechFramesNeeded = 3,
 } = {}) {
-  // Serialize attempts so stop/start never races on the shared stream/context.
   let releaseLock = () => {};
   const prev = recordLock;
   recordLock = new Promise((r) => {
@@ -461,7 +478,8 @@ export async function recordPcm16k({
   });
   await prev;
 
-  const ctx = getSharedAudioContext();
+  // Gesture may already have primed this; resume again after awaits.
+  const ctx = primeMicAudio();
   await ensureCtxRunning(ctx);
 
   let stream;
@@ -472,25 +490,36 @@ export async function recordPcm16k({
     throw err;
   }
 
+  // After getUserMedia, browsers often re-suspend — resume again.
+  await ensureCtxRunning(ctx);
+
   const mime = pickRecorderMime();
   const started = performance.now();
   let spoken = false;
   let spokenAt = 0;
   let silentFor = 0;
   let peak = 0;
+  let hotFrames = 0;
 
-  const source = ctx.createMediaStreamSource(stream);
-  const analyser = ctx.createAnalyser();
-  analyser.fftSize = 2048;
-  analyser.smoothingTimeConstant = 0.2;
-  source.connect(analyser);
-  const timeData = new Float32Array(analyser.fftSize);
+  let source = null;
+  let analyser = null;
+  let graphMute = null;
+  const timeData = new Float32Array(2048);
 
-  // Keep a silent tap so Chrome doesn't throttle the graph.
-  const mute = ctx.createGain();
-  mute.gain.value = 0;
-  source.connect(mute);
-  mute.connect(ctx.destination);
+  try {
+    source = ctx.createMediaStreamSource(stream);
+    analyser = ctx.createAnalyser();
+    analyser.fftSize = 2048;
+    analyser.smoothingTimeConstant = 0.15;
+    source.connect(analyser);
+    // Keep graph alive so Chrome doesn't throttle ScriptProcessor / analyser.
+    graphMute = ctx.createGain();
+    graphMute.gain.value = 0;
+    source.connect(graphMute);
+    graphMute.connect(ctx.destination);
+  } catch {
+    // Analyser optional — MediaRecorder path still works off the stream.
+  }
 
   let stopped = false;
   let hardTimer = null;
@@ -503,8 +532,8 @@ export async function recordPcm16k({
     if (hardTimer) clearTimeout(hardTimer);
     if (vadTimer) clearInterval(vadTimer);
     try {
-      source.disconnect();
-      mute.disconnect();
+      if (source) source.disconnect();
+      if (graphMute) graphMute.disconnect();
     } catch {
       /* ignore */
     }
@@ -519,83 +548,114 @@ export async function recordPcm16k({
 
   const noteEnergy = (rms, p, elapsed, { trackSilence = true } = {}) => {
     if (p > peak) peak = p;
-    if (rms >= speechRms || p >= speechPeak) {
-      if (!spoken) {
+    const hot = rms >= speechRms || p >= speechPeak;
+    if (hot) {
+      hotFrames += 1;
+      if (!spoken && hotFrames >= speechFramesNeeded) {
         spoken = true;
         spokenAt = elapsed;
       }
-      silentFor = 0;
-    } else if (spoken && trackSilence) {
-      silentFor += 50;
+      if (spoken) silentFor = 0;
+    } else {
+      hotFrames = 0;
+      if (spoken && trackSilence) silentFor += 50;
     }
   };
 
   const tickVad = () => {
     if (stopped) return;
-    try {
-      analyser.getFloatTimeDomainData(timeData);
-    } catch {
+    const elapsed = performance.now() - started;
+    if (analyser) {
+      try {
+        analyser.getFloatTimeDomainData(timeData);
+        noteEnergy(rmsOf(timeData), peakOf(timeData), elapsed, {
+          trackSilence: true,
+        });
+      } catch {
+        /* ignore */
+      }
+    }
+    // Never end before holdMs — gives the user time to start speaking after tap.
+    // End-on-silence only after sustained speech + min speech duration.
+    const spokenFor = spoken ? elapsed - spokenAt : 0;
+    if (elapsed >= maxMs) {
+      finish();
       return;
     }
-    const rms = rmsOf(timeData);
-    const p = peakOf(timeData);
-    const elapsed = performance.now() - started;
-    noteEnergy(rms, p, elapsed, { trackSilence: true });
-    // End-on-silence only after real speech for minMs from speech start.
-    const spokenFor = spoken ? elapsed - spokenAt : 0;
     if (
-      elapsed >= maxMs ||
-      (spoken && spokenFor >= minMs && silentFor >= silenceMs)
+      elapsed >= holdMs &&
+      spoken &&
+      spokenFor >= minMs &&
+      silentFor >= silenceMs
     ) {
       finish();
     }
   };
 
-  hardTimer = setTimeout(finish, maxMs + 250);
+  hardTimer = setTimeout(finish, maxMs + 300);
   vadTimer = setInterval(tickVad, 50);
 
   try {
-    let pcm;
-    // Direct PCM first — MediaRecorder/webm decode often returns near-silent
-    // buffers on multi-attempt sessions even when the analyser saw speech.
-    if (ctx.createScriptProcessor) {
-      pcm = await recordViaScriptProcessor({
-        stream,
-        ctx,
-        source,
-        waitStop,
-        finish,
-        onFrame: (input) => {
-          const rms = rmsOf(input);
-          const p = peakOf(input);
-          // Peak/spoken only — silence end is driven by the 50ms VAD timer.
-          noteEnergy(rms, p, performance.now() - started, { trackSilence: false });
-        },
-      });
-    } else if (mime && typeof MediaRecorder !== "undefined") {
-      pcm = await recordViaMediaRecorder({
-        stream,
-        ctx,
-        mime,
-        waitStop,
-        finish,
-      });
-    } else {
+    const jobs = [];
+
+    // Path A: MediaRecorder — captures the MediaStream without needing a live graph.
+    if (mime && typeof MediaRecorder !== "undefined") {
+      jobs.push(
+        recordViaMediaRecorder({ stream, ctx, mime, waitStop, finish })
+          .then((pcm) => ({ pcm, path: "mediarecorder" }))
+          .catch((err) => ({ pcm: null, path: "mediarecorder", err }))
+      );
+    }
+
+    // Path B: ScriptProcessor direct PCM when available.
+    if (typeof ctx.createScriptProcessor === "function") {
+      jobs.push(
+        recordViaScriptProcessor({ stream, ctx, waitStop, finish, onFrame: (input) => {
+          noteEnergy(
+            rmsOf(input),
+            peakOf(input),
+            performance.now() - started,
+            { trackSilence: false }
+          );
+        } })
+          .then((pcm) => ({ pcm, path: "scriptprocessor" }))
+          .catch((err) => ({ pcm: null, path: "scriptprocessor", err }))
+      );
+    }
+
+    if (!jobs.length) {
       finish();
       throw new Error("No audio capture path available");
     }
 
-    if (!pcm || !pcm.length) {
-      const err = new Error("empty-recording");
+    const results = await Promise.all(jobs);
+    // Prefer the take with the highest peak (real speech beats near-silence).
+    let best = null;
+    let bestPeak = -1;
+    for (const r of results) {
+      if (!r?.pcm?.length) continue;
+      const p = peakOf(r.pcm);
+      if (p > bestPeak) {
+        bestPeak = p;
+        best = r.pcm;
+      }
+    }
+
+    if (!best || !best.length) {
+      const errs = results
+        .map((r) => r?.err?.message || r?.err)
+        .filter(Boolean)
+        .join("; ");
+      const err = new Error(errs || "empty-recording");
       err.code = "too-short";
       throw err;
     }
 
-    pcm = normalizePcmPeak(pcm);
+    let pcm = normalizePcmPeak(best);
     const pcmPeak = peakOf(pcm);
     if (pcmPeak > peak) peak = pcmPeak;
 
-    // Lenient: only reject truly empty/noise floor takes.
+    // Only reject true noise-floor / empty takes.
     if (pcm.length < SR * 0.08 || peak < noSpeechPeak) {
       const err = new Error(
         peak < noSpeechPeak ? "no-speech-detected" : "recording-too-short"
@@ -606,7 +666,6 @@ export async function recordPcm16k({
     return pcm;
   } finally {
     finish();
-    // Do NOT stop tracks here — reuse the live stream for the next attempt.
     releaseLock();
   }
 }
@@ -615,7 +674,10 @@ async function recordViaMediaRecorder({ stream, ctx, mime, waitStop, finish }) {
   const chunks = [];
   let recorder;
   try {
-    recorder = new MediaRecorder(stream, { mimeType: mime, audioBitsPerSecond: 128000 });
+    recorder = new MediaRecorder(stream, {
+      mimeType: mime,
+      audioBitsPerSecond: 128000,
+    });
   } catch {
     recorder = new MediaRecorder(stream);
   }
@@ -632,9 +694,8 @@ async function recordViaMediaRecorder({ stream, ctx, mime, waitStop, finish }) {
     if (e.data && e.data.size > 0) chunks.push(e.data);
   };
 
-  // timeslice keeps data flowing; some mobile browsers buffer until stop otherwise.
   try {
-    recorder.start(250);
+    recorder.start(100);
   } catch (err) {
     finish();
     throw err;
@@ -643,26 +704,36 @@ async function recordViaMediaRecorder({ stream, ctx, mime, waitStop, finish }) {
   await waitStop();
   if (recorder.state !== "inactive") {
     try {
+      recorder.requestData?.();
+    } catch {
+      /* ignore */
+    }
+    try {
       recorder.stop();
     } catch {
       /* ignore */
     }
   }
-  await Promise.race([
-    stopped,
-    new Promise((r) => setTimeout(r, 1500)),
-  ]);
+  await Promise.race([stopped, new Promise((r) => setTimeout(r, 2000))]);
 
-  if (!chunks.length) {
-    throw new Error("empty-recording");
-  }
+  if (!chunks.length) throw new Error("empty-recording");
 
-  const blob = new Blob(chunks, { type: recorder.mimeType || mime || "audio/webm" });
+  const blob = new Blob(chunks, {
+    type: recorder.mimeType || mime || "audio/webm",
+  });
+  if (blob.size < 64) throw new Error("empty-recording");
+
   const ab = await blob.arrayBuffer();
   await ensureCtxRunning(ctx);
-  const audioBuf = await ctx.decodeAudioData(ab.slice(0));
+  let audioBuf;
+  try {
+    audioBuf = await ctx.decodeAudioData(ab.slice(0));
+  } catch (err) {
+    // Some browsers need a fresh copy / OfflineAudioContext fallback isn't worth it —
+    // surface empty so the dual-path can use ScriptProcessor.
+    throw err;
+  }
   const ch0 = audioBuf.getChannelData(0);
-  // Mixdown if somehow stereo
   let mono = ch0;
   if (audioBuf.numberOfChannels > 1) {
     const ch1 = audioBuf.getChannelData(1);
@@ -672,32 +743,31 @@ async function recordViaMediaRecorder({ stream, ctx, mime, waitStop, finish }) {
   return resampleTo16k(mono, audioBuf.sampleRate);
 }
 
-async function recordViaScriptProcessor({
-  stream,
-  ctx,
-  source,
-  waitStop,
-  finish,
-  onFrame,
-}) {
-  if (!ctx.createScriptProcessor) {
-    finish();
+async function recordViaScriptProcessor({ stream, ctx, waitStop, finish, onFrame }) {
+  if (typeof ctx.createScriptProcessor !== "function") {
     throw new Error("ScriptProcessor not available");
   }
+  await ensureCtxRunning(ctx);
+  if (ctx.state !== "running") {
+    // ScriptProcessor is silent while suspended — fail this path fast.
+    throw new Error("AudioContext not running");
+  }
+
   const bufferSize = 4096;
   const processor = ctx.createScriptProcessor(bufferSize, 1, 1);
   const chunks = [];
   processor.onaudioprocess = (e) => {
     const input = e.inputBuffer.getChannelData(0);
+    // Copy — the buffer is reused by the browser.
     chunks.push(Float32Array.from(input));
     if (onFrame) onFrame(input);
   };
 
   const mute = ctx.createGain();
   mute.gain.value = 0;
-  // source already connected by caller for analyser; connect processor tap from stream again
   const tap = ctx.createMediaStreamSource(stream);
   tap.connect(processor);
+  // Must connect to destination or Chrome won't fire onaudioprocess.
   processor.connect(mute);
   mute.connect(ctx.destination);
 
@@ -713,6 +783,7 @@ async function recordViaScriptProcessor({
 
   let total = 0;
   for (const c of chunks) total += c.length;
+  if (!total) throw new Error("empty-recording");
   const merged = new Float32Array(total);
   let off = 0;
   for (const c of chunks) {

@@ -25,7 +25,7 @@ import {
 import { isKanjiCategory } from './kanjiCategory';
 import { useTheme } from './ThemeContext';
 import HelpModalBody from './HelpModalBody';
-import { loadMfccCache, recordAndScoreWord, releaseMic } from './scoring/dtw';
+import { loadMfccCache, recordAndScoreWord, releaseMic, primeMicAudio } from './scoring/dtw';
 
 /** DTW pass bar — slightly loosened vs original same≈67 / diff≈24 calibration. */
 const DTW_PASS_SCORE = 50;
@@ -464,6 +464,22 @@ const App = () => {
     if (!currentWord?.foreign) return;
     if (listening) return;
 
+    // Sync inside the click gesture — unlock the DTW AudioContext BEFORE any await.
+    // App's separate audioContext does not unlock sharedCtx inside dtw.js.
+    try {
+      primeMicAudio();
+    } catch {
+      /* ignore */
+    }
+    if (audioContext && audioContext.state !== 'running') {
+      try {
+        const p = audioContext.resume();
+        if (p && typeof p.catch === 'function') p.catch(() => {});
+      } catch {
+        /* ignore */
+      }
+    }
+
     const runDtwPath = async () => {
       setListening(true);
       setLastDtwScore(null);
@@ -474,23 +490,21 @@ const App = () => {
       const unlockTimer = setTimeout(() => {
         setListening(false);
         setSpeechStatus((s) => (s === 'listening' || s === 'processing' ? 'idle' : s));
-      }, 9000);
+      }, 10000);
       try {
-        // Resume any page-level AudioContext from this user gesture first.
-        if (audioContext && audioContext.state !== 'running') {
-          try {
-            await audioContext.resume();
-          } catch {
-            /* ignore */
-          }
+        try {
+          primeMicAudio();
+        } catch {
+          /* ignore */
         }
         const result = await recordAndScoreWord(currentLanguage, currentWord.foreign, {
           maxMs: 5500,
-          minMs: 450,
-          silenceMs: 700,
-          speechRms: 0.004,
-          speechPeak: 0.015,
-          noSpeechPeak: 0.0015,
+          minMs: 500,
+          holdMs: 1600,
+          silenceMs: 900,
+          speechRms: 0.003,
+          speechPeak: 0.01,
+          noSpeechPeak: 0.0008,
         });
         setSpeechStatus('processing');
         if (!result.ok) {
@@ -846,6 +860,11 @@ const App = () => {
         setSpeechStatus('listening');
         successHandledRef.current = false;
         try {
+          try {
+            primeMicAudio();
+          } catch {
+            /* ignore */
+          }
           if (audioContext && audioContext.state !== 'running') {
             try {
               await audioContext.resume();
@@ -855,11 +874,12 @@ const App = () => {
           }
           const result = await recordAndScoreWord(currentLanguage, wordNow.foreign, {
             maxMs: 5500,
-            minMs: 450,
-            silenceMs: 700,
-            speechRms: 0.004,
-            speechPeak: 0.015,
-            noSpeechPeak: 0.0015,
+            minMs: 500,
+            holdMs: 1600,
+            silenceMs: 900,
+            speechRms: 0.003,
+            speechPeak: 0.01,
+            noSpeechPeak: 0.0008,
           });
           setSpeechStatus('processing');
           if (!result.ok) {

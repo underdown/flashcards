@@ -485,10 +485,12 @@ const App = () => {
           }
         }
         const result = await recordAndScoreWord(currentLanguage, currentWord.foreign, {
-          maxMs: 5000,
-          minMs: 900,
-          silenceMs: 900,
-          speechRms: 0.012,
+          maxMs: 5500,
+          minMs: 450,
+          silenceMs: 700,
+          speechRms: 0.004,
+          speechPeak: 0.015,
+          noSpeechPeak: 0.0015,
         });
         setSpeechStatus('processing');
         if (!result.ok) {
@@ -852,10 +854,12 @@ const App = () => {
             }
           }
           const result = await recordAndScoreWord(currentLanguage, wordNow.foreign, {
-            maxMs: 5000,
-            minMs: 900,
-            silenceMs: 900,
-            speechRms: 0.012,
+            maxMs: 5500,
+            minMs: 450,
+            silenceMs: 700,
+            speechRms: 0.004,
+            speechPeak: 0.015,
+            noSpeechPeak: 0.0015,
           });
           setSpeechStatus('processing');
           if (!result.ok) {

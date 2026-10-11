@@ -358,10 +358,11 @@ function pickRecorderMime() {
 }
 
 async function getMicStream() {
+  // Only refresh when the track is dead. A 45s forced recycle was stopping a
+  // live stream mid-session and made later attempts "hear nothing" until refresh.
   const fresh =
     !sharedStream ||
-    sharedStream.getTracks().some((t) => t.readyState !== "live") ||
-    Date.now() - sharedStreamAt > 45000;
+    sharedStream.getTracks().some((t) => t.readyState !== "live");
 
   if (fresh) {
     if (sharedStream) {
@@ -372,11 +373,13 @@ async function getMicStream() {
       }
       sharedStream = null;
     }
+    // Pronunciation scoring needs the real voice. Echo cancel + noise suppress
+    // often zero out the mic right after TTS / with speakers on.
     sharedStream = await navigator.mediaDevices.getUserMedia({
       audio: {
         channelCount: 1,
-        echoCancellation: true,
-        noiseSuppression: true,
+        echoCancellation: false,
+        noiseSuppression: false,
         autoGainControl: true,
       },
     });
@@ -422,16 +425,36 @@ function peakOf(buf) {
   return p;
 }
 
+/** Soft peak normalize so quiet-but-real speech still scores. */
+function normalizePcmPeak(pcm, targetPeak = 0.35) {
+  if (!pcm?.length) return pcm;
+  const p = peakOf(pcm);
+  if (!(p > 1e-6)) return pcm;
+  // Only boost quiet takes; never crush loud ones hard.
+  if (p >= targetPeak * 0.85) return pcm;
+  const gain = Math.min(12, targetPeak / p);
+  const out = new Float64Array(pcm.length);
+  for (let i = 0; i < pcm.length; i++) {
+    let v = pcm[i] * gain;
+    if (v > 1) v = 1;
+    else if (v < -1) v = -1;
+    out[i] = v;
+  }
+  return out;
+}
+
 /**
  * Record mic for maxMs (or until silence after speech), return 16 kHz mono Float64.
- * Primary: MediaRecorder + decodeAudioData (reliable across attempts).
- * Fallback: ScriptProcessor graph kept alive through a muted GainNode.
+ * Primary: ScriptProcessor direct PCM (what MFCC needs; no codec level loss).
+ * Fallback: MediaRecorder + decodeAudioData.
  */
 export async function recordPcm16k({
-  maxMs = 4500,
-  silenceMs = 900,
-  minMs = 900,
-  speechRms = 0.012,
+  maxMs = 5000,
+  silenceMs = 700,
+  minMs = 450,
+  speechRms = 0.004,
+  speechPeak = 0.015,
+  noSpeechPeak = 0.0015,
 } = {}) {
   // Serialize attempts so stop/start never races on the shared stream/context.
   let releaseLock = () => {};
@@ -462,7 +485,7 @@ export async function recordPcm16k({
   const source = ctx.createMediaStreamSource(stream);
   const analyser = ctx.createAnalyser();
   analyser.fftSize = 2048;
-  analyser.smoothingTimeConstant = 0.3;
+  analyser.smoothingTimeConstant = 0.2;
   source.connect(analyser);
   const timeData = new Float32Array(analyser.fftSize);
 
@@ -497,6 +520,19 @@ export async function recordPcm16k({
       else stopWaiters.push(resolve);
     });
 
+  const noteEnergy = (rms, p, elapsed, { trackSilence = true } = {}) => {
+    if (p > peak) peak = p;
+    if (rms >= speechRms || p >= speechPeak) {
+      if (!spoken) {
+        spoken = true;
+        spokenAt = elapsed;
+      }
+      silentFor = 0;
+    } else if (spoken && trackSilence) {
+      silentFor += 50;
+    }
+  };
+
   const tickVad = () => {
     if (stopped) return;
     try {
@@ -506,19 +542,9 @@ export async function recordPcm16k({
     }
     const rms = rmsOf(timeData);
     const p = peakOf(timeData);
-    if (p > peak) peak = p;
     const elapsed = performance.now() - started;
-    if (rms >= speechRms || p >= 0.04) {
-      if (!spoken) {
-        spoken = true;
-        spokenAt = elapsed;
-      }
-      silentFor = 0;
-    } else if (spoken) {
-      silentFor += 50;
-    }
-    // Only end-on-silence after the user has actually spoken for minMs
-    // from the start of speech (not from button press).
+    noteEnergy(rms, p, elapsed, { trackSilence: true });
+    // End-on-silence only after real speech for minMs from speech start.
     const spokenFor = spoken ? elapsed - spokenAt : 0;
     if (
       elapsed >= maxMs ||
@@ -533,15 +559,9 @@ export async function recordPcm16k({
 
   try {
     let pcm;
-    if (mime && typeof MediaRecorder !== "undefined") {
-      pcm = await recordViaMediaRecorder({
-        stream,
-        ctx,
-        mime,
-        waitStop,
-        finish,
-      });
-    } else {
+    // Direct PCM first — MediaRecorder/webm decode often returns near-silent
+    // buffers on multi-attempt sessions even when the analyser saw speech.
+    if (ctx.createScriptProcessor) {
       pcm = await recordViaScriptProcessor({
         stream,
         ctx,
@@ -551,27 +571,39 @@ export async function recordPcm16k({
         onFrame: (input) => {
           const rms = rmsOf(input);
           const p = peakOf(input);
-          if (p > peak) peak = p;
-          const elapsed = performance.now() - started;
-          if (rms >= speechRms || p >= 0.04) {
-            if (!spoken) {
-              spoken = true;
-              spokenAt = elapsed;
-            }
-            silentFor = 0;
-          }
+          // Peak/spoken only — silence end is driven by the 50ms VAD timer.
+          noteEnergy(rms, p, performance.now() - started, { trackSilence: false });
         },
       });
+    } else if (mime && typeof MediaRecorder !== "undefined") {
+      pcm = await recordViaMediaRecorder({
+        stream,
+        ctx,
+        mime,
+        waitStop,
+        finish,
+      });
+    } else {
+      finish();
+      throw new Error("No audio capture path available");
     }
 
-    // Empty / near-silent capture → hard fail so UI can retry cleanly.
-    const pcmPeak = pcm && pcm.length ? peakOf(pcm) : 0;
+    if (!pcm || !pcm.length) {
+      const err = new Error("empty-recording");
+      err.code = "too-short";
+      throw err;
+    }
+
+    pcm = normalizePcmPeak(pcm);
+    const pcmPeak = peakOf(pcm);
     if (pcmPeak > peak) peak = pcmPeak;
-    if (!pcm || pcm.length < SR * 0.12 || peak < 0.008) {
+
+    // Lenient: only reject truly empty/noise floor takes.
+    if (pcm.length < SR * 0.08 || peak < noSpeechPeak) {
       const err = new Error(
-        peak < 0.008 ? "no-speech-detected" : "recording-too-short"
+        peak < noSpeechPeak ? "no-speech-detected" : "recording-too-short"
       );
-      err.code = peak < 0.008 ? "no-speech" : "too-short";
+      err.code = peak < noSpeechPeak ? "no-speech" : "too-short";
       throw err;
     }
     return pcm;

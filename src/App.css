@@ -64,7 +64,8 @@ html, body, #root {
   background-color: #f0f0f0;
   border: 1px solid #ccc;
   border-bottom: none;
-  border-radius: 8px 8px 0 0;
+  border-top: none;
+  border-radius: 0;
   width: 80vw;
   max-width: 500px;
   height: 40vh;

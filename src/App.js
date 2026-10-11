@@ -25,7 +25,7 @@ import {
 import { isKanjiCategory } from './kanjiCategory';
 import { useTheme } from './ThemeContext';
 import HelpModalBody from './HelpModalBody';
-import { loadMfccCache, recordAndScoreWord } from './scoring/dtw';
+import { loadMfccCache, recordAndScoreWord, releaseMic } from './scoring/dtw';
 
 /** DTW pass bar — calibrated on cross-voice Russian refs (mean same≈67, mean diff≈24). */
 const DTW_PASS_SCORE = 55;
@@ -449,16 +449,39 @@ const App = () => {
       setDetectedSpeech('');
       setSpeechStatus('listening');
       successHandledRef.current = false;
+      // Hard unlock so a hung recorder never permanently disables the mic button.
+      const unlockTimer = setTimeout(() => {
+        setListening(false);
+        setSpeechStatus((s) => (s === 'listening' || s === 'processing' ? 'idle' : s));
+      }, 9000);
       try {
+        // Resume any page-level AudioContext from this user gesture first.
+        if (audioContext && audioContext.state !== 'running') {
+          try {
+            await audioContext.resume();
+          } catch {
+            /* ignore */
+          }
+        }
         const result = await recordAndScoreWord(currentLanguage, currentWord.foreign, {
-          maxMs: 4500,
-          minMs: 350,
-          silenceMs: 650,
+          maxMs: 5000,
+          minMs: 900,
+          silenceMs: 900,
+          speechRms: 0.012,
         });
         setSpeechStatus('processing');
         if (!result.ok) {
-          // No refs / mic failure — fall through to Web Speech ASR
           console.warn('DTW path unavailable:', result.reason);
+          // Mic/speech miss — stay on DTW path message; don't silently drop to ASR
+          // for russian words that have refs (ASR is a different skill).
+          if (result.reason === 'no-speech' || result.reason === 'too-short' || result.reason === 'empty-recording') {
+            setDetectedSpeech('No speech heard — try again');
+            showScoreFlash(null, false);
+            setSpeechStatus('idle');
+            setListening(false);
+            playSound(failSound);
+            return true; // handled; don't fall through to ASR
+          }
           setListening(false);
           setSpeechStatus('idle');
           return false;
@@ -466,7 +489,7 @@ const App = () => {
         const score = result.score;
         setLastDtwScore(score);
         setDetectedSpeech(`DTW ${score}/100`);
-        console.log('DTW score', score, 'distance', result.distance);
+        console.log('DTW score', score, 'distance', result.distance, 'pcm', result.pcmLength);
         const pass = score >= DTW_PASS_SCORE;
         showScoreFlash(score, pass);
         if (pass) {
@@ -496,16 +519,25 @@ const App = () => {
         return true;
       } catch (err) {
         console.error('DTW listening failed:', err);
+        const code = err?.code || err?.message || '';
+        setDetectedSpeech(
+          code === 'no-speech' || String(code).includes('no-speech')
+            ? 'No speech heard — try again'
+            : 'Mic error — try again'
+        );
         setListening(false);
         setSpeechStatus('error');
         showScoreFlash(null, false);
-        return false;
+        return true; // don't fall to ASR on mic errors for ref words
+      } finally {
+        clearTimeout(unlockTimer);
       }
     };
 
     const runAsrPath = () => {
       if (!recognition) {
         setSpeechStatus('error');
+        setListening(false);
         return;
       }
       waitForRecognitionIdle(recognition).then(() => {
@@ -604,6 +636,7 @@ const App = () => {
         } catch (error) {
           console.error('Error starting speech recognition:', error);
           setSpeechStatus('error');
+          setListening(false);
           clearTimeout(timeoutId);
         }
       });
@@ -621,7 +654,7 @@ const App = () => {
       }
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional
-  }, [recognition, currentWord, currentLanguage, listening, playSound, updateWordStats, showScoreFlash]);
+  }, [recognition, currentWord, currentLanguage, listening, playSound, updateWordStats, showScoreFlash, audioContext]);
 
   useEffect(() => {
     return () => {
@@ -630,6 +663,17 @@ const App = () => {
       }
     };
   }, [recognition]);
+
+  useEffect(() => {
+    const onHide = () => {
+      if (document.visibilityState === 'hidden') releaseMic();
+    };
+    document.addEventListener('visibilitychange', onHide);
+    return () => {
+      document.removeEventListener('visibilitychange', onHide);
+      releaseMic();
+    };
+  }, []);
 
   const speakWord = useCallback(() => {
     if (!currentWord?.foreign) return;

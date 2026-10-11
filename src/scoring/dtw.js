@@ -303,97 +303,384 @@ export function resampleTo16k(input, sampleRate) {
   return out;
 }
 
-/**
- * Record mic for `maxMs` (or until silence after speech), return 16 kHz mono Float64.
- * Uses Web Audio — works in Chrome/Edge/Firefox/Safari with mic permission.
- */
-export async function recordPcm16k({ maxMs = 4000, silenceMs = 700, minMs = 400 } = {}) {
-  const stream = await navigator.mediaDevices.getUserMedia({
-    audio: {
-      channelCount: 1,
-      echoCancellation: true,
-      noiseSuppression: true,
-      autoGainControl: true,
-    },
-  });
-  const ctx = new (window.AudioContext || window.webkitAudioContext)();
-  const source = ctx.createMediaStreamSource(stream);
-  const analyser = ctx.createAnalyser();
-  analyser.fftSize = 2048;
-  source.connect(analyser);
+/** Shared AudioContext — creating+closing one per attempt is the main flaky-mic cause. */
+let sharedCtx = null;
+let sharedStream = null;
+let sharedStreamAt = 0;
+let recordLock = Promise.resolve();
 
-  // ScriptProcessor is deprecated but universal; 4096 buffer is fine for short words.
-  const bufferSize = 4096;
-  const processor = ctx.createScriptProcessor
-    ? ctx.createScriptProcessor(bufferSize, 1, 1)
-    : null;
+function getSharedAudioContext() {
+  const AC = window.AudioContext || window.webkitAudioContext;
+  if (!AC) throw new Error("AudioContext not available");
+  if (!sharedCtx || sharedCtx.state === "closed") {
+    sharedCtx = new AC();
+  }
+  return sharedCtx;
+}
 
-  const chunks = [];
-  let spoken = false;
-  let silentFor = 0;
-  const started = performance.now();
-
-  const onAudio = (e) => {
-    const input = e.inputBuffer.getChannelData(0);
-    chunks.push(new Float32Array(input));
-    // crude energy
-    let sum = 0;
-    for (let i = 0; i < input.length; i++) sum += input[i] * input[i];
-    const rms = Math.sqrt(sum / input.length);
-    const elapsed = performance.now() - started;
-    if (rms > 0.02) {
-      spoken = true;
-      silentFor = 0;
-    } else if (spoken) {
-      silentFor += (input.length / ctx.sampleRate) * 1000;
-    }
-    if (elapsed >= maxMs || (spoken && elapsed >= minMs && silentFor >= silenceMs)) {
-      stop();
-    }
-  };
-
-  let stopped = false;
-  let resolveStop;
-  const done = new Promise((r) => {
-    resolveStop = r;
-  });
-
-  function stop() {
-    if (stopped) return;
-    stopped = true;
+async function ensureCtxRunning(ctx) {
+  if (ctx.state === "suspended") {
     try {
-      processor.onaudioprocess = null;
-      processor.disconnect();
-      source.disconnect();
+      await ctx.resume();
+    } catch {
+      /* ignore — caller still tries */
+    }
+  }
+  // Brief settle helps some Chromium builds after resume.
+  if (ctx.state !== "running") {
+    await new Promise((r) => setTimeout(r, 40));
+    if (ctx.state === "suspended") {
+      try {
+        await ctx.resume();
+      } catch {
+        /* ignore */
+      }
+    }
+  }
+}
+
+function pickRecorderMime() {
+  if (typeof MediaRecorder === "undefined") return "";
+  const candidates = [
+    "audio/webm;codecs=opus",
+    "audio/webm",
+    "audio/mp4",
+    "audio/ogg;codecs=opus",
+  ];
+  for (const t of candidates) {
+    try {
+      if (MediaRecorder.isTypeSupported(t)) return t;
     } catch {
       /* ignore */
     }
-    stream.getTracks().forEach((t) => t.stop());
-    resolveStop();
+  }
+  return "";
+}
+
+async function getMicStream() {
+  const fresh =
+    !sharedStream ||
+    sharedStream.getTracks().some((t) => t.readyState !== "live") ||
+    Date.now() - sharedStreamAt > 45000;
+
+  if (fresh) {
+    if (sharedStream) {
+      try {
+        sharedStream.getTracks().forEach((t) => t.stop());
+      } catch {
+        /* ignore */
+      }
+      sharedStream = null;
+    }
+    sharedStream = await navigator.mediaDevices.getUserMedia({
+      audio: {
+        channelCount: 1,
+        echoCancellation: true,
+        noiseSuppression: true,
+        autoGainControl: true,
+      },
+    });
+    sharedStreamAt = Date.now();
+  } else {
+    // Unmute / enable if a prior path muted tracks.
+    sharedStream.getAudioTracks().forEach((t) => {
+      try {
+        t.enabled = true;
+      } catch {
+        /* ignore */
+      }
+    });
+  }
+  return sharedStream;
+}
+
+/** Drop the held mic (call on page hide or explicit reset). */
+export function releaseMic() {
+  if (sharedStream) {
+    try {
+      sharedStream.getTracks().forEach((t) => t.stop());
+    } catch {
+      /* ignore */
+    }
+    sharedStream = null;
+  }
+  sharedStreamAt = 0;
+}
+
+function rmsOf(buf) {
+  let sum = 0;
+  for (let i = 0; i < buf.length; i++) sum += buf[i] * buf[i];
+  return Math.sqrt(sum / Math.max(1, buf.length));
+}
+
+function peakOf(buf) {
+  let p = 0;
+  for (let i = 0; i < buf.length; i++) {
+    const a = Math.abs(buf[i]);
+    if (a > p) p = a;
+  }
+  return p;
+}
+
+/**
+ * Record mic for maxMs (or until silence after speech), return 16 kHz mono Float64.
+ * Primary: MediaRecorder + decodeAudioData (reliable across attempts).
+ * Fallback: ScriptProcessor graph kept alive through a muted GainNode.
+ */
+export async function recordPcm16k({
+  maxMs = 4500,
+  silenceMs = 900,
+  minMs = 900,
+  speechRms = 0.012,
+} = {}) {
+  // Serialize attempts so stop/start never races on the shared stream/context.
+  let releaseLock = () => {};
+  const prev = recordLock;
+  recordLock = new Promise((r) => {
+    releaseLock = r;
+  });
+  await prev;
+
+  const ctx = getSharedAudioContext();
+  await ensureCtxRunning(ctx);
+
+  let stream;
+  try {
+    stream = await getMicStream();
+  } catch (err) {
+    releaseLock();
+    throw err;
   }
 
-  if (!processor) {
-    stream.getTracks().forEach((t) => t.stop());
-    await ctx.close();
+  const mime = pickRecorderMime();
+  const started = performance.now();
+  let spoken = false;
+  let spokenAt = 0;
+  let silentFor = 0;
+  let peak = 0;
+
+  const source = ctx.createMediaStreamSource(stream);
+  const analyser = ctx.createAnalyser();
+  analyser.fftSize = 2048;
+  analyser.smoothingTimeConstant = 0.3;
+  source.connect(analyser);
+  const timeData = new Float32Array(analyser.fftSize);
+
+  // Keep a silent tap so Chrome doesn't throttle the graph.
+  const mute = ctx.createGain();
+  mute.gain.value = 0;
+  source.connect(mute);
+  mute.connect(ctx.destination);
+
+  let stopped = false;
+  let hardTimer = null;
+  let vadTimer = null;
+  const stopWaiters = [];
+
+  const finish = () => {
+    if (stopped) return;
+    stopped = true;
+    if (hardTimer) clearTimeout(hardTimer);
+    if (vadTimer) clearInterval(vadTimer);
+    try {
+      source.disconnect();
+      mute.disconnect();
+    } catch {
+      /* ignore */
+    }
+    stopWaiters.forEach((fn) => fn());
+  };
+
+  const waitStop = () =>
+    new Promise((resolve) => {
+      if (stopped) resolve();
+      else stopWaiters.push(resolve);
+    });
+
+  const tickVad = () => {
+    if (stopped) return;
+    try {
+      analyser.getFloatTimeDomainData(timeData);
+    } catch {
+      return;
+    }
+    const rms = rmsOf(timeData);
+    const p = peakOf(timeData);
+    if (p > peak) peak = p;
+    const elapsed = performance.now() - started;
+    if (rms >= speechRms || p >= 0.04) {
+      if (!spoken) {
+        spoken = true;
+        spokenAt = elapsed;
+      }
+      silentFor = 0;
+    } else if (spoken) {
+      silentFor += 50;
+    }
+    // Only end-on-silence after the user has actually spoken for minMs
+    // from the start of speech (not from button press).
+    const spokenFor = spoken ? elapsed - spokenAt : 0;
+    if (
+      elapsed >= maxMs ||
+      (spoken && spokenFor >= minMs && silentFor >= silenceMs)
+    ) {
+      finish();
+    }
+  };
+
+  hardTimer = setTimeout(finish, maxMs + 250);
+  vadTimer = setInterval(tickVad, 50);
+
+  try {
+    let pcm;
+    if (mime && typeof MediaRecorder !== "undefined") {
+      pcm = await recordViaMediaRecorder({
+        stream,
+        ctx,
+        mime,
+        waitStop,
+        finish,
+      });
+    } else {
+      pcm = await recordViaScriptProcessor({
+        stream,
+        ctx,
+        source,
+        waitStop,
+        finish,
+        onFrame: (input) => {
+          const rms = rmsOf(input);
+          const p = peakOf(input);
+          if (p > peak) peak = p;
+          const elapsed = performance.now() - started;
+          if (rms >= speechRms || p >= 0.04) {
+            if (!spoken) {
+              spoken = true;
+              spokenAt = elapsed;
+            }
+            silentFor = 0;
+          }
+        },
+      });
+    }
+
+    // Empty / near-silent capture → hard fail so UI can retry cleanly.
+    const pcmPeak = pcm && pcm.length ? peakOf(pcm) : 0;
+    if (pcmPeak > peak) peak = pcmPeak;
+    if (!pcm || pcm.length < SR * 0.12 || peak < 0.008) {
+      const err = new Error(
+        peak < 0.008 ? "no-speech-detected" : "recording-too-short"
+      );
+      err.code = peak < 0.008 ? "no-speech" : "too-short";
+      throw err;
+    }
+    return pcm;
+  } finally {
+    finish();
+    // Do NOT stop tracks here — reuse the live stream for the next attempt.
+    releaseLock();
+  }
+}
+
+async function recordViaMediaRecorder({ stream, ctx, mime, waitStop, finish }) {
+  const chunks = [];
+  let recorder;
+  try {
+    recorder = new MediaRecorder(stream, { mimeType: mime, audioBitsPerSecond: 128000 });
+  } catch {
+    recorder = new MediaRecorder(stream);
+  }
+
+  const stopped = new Promise((resolve) => {
+    recorder.onstop = () => resolve();
+    recorder.onerror = () => {
+      finish();
+      resolve();
+    };
+  });
+
+  recorder.ondataavailable = (e) => {
+    if (e.data && e.data.size > 0) chunks.push(e.data);
+  };
+
+  // timeslice keeps data flowing; some mobile browsers buffer until stop otherwise.
+  try {
+    recorder.start(250);
+  } catch (err) {
+    finish();
+    throw err;
+  }
+
+  await waitStop();
+  if (recorder.state !== "inactive") {
+    try {
+      recorder.stop();
+    } catch {
+      /* ignore */
+    }
+  }
+  await Promise.race([
+    stopped,
+    new Promise((r) => setTimeout(r, 1500)),
+  ]);
+
+  if (!chunks.length) {
+    throw new Error("empty-recording");
+  }
+
+  const blob = new Blob(chunks, { type: recorder.mimeType || mime || "audio/webm" });
+  const ab = await blob.arrayBuffer();
+  await ensureCtxRunning(ctx);
+  const audioBuf = await ctx.decodeAudioData(ab.slice(0));
+  const ch0 = audioBuf.getChannelData(0);
+  // Mixdown if somehow stereo
+  let mono = ch0;
+  if (audioBuf.numberOfChannels > 1) {
+    const ch1 = audioBuf.getChannelData(1);
+    mono = new Float32Array(ch0.length);
+    for (let i = 0; i < ch0.length; i++) mono[i] = 0.5 * (ch0[i] + ch1[i]);
+  }
+  return resampleTo16k(mono, audioBuf.sampleRate);
+}
+
+async function recordViaScriptProcessor({
+  stream,
+  ctx,
+  source,
+  waitStop,
+  finish,
+  onFrame,
+}) {
+  if (!ctx.createScriptProcessor) {
+    finish();
     throw new Error("ScriptProcessor not available");
   }
+  const bufferSize = 4096;
+  const processor = ctx.createScriptProcessor(bufferSize, 1, 1);
+  const chunks = [];
+  processor.onaudioprocess = (e) => {
+    const input = e.inputBuffer.getChannelData(0);
+    chunks.push(Float32Array.from(input));
+    if (onFrame) onFrame(input);
+  };
 
-  processor.onaudioprocess = onAudio;
-  source.connect(processor);
-  processor.connect(ctx.destination); // required in some browsers; near-silent gain
-  // mute monitor
-  const gain = ctx.createGain();
-  gain.gain.value = 0;
-  processor.disconnect();
-  source.connect(processor);
-  processor.connect(gain);
-  gain.connect(ctx.destination);
+  const mute = ctx.createGain();
+  mute.gain.value = 0;
+  // source already connected by caller for analyser; connect processor tap from stream again
+  const tap = ctx.createMediaStreamSource(stream);
+  tap.connect(processor);
+  processor.connect(mute);
+  mute.connect(ctx.destination);
 
-  // hard timeout
-  setTimeout(stop, maxMs + 200);
-  await done;
-  const rate = ctx.sampleRate;
-  await ctx.close();
+  await waitStop();
+  try {
+    processor.onaudioprocess = null;
+    processor.disconnect();
+    tap.disconnect();
+    mute.disconnect();
+  } catch {
+    /* ignore */
+  }
 
   let total = 0;
   for (const c of chunks) total += c.length;
@@ -403,7 +690,7 @@ export async function recordPcm16k({ maxMs = 4000, silenceMs = 700, minMs = 400 
     merged.set(c, off);
     off += c.length;
   }
-  return resampleTo16k(merged, rate);
+  return resampleTo16k(merged, ctx.sampleRate);
 }
 
 /** Lazy-loaded MFCC cache per language. */
@@ -446,8 +733,20 @@ export async function recordAndScoreWord(language, foreign, opts) {
   if (!cache?.by_word?.[foreign]) {
     return { ok: false, reason: "no-refs" };
   }
-  const pcm = await recordPcm16k(opts);
-  const result = scorePcmAgainstWord(pcm, foreign, cache);
-  if (!result) return { ok: false, reason: "score-failed" };
-  return { ok: true, ...result, pcmLength: pcm.length };
+  try {
+    const pcm = await recordPcm16k(opts);
+    const result = scorePcmAgainstWord(pcm, foreign, cache);
+    if (!result) return { ok: false, reason: "score-failed" };
+    return { ok: true, ...result, pcmLength: pcm.length };
+  } catch (err) {
+    const code = err?.code || "";
+    const msg = String(err?.message || err || "");
+    if (code === "no-speech" || msg.includes("no-speech")) {
+      return { ok: false, reason: "no-speech" };
+    }
+    if (code === "too-short" || msg.includes("too-short") || msg.includes("empty-recording")) {
+      return { ok: false, reason: "too-short" };
+    }
+    return { ok: false, reason: msg || "record-failed" };
+  }
 }

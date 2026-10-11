@@ -1257,6 +1257,16 @@ const App = () => {
                     ((currentWordStats.successes / (currentWordStats.successes + currentWordStats.failures)) * 100).toFixed(2) : 0}%
                 </strong></td>
               </tr>
+              {currentWordStats?.lastAttempt && (
+                <tr>
+                  <td>Last score:</td>
+                  <td><strong>
+                    {typeof currentWordStats.lastAttempt.similarity === 'number'
+                      ? Math.round(currentWordStats.lastAttempt.similarity * 100)
+                      : '—'}
+                  </strong></td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>

@@ -79,78 +79,87 @@ html, body, #root {
   overflow: visible;
 }
 
-/* Brief post-attempt score chip — top-left of the card */
+/* Post-attempt score — sits under the Latinized (phonetic) line.
+   The chip itself is transparent: the card background tints to the
+   score color (red ≈ 50%, deep Kelly green = 100) and fades back. */
 .score-flash {
-  position: absolute;
-  top: 8px;
-  left: 8px;
+  position: relative;
   z-index: 40;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
   gap: 2px;
   min-width: 64px;
-  padding: 8px 12px;
-  border-radius: 12px;
+  padding: 4px 10px;
   font-weight: 800;
   line-height: 1.05;
   pointer-events: none;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.28);
-  border: 2px solid rgba(255, 255, 255, 0.35);
   animation: score-flash-in-out 3.5s ease forwards;
 }
 
 .score-flash-value {
-  font-size: 1.85rem;
+  color: #ffffff;
+  font-size: 1.5rem;
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.03em;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.45);
 }
 
 .score-flash-label {
+  color: #ffffff;
   font-size: 0.72rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   opacity: 0.95;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
 }
 
-.score-flash--pass {
-  background: #2e7d32;
-  color: #ffffff;
+/* Card surface tints to the score color — red at ~50, deep Kelly green at 100.
+   The class is keyed by attempt so the animation restarts each time. */
+.flashcard--score-in {
+  animation: card-score-bg 3.5s ease forwards;
 }
 
-.score-flash--fail {
-  background: #c62828;
-  color: #ffffff;
+.flashcard--score-pass {
+  --score-tint: #0b6e2a; /* deep Kelly green at 100 */
 }
 
-.dark-mode .score-flash--pass {
-  background: #43a047;
-  color: #ffffff;
+.flashcard--score-fail {
+  --score-tint: #d32f2f; /* red at ~50 */
 }
 
-.dark-mode .score-flash--fail {
-  background: #e53935;
-  color: #ffffff;
+@keyframes card-score-bg {
+  0% {
+    background-color: var(--score-tint);
+  }
+  55% {
+    background-color: var(--score-tint);
+  }
+  100% {
+    background-color: var(--card-rest, #f0f0f0);
+  }
 }
 
 @keyframes score-flash-in-out {
   0% {
-    opacity: 1;
-    transform: translateY(-4px) scale(0.96);
+    opacity: 0;
+    transform: translateY(4px);
   }
   8% {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: translateY(0);
   }
   82% {
     opacity: 1;
-    transform: translateY(0) scale(1);
   }
   100% {
     opacity: 0;
-    transform: translateY(-4px) scale(0.98);
   }
+}
+
+.dark-mode .flashcard {
+  --card-rest: #333;
 }
 
 .content {

@@ -1150,24 +1150,12 @@ const App = () => {
       <div className="flashcard-container">
         {showSuccessGif && <img src={successGif} alt="Success GIF" className="success-gif" />}
         <div className="flashcard-frame">
-          {scoreFlash?.visible && (
-            <div
-              key={scoreFlash.id || 'score'}
-              className={`score-flash ${scoreFlash.pass ? 'score-flash--pass' : 'score-flash--fail'}`}
-              role="status"
-              aria-live="polite"
-            >
-              <span className="score-flash-value">
-                {typeof scoreFlash.score === 'number' ? Math.round(scoreFlash.score) : scoreFlash.pass ? 100 : 0}
-              </span>
-              <span className="score-flash-label">{scoreFlash.pass ? 'pass' : 'try again'}</span>
-            </div>
-          )}
           <Flashcard
             word={currentWord}
             currentLanguage={currentLanguage}
             activeKanjiVariantIndex={currentWord && isKanjiCategory(currentWord.categoryKey) ? kanjiVariantIndex : undefined}
             onCycleKanjiVariant={currentWord && isKanjiCategory(currentWord.categoryKey) ? cycleKanjiVariant : undefined}
+            scoreFlash={scoreFlash}
           />
         </div>
       </div>

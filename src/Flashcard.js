@@ -22,6 +22,7 @@ const Flashcard = ({
   currentLanguage = '',
   activeKanjiVariantIndex = 0,
   onCycleKanjiVariant,
+  scoreFlash = null,
 }) => {
   if (!word) {
     return <div className="flashcard">Loading...</div>;
@@ -47,8 +48,13 @@ const Flashcard = ({
       ? englishWiktionaryUrl(word.foreign)
       : null;
 
+  const scoreAnimClass = scoreFlash?.visible
+    ? `flashcard--score-in ${scoreFlash.pass ? 'flashcard--score-pass' : 'flashcard--score-fail'}`
+    : '';
+  const cardClass = scoreAnimClass ? `flashcard ${scoreAnimClass}` : 'flashcard';
+
   return (
-    <div className="flashcard">
+    <div className={cardClass} key={scoreFlash?.visible ? `s-${scoreFlash.id}` : undefined}>
       <div className="content">
         {showVariantUi ? (
           <div
@@ -118,6 +124,14 @@ const Flashcard = ({
                 ))}
               </p>
             )}
+            {scoreFlash?.visible && (
+              <div className="score-flash" role="status" aria-live="polite">
+                <span className="score-flash-value">
+                  {typeof scoreFlash.score === 'number' ? Math.round(scoreFlash.score) : scoreFlash.pass ? 100 : 0}
+                </span>
+                <span className="score-flash-label">{scoreFlash.pass ? 'pass' : 'try again'}</span>
+              </div>
+            )}
           </div>
         ) : (
           <>
@@ -136,6 +150,14 @@ const Flashcard = ({
                   </span>
                 </h2>
                 <p className="phonetic kana-romaji">{word.english}</p>
+                {scoreFlash?.visible && (
+                  <div className="score-flash" role="status" aria-live="polite">
+                    <span className="score-flash-value">
+                      {typeof scoreFlash.score === 'number' ? Math.round(scoreFlash.score) : scoreFlash.pass ? 100 : 0}
+                    </span>
+                    <span className="score-flash-label">{scoreFlash.pass ? 'pass' : 'try again'}</span>
+                  </div>
+                )}
               </>
             ) : (
               <>
@@ -168,6 +190,14 @@ const Flashcard = ({
                 <p className="phonetic">{word.phonetic}</p>
                 {word.readingRomaji && (
                   <p className="phonetic-latin">{word.readingRomaji}</p>
+                )}
+                {scoreFlash?.visible && (
+                  <div className="score-flash" role="status" aria-live="polite">
+                    <span className="score-flash-value">
+                      {typeof scoreFlash.score === 'number' ? Math.round(scoreFlash.score) : scoreFlash.pass ? 100 : 0}
+                    </span>
+                    <span className="score-flash-label">{scoreFlash.pass ? 'pass' : 'try again'}</span>
+                  </div>
                 )}
               </>
             )}

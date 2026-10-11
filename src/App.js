@@ -106,8 +106,6 @@ const App = () => {
   const [currentWord, setCurrentWord] = useState(null);
   const [listening, setListening] = useState(false);
   const [recognition, setRecognition] = useState(null);
-  const [detectedSpeech, setDetectedSpeech] = useState('');
-  const [lastDtwScore, setLastDtwScore] = useState(null);
   /** Brief corner badge after a scored attempt: { score, pass, visible }. */
   const [scoreFlash, setScoreFlash] = useState(null);
   const scoreFlashTimerRef = useRef(null);
@@ -483,8 +481,6 @@ const App = () => {
 
     const runDtwPath = async () => {
       setListening(true);
-      setLastDtwScore(null);
-      setDetectedSpeech('');
       setSpeechStatus('listening');
       successHandledRef.current = false;
       // Hard unlock so a hung recorder never permanently disables the mic button.
@@ -518,15 +514,7 @@ const App = () => {
             result.reason === 'no-speech' ||
             result.reason === 'too-short' ||
             result.reason === 'empty-recording';
-          const perm = result.reason === 'mic-permission';
-          const detail = result.detail ? ` (${result.detail})` : '';
-          setDetectedSpeech(
-            perm
-              ? `Mic blocked — allow microphone${detail}`
-              : silent
-                ? `No speech heard — try again${detail}`
-                : `Mic error — try again${detail}`
-          );
+          console.warn('DTW mic issue:', result.reason, silent ? 'silent' : 'other');
           showScoreFlash(0, false);
           setSpeechStatus('idle');
           setListening(false);
@@ -534,10 +522,6 @@ const App = () => {
           return true;
         }
         const score = Number(result.score);
-        setLastDtwScore(score);
-        setDetectedSpeech(
-          `DTW ${Math.round(score)}/100${result.detail ? ` · ${result.detail}` : ''}`
-        );
         console.log('DTW score', score, 'distance', result.distance, 'pcm', result.pcmLength, result.diag);
         const pass = score >= DTW_PASS_SCORE;
         showScoreFlash(score, pass);
@@ -569,11 +553,6 @@ const App = () => {
       } catch (err) {
         console.error('DTW listening failed:', err);
         const code = err?.code || err?.message || '';
-        setDetectedSpeech(
-          code === 'no-speech' || String(code).includes('no-speech')
-            ? 'No speech heard — try again'
-            : 'Mic error — try again'
-        );
         setListening(false);
         setSpeechStatus('error');
         showScoreFlash(0, false);
@@ -634,7 +613,6 @@ const App = () => {
             updateWordStats(currentWord.foreign, false, lastAsrScore / 100);
 
             setTimeout(() => {
-              setDetectedSpeech('');
               setSpeechStatus('idle');
             }, 100);
           }
@@ -653,7 +631,6 @@ const App = () => {
             .join('');
 
           const cleanTranscript = transcript.toLowerCase().trim();
-          setDetectedSpeech(cleanTranscript);
           const confScore = asrScoreFromResults(event.results);
           if (typeof confScore === 'number') lastAsrScore = confScore;
 
@@ -674,7 +651,6 @@ const App = () => {
             updateWordStats(currentWord.foreign, true, score / 100);
 
             setTimeout(() => {
-              setDetectedSpeech('');
               setShowSuccessGif(false);
               setSpeechStatus('idle');
               if (autoPracticeActiveRef.current) {
@@ -905,8 +881,6 @@ const App = () => {
           }
           const score = Number(result.score);
           const pass = score >= DTW_PASS_SCORE;
-          setLastDtwScore(score);
-          setDetectedSpeech(`DTW ${Math.round(score)}/100`);
           showScoreFlash(score, pass);
           if (pass) {
             successHandledRef.current = true;
@@ -960,7 +934,6 @@ const App = () => {
               .trim();
 
             console.log('Transcript:', transcript);
-            setDetectedSpeech(transcript);
             const confScore = asrScoreFromResults(event.results);
             if (typeof confScore === 'number') lastAsrScore = confScore;
 
@@ -1079,7 +1052,6 @@ const App = () => {
         await startRecognition();
 
         // Clean up
-        setDetectedSpeech('');
         setShowSuccessGif(false);
         setSpeechStatus('idle');
 
@@ -1124,7 +1096,6 @@ const App = () => {
       }
       // Reset states
       setSpeechStatus('idle');
-      setDetectedSpeech('');
       // Start auto practice
       autoPractice();
     } else {
@@ -1137,7 +1108,6 @@ const App = () => {
         recognition.abort();
       }
       setSpeechStatus('idle');
-      setDetectedSpeech('');
     }
   };
 

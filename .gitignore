@@ -29,3 +29,6 @@ yarn-debug.log*
 
 # CI / local ESLint SARIF output
 eslint-results.sarif
+
+# Local Expo mobile checkout (not part of web deploy)
+/mobile/

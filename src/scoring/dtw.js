@@ -372,6 +372,10 @@ let recordLock = Promise.resolve();
 /** After a silent take, next acquire must be forced fresh. */
 let forceFreshStream = false;
 let streamGeneration = 0;
+/** In-flight getUserMedia. A second primeMicAudio in the same tap must reuse this. */
+let acquireInFlight = null;
+/** True once this stream has been handed to a recorder. Next tap must refresh. */
+let streamConsumed = false;
 
 function getSharedAudioContext() {
   const AC = window.AudioContext || window.webkitAudioContext;
@@ -430,8 +434,10 @@ function isStreamUsable(stream) {
 /**
  * MUST be called synchronously inside the mic-button click handler.
  * Resumes AudioContext and starts a FRESH getUserMedia under the user gesture.
- * Reusing one MediaStream across many MediaRecorder start/stop cycles is the
- * main "works a couple times then dies until refresh" failure mode in Chrome.
+ * The click handler calls this, then the async path awaits it again — those two
+ * calls must share one acquire. A second beginFreshMicAcquire stops the stream
+ * that has not recorded yet, and the next tap opens the device while the old
+ * graph still holds it.
  */
 export function primeMicAudio() {
   const ctx = getSharedAudioContext();
@@ -443,21 +449,32 @@ export function primeMicAudio() {
       /* ignore */
     }
   }
-  // Always kick a fresh acquire on the gesture. Permission is cached after first grant.
+  if (acquireInFlight) return acquireInFlight;
+  if (!streamConsumed && !forceFreshStream && isStreamUsable(sharedStream)) {
+    return Promise.resolve(sharedStream);
+  }
   return beginFreshMicAcquire();
 }
 
 function beginFreshMicAcquire() {
-  // Tear down previous stream so the device isn't held in a half-dead state.
   const old = sharedStream;
+  const hadPrevious = !!old;
   sharedStream = null;
   pendingStreamPromise = null;
   streamGeneration += 1;
   const gen = streamGeneration;
+  streamConsumed = false;
+  // Drop WebAudio consumers BEFORE track.stop(). A live MediaStreamSource
+  // keeps the input open after stop(), so the next getUserMedia is silent or late.
+  disconnectMicGraph();
   stopStreamTracks(old);
   forceFreshStream = false;
 
   const request = async () => {
+    if (hadPrevious) {
+      await new Promise((r) => setTimeout(r, 40));
+      if (streamGeneration !== gen) return sharedStream;
+    }
     let stream;
     try {
       try {
@@ -493,11 +510,17 @@ function beginFreshMicAcquire() {
     return stream;
   };
 
-  pendingStreamPromise = request().catch((err) => {
-    if (streamGeneration === gen) pendingStreamPromise = null;
-    throw err;
-  });
-  return pendingStreamPromise;
+  const promise = request()
+    .catch((err) => {
+      if (streamGeneration === gen) pendingStreamPromise = null;
+      throw err;
+    })
+    .finally(() => {
+      if (acquireInFlight === promise) acquireInFlight = null;
+    });
+  acquireInFlight = promise;
+  pendingStreamPromise = promise;
+  return promise;
 }
 
 async function ensureCtxRunning(ctx) {
@@ -566,10 +589,13 @@ async function getMicStream({ force = false } = {}) {
 /** Drop the held mic (call on page hide). */
 export function releaseMic() {
   forceFreshStream = true;
+  streamConsumed = true;
   pendingStreamPromise = null;
+  acquireInFlight = null;
   streamGeneration += 1;
   const old = sharedStream;
   sharedStream = null;
+  disconnectMicGraph();
   stopStreamTracks(old);
 }
 
@@ -580,6 +606,31 @@ export function releaseMic() {
 // second getUserMedia.
 let sharedAnalyser = null;
 let tapSource = null;
+
+function disconnectMicGraph() {
+  if (!tapSource) return;
+  try {
+    tapSource.node.disconnect();
+  } catch {
+    /* ignore */
+  }
+  if (tapSource.clone) stopStreamTracks(tapSource.clone);
+  tapSource = null;
+}
+
+function bindMicTap(ctx, stream) {
+  disconnectMicGraph();
+  // Clone so the visualizer does not consume the stream MediaRecorder is using.
+  // A second MediaStreamSource on the recorded stream mutes later takes in Chrome.
+  const clone = typeof stream.clone === "function" ? stream.clone() : stream;
+  const node = ctx.createMediaStreamSource(clone);
+  node.connect(ensureSharedAnalyser(ctx));
+  tapSource = {
+    node,
+    stream,
+    clone: clone === stream ? null : clone,
+  };
+}
 
 function ensureSharedAnalyser(ctx) {
   if (!sharedAnalyser) {
@@ -601,15 +652,8 @@ export function getMicAnalyser() {
     const ctx = getSharedAudioContext();
     const analyser = ensureSharedAnalyser(ctx);
     if (!isStreamUsable(sharedStream)) return null;
-    // Re-bind if the stream changed since the last tap.
-    if (tapSource && tapSource.stream !== sharedStream) {
-      try { tapSource.node.disconnect(); } catch { /* ignore */ }
-      tapSource = null;
-    }
-    if (!tapSource) {
-      const node = ctx.createMediaStreamSource(sharedStream);
-      node.connect(analyser);
-      tapSource = { node, stream: sharedStream };
+    if (!tapSource || tapSource.stream !== sharedStream) {
+      bindMicTap(ctx, sharedStream);
     }
     return analyser;
   } catch {
@@ -739,14 +783,22 @@ async function captureOnce({ maxMs, noSpeechPeak, _retry, forceStream }) {
   };
 
   const recordMs = Math.max(1200, Math.min(6000, maxMs || 2800));
+  // This stream is now being recorded. The next tap must open a new one.
+  streamConsumed = true;
 
-  // --- ScriptProcessor backup (direct PCM) ---
+  // ScriptProcessor on the recorded stream forces the audio thread to wait on
+  // the main thread ("struggling to keep up") and mutes later MediaRecorder takes.
+  // Use it only when MediaRecorder does not exist.
   const spChunks = [];
   let spTap = null;
   let spProc = null;
   let spMute = null;
   let spPeak = 0;
-  if (ctx.state === "running" && typeof ctx.createScriptProcessor === "function") {
+  const useScript =
+    typeof MediaRecorder === "undefined" &&
+    ctx.state === "running" &&
+    typeof ctx.createScriptProcessor === "function";
+  if (useScript) {
     try {
       spProc = ctx.createScriptProcessor(4096, 1, 1);
       spMute = ctx.createGain();
@@ -754,7 +806,7 @@ async function captureOnce({ maxMs, noSpeechPeak, _retry, forceStream }) {
       spTap = ctx.createMediaStreamSource(stream);
       spProc.onaudioprocess = (e) => {
         const input = e.inputBuffer.getChannelData(0);
-        spChunks.push(Float32Array.from(input));
+        spChunks.push(new Float32Array(input));
         const p = peakOf(input);
         if (p > spPeak) spPeak = p;
       };
@@ -774,7 +826,7 @@ async function captureOnce({ maxMs, noSpeechPeak, _retry, forceStream }) {
   try {
     if (typeof MediaRecorder !== "undefined") {
       try {
-        mrPcm = await recordFixedMediaRecorder(stream, ctx, mime, recordMs);
+        mrPcm = await recordFixedMediaRecorder(stream, mime, recordMs);
         mrPeak = peakOf(mrPcm);
         mrBytes = mrPcm.length;
       } catch (err) {
@@ -875,7 +927,40 @@ async function captureOnce({ maxMs, noSpeechPeak, _retry, forceStream }) {
   }
 }
 
-async function recordFixedMediaRecorder(stream, ctx, mime, recordMs) {
+async function decodeTo16k(arrayBuffer) {
+  const AC = window.AudioContext || window.webkitAudioContext;
+  if (!AC) throw new Error("decode-failed:no-audiocontext");
+  const dec = new AC();
+  let timer;
+  try {
+    const copy = arrayBuffer.slice(0);
+    const audioBuf = await Promise.race([
+      dec.decodeAudioData(copy),
+      new Promise((_, reject) => {
+        timer = setTimeout(() => reject(new Error("decode-timeout")), 4000);
+      }),
+    ]);
+    const ch0 = audioBuf.getChannelData(0);
+    let mono = ch0;
+    if (audioBuf.numberOfChannels > 1) {
+      const ch1 = audioBuf.getChannelData(1);
+      mono = new Float32Array(ch0.length);
+      for (let i = 0; i < ch0.length; i++) mono[i] = 0.5 * (ch0[i] + ch1[i]);
+    }
+    return resampleTo16k(mono, audioBuf.sampleRate);
+  } catch (err) {
+    throw new Error(`decode-failed:${err?.message || err}`);
+  } finally {
+    clearTimeout(timer);
+    try {
+      await dec.close();
+    } catch {
+      /* ignore */
+    }
+  }
+}
+
+async function recordFixedMediaRecorder(stream, mime, recordMs) {
   const chunks = [];
   let recorder;
   try {
@@ -900,7 +985,7 @@ async function recordFixedMediaRecorder(stream, ctx, mime, recordMs) {
   };
 
   try {
-    recorder.start(50);
+    recorder.start();
   } catch (err) {
     throw err;
   }
@@ -929,23 +1014,9 @@ async function recordFixedMediaRecorder(stream, ctx, mime, recordMs) {
   if (blob.size < 32) throw new Error("empty-recording");
 
   const ab = await blob.arrayBuffer();
-  await ensureCtxRunning(ctx);
-  const copy = ab.slice(0);
-  let audioBuf;
-  try {
-    audioBuf = await ctx.decodeAudioData(copy);
-  } catch (err) {
-    // decodeAudioData can fail intermittently; bubble up so SP path can win.
-    throw new Error(`decode-failed:${err?.message || err}`);
-  }
-  const ch0 = audioBuf.getChannelData(0);
-  let mono = ch0;
-  if (audioBuf.numberOfChannels > 1) {
-    const ch1 = audioBuf.getChannelData(1);
-    mono = new Float32Array(ch0.length);
-    for (let i = 0; i < ch0.length; i++) mono[i] = 0.5 * (ch0[i] + ch1[i]);
-  }
-  return resampleTo16k(mono, audioBuf.sampleRate);
+  // Decode on a throwaway context. decodeAudioData on the live mic context
+  // stalls or fails on the second take while a MediaStreamSource is connected.
+  return decodeTo16k(ab);
 }
 
 /** Lazy-loaded MFCC cache per language. */

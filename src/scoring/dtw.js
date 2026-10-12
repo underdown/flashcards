@@ -5,6 +5,7 @@
  *  40-mel log FB → DCT → MFCC 1..12 + deltas (24-D) → mean-center (no CMVN var)
  *  banded Euclidean DTW, norm by max(T1,T2) → logistic 0..100
  *  best score over reference voices
+ *  reject stationary silence: mean-centered noise DTW-scores 88–99 if it is allowed through
  */
 
 export const SR = 16000;
@@ -18,6 +19,10 @@ const FMAX = 8000;
 
 export const SCORE_CENTER = 58;
 export const SCORE_SCALE = 0.1;
+// Flattest of 1090 Russian refs is RMS 4.41. Noise still lands near RMS 2.7, so RMS
+// alone cannot reject hiss. Adjacent-frame cosine does: noise ~0.25, refs min 0.65.
+export const MIN_SPEECH_RMS = 2.0;
+export const MIN_ADJ_COS = 0.5;
 
 function hzToMel(hz) {
   return 2595 * Math.log10(1 + hz / 700);
@@ -175,14 +180,59 @@ function addDeltas(f) {
   return f.map((row, i) => row.concat(deltas[i]));
 }
 
+export function featureRms(frames) {
+  if (!frames?.length) return 0;
+  let acc = 0;
+  let n = 0;
+  for (const row of frames) {
+    if (!row) continue;
+    for (let j = 0; j < row.length; j++) {
+      const v = Number(row[j]);
+      if (Number.isFinite(v)) {
+        acc += v * v;
+        n++;
+      }
+    }
+  }
+  return n ? Math.sqrt(acc / n) : 0;
+}
+
+/** Mean cosine of adjacent frames. Speech trajectories are smooth; noise is not. */
+export function adjacentCosine(frames) {
+  if (!frames || frames.length < 2) return 0;
+  let acc = 0;
+  let n = 0;
+  for (let i = 1; i < frames.length; i++) {
+    const a = frames[i - 1];
+    const b = frames[i];
+    const dim = Math.min(a?.length || 0, b?.length || 0);
+    let dot = 0;
+    let na = 0;
+    let nb = 0;
+    for (let k = 0; k < dim; k++) {
+      const av = Number(a[k]);
+      const bv = Number(b[k]);
+      if (!Number.isFinite(av) || !Number.isFinite(bv)) continue;
+      dot += av * bv;
+      na += av * av;
+      nb += bv * bv;
+    }
+    const denom = Math.sqrt(na * nb);
+    if (denom > 1e-8) {
+      acc += dot / denom;
+      n++;
+    }
+  }
+  return n ? acc / n : 0;
+}
+
 /** @param {ArrayLike<number>} pcm mono samples in [-1,1], any rate OK if already 16k preferred */
 export function extractFeatures(pcm) {
   let x = Float64Array.from(pcm, (v) => Number(v));
   x = preEmphasis(energyTrim(x));
   if (x.length < WIN) {
-    const p = new Float64Array(WIN);
-    p.set(x);
-    x = p;
+    // Don't pad silence with zeros — empty/silent audio yields no features. Caller must reject.
+    return null;
   }
   const ham = new Float64Array(WIN);
   for (let i = 0; i < WIN; i++) ham[i] = 0.54 - 0.46 * Math.cos((2 * Math.PI * i) / (WIN - 1));
@@ -214,10 +264,16 @@ export function extractFeatures(pcm) {
 
   const withD = addDeltas(coeffs);
   const dim = withD[0]?.length ?? 0;
+  // 6 frames ≈ 75 ms. Shorter than every ref (min 10) and shorter than a word.
+  if (withD.length < 6 || dim === 0) return null;
+
   const mean = Array(dim).fill(0);
   for (const row of withD) for (let j = 0; j < dim; j++) mean[j] += row[j];
-  for (let j = 0; j < dim; j++) mean[j] /= Math.max(1, withD.length);
-  return withD.map((row) => row.map((v, j) => v - mean[j]));
+  for (let j = 0; j < dim; j++) mean[j] /= withD.length;
+  const centered = withD.map((row) => row.map((v, j) => v - mean[j]));
+  if (featureRms(centered) < MIN_SPEECH_RMS) return null;
+  if (adjacentCosine(centered) < MIN_ADJ_COS) return null;
+  return centered;
 }
 
 export function dtwDistance(a, b) {
@@ -279,6 +335,10 @@ export function distanceToScore(dist, center = SCORE_CENTER, scale = SCORE_SCALE
 
 export function scoreAgainstRefs(user, refs) {
   let best = { score: 0, distance: 1e9, refIndex: -1 };
+  if (!refs?.length || !user || user.length < 6) return best;
+  // Near-zero features are what silence becomes after mean-center. Do not DTW them.
+  if (featureRms(user) < MIN_SPEECH_RMS) return best;
+  if (adjacentCosine(user) < MIN_ADJ_COS) return best;
   refs.forEach((ref, i) => {
     const distance = dtwDistance(user, ref);
     const score = distanceToScore(distance);
@@ -771,21 +831,26 @@ async function captureOnce({ maxMs, noSpeechPeak, _retry, forceStream }) {
       throw err;
     }
 
-    const pcm = normalizePcmPeak(best);
-    const peak = peakOf(pcm);
-    diag.peak = Number(peak.toFixed(5));
-    diag.samples = pcm.length;
-    diag.seconds = Number((pcm.length / SR).toFixed(2));
+    const rawPeak = peakOf(best);
+    diag.rawPeak = Number(rawPeak.toFixed(5));
+    diag.samples = best.length;
+    diag.seconds = Number((best.length / SR).toFixed(2));
 
-    if (pcm.length < SR * 0.08 || peak < noSpeechPeak) {
-      const err = new Error(
-        peak < noSpeechPeak ? "no-speech-detected" : "recording-too-short"
-      );
-      err.code = peak < noSpeechPeak ? "no-speech" : "too-short";
+    // Gate BEFORE gain. normalizePcmPeak boosts anything above 1e-6 by up to 20×,
+    // so a post-gain peak check cannot see silence. AGC-pumped hiss still passes
+    // here and is rejected by the feature-RMS gate in extractFeatures.
+    const minPeak = Math.max(0.001, Number(noSpeechPeak) || 0);
+    if (best.length < SR * 0.12 || !(rawPeak >= minPeak)) {
+      const silent = !(rawPeak >= minPeak);
+      const err = new Error(silent ? "no-speech-detected" : "recording-too-short");
+      err.code = silent ? "no-speech" : "too-short";
       err.diag = diag;
       forceFreshStream = true;
       throw err;
     }
+
+    const pcm = normalizePcmPeak(best);
+    diag.peak = Number(peakOf(pcm).toFixed(5));
 
     // Success — keep stream for the next tap only briefly; next prime still refreshes.
     forceFreshStream = false;
@@ -905,10 +970,14 @@ export function scorePcmAgainstWord(pcm16k, foreign, cache) {
   if (!cache?.by_word || !foreign) return null;
   const entry = cache.by_word[foreign];
   if (!entry?.refs) return null;
-  const refs = Object.values(entry.refs);
+  const refs = Object.values(entry.refs).filter(
+    (v) => Array.isArray(v) && Array.isArray(v[0])
+  );
   if (!refs.length) return null;
   const feats = extractFeatures(pcm16k);
+  if (feats == null) return { ok: false, reason: "no-speech" };
   const best = scoreAgainstRefs(feats, refs);
+  if (best.refIndex < 0) return { ok: false, reason: "no-speech" };
   return {
     score: Math.round(best.score),
     distance: best.distance,
@@ -970,7 +1039,14 @@ export async function recordAndScoreWord(language, foreign, opts) {
     return { ok: false, reason: "no-refs", diag };
   }
   const result = scorePcmAgainstWord(pcm, foreign, cache);
-  if (!result) return { ok: false, reason: "score-failed", diag };
+  if (!result || result.ok === false) {
+    return {
+      ok: false,
+      reason: result?.reason || "score-failed",
+      diag,
+      detail: formatDiag(diag),
+    };
+  }
   return {
     ok: true,
     ...result,

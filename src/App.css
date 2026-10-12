@@ -134,7 +134,7 @@ html, body, #root {
 }
 
 .flashcard--score-pass {
-  --score-tint: #0b6e2a; /* deep Kelly green at 100 */
+  --score-tint: #7a4a00; /* deep amber at 100 */
 }
 
 .flashcard--score-fail {
@@ -333,12 +333,12 @@ html, body, #root {
   min-height: 48px;
   padding: 10px 14px;
   margin: 5px;
-  border: none;
+  border: 1px solid rgba(255, 176, 32, 0.35);
   border-radius: 5px;
-  background-color: #1b5e20;
+  background: linear-gradient(180deg, #b06f0f, #8a5407);
   color: white;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: filter 0.2s, background 0.2s;
 }
 
 .nav-button-icon {
@@ -349,11 +349,13 @@ html, body, #root {
 }
 
 .nav-button:hover {
-  background-color: #2e7d32;
+  background: linear-gradient(180deg, #cf8a14, #a06a08);
+  filter: brightness(1.08);
 }
 
 .nav-button:disabled {
-  background-color: #cccccc;
+  background: linear-gradient(180deg, #4a4a4a, #333333);
+  border-color: rgba(255, 255, 255, 0.12);
   cursor: not-allowed;
 }
 
@@ -362,11 +364,12 @@ html, body, #root {
 }
 
 .nav-button.active {
-  background-color: #f44336;
+  background: linear-gradient(180deg, #c62828, #8e1616);
+  border-color: rgba(255, 90, 90, 0.4);
 }
 
 .nav-button.active:hover {
-  background-color: #da190b;
+  background: linear-gradient(180deg, #e53935, #a51d1d);
 }
 
 /* Dark mode styles */
@@ -415,15 +418,16 @@ html, body, #root {
 /* ── Russian card: high-tech dense redesign ─────────────────────────── */
 
 .flashcard--ru {
+  /* Amber/copper HUD: deep charcoal + amber accent */
   background:
-    linear-gradient(135deg, rgba(20, 26, 34, 0.92), rgba(10, 14, 20, 0.96)),
-    repeating-linear-gradient(0deg, transparent 0 31px, rgba(0, 229, 255, 0.045) 31px 32px),
-    repeating-linear-gradient(90deg, transparent 0 31px, rgba(0, 229, 255, 0.045) 31px 32px);
-  border: 1px solid rgba(0, 229, 255, 0.28);
+    linear-gradient(135deg, rgba(30, 24, 18, 0.93), rgba(14, 11, 8, 0.96)),
+    repeating-linear-gradient(0deg, transparent 0 31px, rgba(255, 176, 32, 0.05) 31px 32px),
+    repeating-linear-gradient(90deg, transparent 0 31px, rgba(255, 176, 32, 0.05) 31px 32px);
+  border: 1px solid rgba(255, 176, 32, 0.30);
   border-bottom: none;
   border-top: none;
   border-radius: 0;
-  box-shadow: 0 0 24px rgba(0, 229, 255, 0.14), inset 0 0 40px rgba(0, 229, 255, 0.05);
+  box-shadow: 0 0 24px rgba(255, 176, 32, 0.13), inset 0 0 40px rgba(255, 176, 32, 0.05);
   padding: 14px 18px 0;
 }
 
@@ -449,11 +453,11 @@ html, body, #root {
 }
 
 .ru-tag {
-  color: #00e5ff;
-  border: 1px solid rgba(0, 229, 255, 0.5);
+  color: #ffb020;
+  border: 1px solid rgba(255, 176, 32, 0.55);
   padding: 2px 7px;
   border-radius: 2px;
-  text-shadow: 0 0 8px rgba(0, 229, 255, 0.8);
+  text-shadow: 0 0 8px rgba(255, 176, 32, 0.8);
 }
 
 .ru-sub {
@@ -483,12 +487,12 @@ html, body, #root {
   font-weight: 800;
   letter-spacing: 0.02em;
   margin: 0;
-  text-shadow: 0 0 22px rgba(0, 229, 255, 0.55);
+  text-shadow: 0 0 22px rgba(255, 176, 32, 0.5);
   line-height: 1.1;
 }
 
 .phonetic--ru {
-  color: #00e5ff;
+  color: #ffb020;
   font-family: 'SF Mono', 'Roboto Mono', Menlo, Consolas, monospace;
   font-size: 0.95rem;
   letter-spacing: 0.08em;
@@ -509,7 +513,7 @@ html, body, #root {
   width: 100%;
   display: flex;
   justify-content: space-around;
-  border-top: 1px solid rgba(0, 229, 255, 0.18);
+  border-top: 1px solid rgba(255, 176, 32, 0.20);
   padding-top: 8px;
   margin-top: 4px;
   font-family: 'SF Mono', 'Roboto Mono', Menlo, Consolas, monospace;
@@ -526,6 +530,12 @@ html, body, #root {
   color: #ffffff;
   font-size: 1.05rem;
   font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.ru-stat-value--streak {
+  color: #ffb020;
+  text-shadow: 0 0 10px rgba(255, 176, 32, 0.55);
 }
 
 .ru-stat-label {
@@ -537,9 +547,9 @@ html, body, #root {
 
 .dark-mode .flashcard--ru {
   background:
-    linear-gradient(135deg, rgba(20, 26, 34, 0.92), rgba(10, 14, 20, 0.96)),
-    repeating-linear-gradient(0deg, transparent 0 31px, rgba(0, 229, 255, 0.045) 31px 32px),
-    repeating-linear-gradient(90deg, transparent 0 31px, rgba(0, 229, 255, 0.045) 31px 32px);
+    linear-gradient(135deg, rgba(30, 24, 18, 0.93), rgba(14, 11, 8, 0.96)),
+    repeating-linear-gradient(0deg, transparent 0 31px, rgba(255, 176, 32, 0.05) 31px 32px),
+    repeating-linear-gradient(90deg, transparent 0 31px, rgba(255, 176, 32, 0.05) 31px 32px);
 }
 
 /* ── end Russian card ──────────────────────────────────────────────── */
@@ -623,25 +633,25 @@ html, body, #root {
   color: #b0b0b0;
 }
 
-/* Match light-mode / kanji accent green (#4CAF50), not blue */
+/* Amber/copper button scheme */
 .dark-mode .nav-button {
-  background-color: #1b5e20;
+  background: linear-gradient(180deg, #b06f0f, #8a5407);
 }
 
 .dark-mode .nav-button:hover {
-  background-color: #2e7d32;
+  background: linear-gradient(180deg, #cf8a14, #a06a08);
 }
 
 .dark-mode .nav-button.active {
-  background-color: #f44336;
+  background: linear-gradient(180deg, #c62828, #8e1616);
 }
 
 .dark-mode .nav-button.active:hover {
-  background-color: #da190b;
+  background: linear-gradient(180deg, #e53935, #a51d1d);
 }
 
 .dark-mode .toggle-button {
-  background-color: #1b5e20;
+  background: linear-gradient(180deg, #b06f0f, #8a5407);
 }
 
 .dark-mode .toggle-button:hover {
@@ -775,20 +785,21 @@ input:checked + .slider:before {
   gap: 10px;
 }
 
-/* Match flashcard nav-button green */
+/* Match flashcard nav-button amber */
 .language-link.button {
   display: inline-block;
   padding: 10px 20px;
-  background-color: #1b5e20;
+  background: linear-gradient(180deg, #b06f0f, #8a5407);
   color: white;
   text-decoration: none;
   border-radius: 5px;
   text-align: center;
-  transition: background-color 0.3s;
+  transition: filter 0.2s, background 0.2s;
 }
 
 .language-link.button:hover {
-  background-color: #2e7d32;
+  background: linear-gradient(180deg, #cf8a14, #a06a08);
+  filter: brightness(1.08);
 }
 
 .dark-mode .language-link.button {

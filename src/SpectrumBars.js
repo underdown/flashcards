@@ -90,9 +90,9 @@ export default function SpectrumBars({ height = 44 }) {
         const h = Math.max(2, v * (cssH - 4));
         const x = i * (barW + gap);
         const y = cssH - h;
-        // HSL gradient: teal → violet as height rises.
-        const hue = 170 + v * 110;
-        ctx.fillStyle = `hsl(${hue} 80% ${55 + v * 12}%)`;
+        // HSL gradient: copper → hot amber as height rises.
+        const hue = 32 + v * 14;
+        ctx.fillStyle = `hsl(${hue} 88% ${52 + v * 14}%)`;
         const r = Math.min(barW / 2, 2);
         roundTopRect(ctx, x, y, barW, h, r);
       }

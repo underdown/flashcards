@@ -38,10 +38,8 @@ const RussianCard = ({
 
   const total = (wordStats?.successes || 0) + (wordStats?.failures || 0);
   const mastery = total > 0 ? Math.round((wordStats.successes / total) * 100) : null;
-  const lastScore =
-    typeof wordStats?.lastAttempt?.similarity === 'number'
-      ? Math.round(wordStats.lastAttempt.similarity * 100)
-      : null;
+  const streak = wordStats?.streak || 0;
+  const bestStreak = wordStats?.bestStreak || 0;
 
   return (
     <div className={cardClass} key={scoreFlash?.visible ? `s-${scoreFlash.id}` : undefined}>
@@ -77,10 +75,14 @@ const RussianCard = ({
             <span className="ru-stat-label">mastery</span>
           </div>
           <div className="ru-stat">
-            <span className="ru-stat-value">
-              {lastScore === null ? '—' : lastScore}
+            <span className={`ru-stat-value ${streak > 0 ? 'ru-stat-value--streak' : ''}`}>
+              {streak}
             </span>
-            <span className="ru-stat-label">last</span>
+            <span className="ru-stat-label">streak</span>
+          </div>
+          <div className="ru-stat">
+            <span className="ru-stat-value">{bestStreak}</span>
+            <span className="ru-stat-label">best</span>
           </div>
         </div>
       </div>

@@ -215,7 +215,9 @@ const App = () => {
       ...item,
       successes: isSuccess ? item.successes + 1 : item.successes,
       failures: isSuccess ? item.failures : item.failures + 1,
-      lastAttempt: { success: isSuccess, similarity }
+      lastAttempt: { success: isSuccess, similarity },
+      streak: isSuccess ? (item.streak || 0) + 1 : 0,
+      bestStreak: Math.max(item.bestStreak || 0, isSuccess ? (item.streak || 0) + 1 : 0)
     };
     
     await store.put(updatedStats);

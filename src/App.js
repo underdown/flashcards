@@ -2,14 +2,6 @@ import React, { useEffect, useState, useCallback, useRef } from 'react';
 import Flashcard from './Flashcard';
 import RussianCard from './RussianCard';
 import './App.css';
-import sunIcon from './assets/sun.svg';
-import moonIcon from './assets/moon.svg';
-import iconPlay from './assets/icon-play.svg';
-import iconMic from './assets/icon-mic.svg';
-import iconSkip from './assets/icon-skip.svg';
-import iconStop from './assets/icon-stop.svg';
-import iconSettings from './assets/icon-settings.svg';
-import iconSound from './assets/icon-sound.svg';
 import successSound from './assets/success.wav';
 import failSound from './assets/fail.wav';
 import successGif from './assets/success.gif';
@@ -98,7 +90,7 @@ function waitForRecognitionIdle(recognition) {
 }
 
 const App = () => {
-  const { darkMode, toggleDarkMode } = useTheme();
+  const { darkMode } = useTheme();
   const [words, setWords] = useState([]);
   const [currentLanguage, setCurrentLanguage] = useState('');
   const [currentWord, setCurrentWord] = useState(null);
@@ -111,7 +103,6 @@ const App = () => {
   const [speakPrompt, setSpeakPrompt] = useState(false);
   const [showSuccessGif, setShowSuccessGif] = useState(false);
   const [speechStatus, setSpeechStatus] = useState('idle');
-  const [wordStats, setWordStats] = useState({ successes: 0, failures: 0 });
   const [wordStatsMap, setWordStatsMap] = useState({});
   const [audioContext, setAudioContext] = useState(null);
   const audioBuffersRef = useRef({});
@@ -462,238 +453,6 @@ const App = () => {
     });
   }, [audioContext]);
 
-  const startListening = useCallback(() => {
-    if (!currentWord?.foreign) return;
-    if (listening) return;
-
-    // Sync inside the click gesture — unlock the DTW AudioContext BEFORE any await.
-    // App's separate audioContext does not unlock sharedCtx inside dtw.js.
-    try {
-      primeMicAudio();
-    } catch {
-      /* ignore */
-    }
-    if (audioContext && audioContext.state !== 'running') {
-      try {
-        const p = audioContext.resume();
-        if (p && typeof p.catch === 'function') p.catch(() => {});
-      } catch {
-        /* ignore */
-      }
-    }
-
-    const runDtwPath = async () => {
-      setListening(true);
-      setSpeechStatus('listening');
-      // Wait for the mic permission grant (first run) / fresh stream before
-      // showing the SPEAK prompt — the prompt means "mic is live now".
-      try {
-        try {
-          await primeMicAudio();
-        } catch {
-          /* ignore */
-        }
-      } catch {
-        /* ignore */
-      }
-      setSpeakPrompt(true);
-      successHandledRef.current = false;
-      // Hard unlock so a hung recorder never permanently disables the mic button.
-      // Fresh-stream + one silent retry can take ~7s; keep headroom.
-      const unlockTimer = setTimeout(() => {
-        setListening(false);
-        setSpeechStatus((s) => (s === 'listening' || s === 'processing' ? 'idle' : s));
-        setSpeakPrompt(false);
-      }, 14000);
-      try {
-        const result = await recordAndScoreWord(currentLanguage, currentWord.foreign, {
-          maxMs: 2800,
-          noSpeechPeak: 0.0005,
-        });
-        setSpeechStatus('processing');
-        if (!result.ok) {
-          console.warn('DTW path unavailable:', result.reason, result.diag || result.detail);
-          // No refs for this word → let caller fall through to ASR.
-          if (result.reason === 'no-refs') {
-            setListening(false);
-            setSpeechStatus('idle');
-            return false;
-          }
-          // Word has refs — stay on DTW. Do NOT fall through to ASR (that was
-          // flashing fake 0/100 and hiding real pronunciation scores).
-          const silent =
-            result.reason === 'no-speech' ||
-            result.reason === 'too-short' ||
-            result.reason === 'empty-recording';
-          console.warn('DTW mic issue:', result.reason, silent ? 'silent' : 'other');
-          showScoreFlash(0, false);
-          setSpeechStatus('idle');
-          setListening(false);
-          playSound(failSound);
-          return true;
-        }
-        const score = Number(result.score);
-        console.log('DTW score', score, 'distance', result.distance, 'pcm', result.pcmLength, result.diag);
-        const pass = score >= DTW_PASS_SCORE;
-        showScoreFlash(score, pass);
-        if (pass) {
-          successHandledRef.current = true;
-          playSound(successSound);
-          setShowSuccessGif(true);
-          setWordStats((prev) => ({ ...prev, successes: prev.successes + 1 }));
-          updateWordStats(currentWord.foreign, true, score / 100);
-          setTimeout(() => {
-            setShowSuccessGif(false);
-            setSpeechStatus('idle');
-            setListening(false);
-            if (autoPracticeActiveRef.current) {
-              nextRandomWord();
-              nextWordTimeoutRef.current = setTimeout(() => {
-                autoPractice();
-              }, 2000);
-            }
-          }, 1200);
-        } else {
-          playSound(failSound);
-          setWordStats((prev) => ({ ...prev, failures: prev.failures + 1 }));
-          updateWordStats(currentWord.foreign, false, score / 100);
-          setSpeechStatus('idle');
-          setListening(false);
-        }
-        return true;
-      } catch (err) {
-        console.error('DTW listening failed:', err);
-        setListening(false);
-        setSpeechStatus('error');
-        setSpeakPrompt(false);
-        showScoreFlash(0, false);
-        return true; // don't fall to ASR on mic errors for ref words
-      } finally {
-        clearTimeout(unlockTimer);
-      }
-    };
-
-    const runAsrPath = () => {
-      if (!recognition) {
-        setSpeechStatus('error');
-        setListening(false);
-        return;
-      }
-      waitForRecognitionIdle(recognition).then(() => {
-        let timeoutId;
-        let lastAsrScore = 0;
-
-        recognition.onstart = () => {
-          console.log('Speech recognition started');
-          setSpeechStatus('listening');
-          setListening(true);
-          setSpeakPrompt(true);
-          successHandledRef.current = false;
-
-          timeoutId = setTimeout(() => {
-            console.log('Speech recognition timed out');
-            recognition.abort();
-          }, 5000);
-        };
-
-        recognition.onaudiostart = () => {
-          console.log('Audio capturing started');
-          setSpeechStatus('ready');
-        };
-
-        recognition.onspeechstart = () => {
-          console.log('Speech started');
-          setSpeechStatus('speaking');
-        };
-
-        recognition.onspeechend = () => {
-          console.log('Speech ended');
-          setSpeechStatus('processing');
-        };
-
-        recognition.onend = () => {
-          console.log('Speech recognition ended');
-          setListening(false);
-          setSpeechStatus('idle');
-          clearTimeout(timeoutId);
-
-          if (!successHandledRef.current) {
-            console.log('Failure');
-            playSound(failSound);
-            showScoreFlash(lastAsrScore, false);
-            setWordStats((prev) => ({ ...prev, failures: prev.failures + 1 }));
-            updateWordStats(currentWord.foreign, false, lastAsrScore / 100);
-
-            setTimeout(() => {
-              setSpeechStatus('idle');
-            }, 100);
-          }
-        };
-
-        recognition.onerror = (event) => {
-          console.error('Speech recognition error', event.error);
-          setListening(false);
-          setSpeechStatus('error');
-          clearTimeout(timeoutId);
-        };
-
-        recognition.onresult = (event) => {
-          const transcript = Array.from(event.results)
-            .map((result) => result[0].transcript)
-            .join('');
-
-          const cleanTranscript = transcript.toLowerCase().trim();
-          const confScore = asrScoreFromResults(event.results);
-          if (typeof confScore === 'number') lastAsrScore = confScore;
-
-          if (
-            speechMatchesExpected(cleanTranscript, currentWord, kanjiVariantIndexRef.current) &&
-            !successHandledRef.current
-          ) {
-            console.log('Success detected');
-            successHandledRef.current = true;
-            recognition.abort();
-            playSound(successSound);
-            // Prefer browser confidence; if missing, still don't fake 100 — use 0
-            // only when conf unknown is worse UX, so default matched-unknown to 70.
-            const score = typeof confScore === 'number' ? confScore : 70;
-            showScoreFlash(score, true);
-            setShowSuccessGif(true);
-            setWordStats((prev) => ({ ...prev, successes: prev.successes + 1 }));
-            updateWordStats(currentWord.foreign, true, score / 100);
-
-            setTimeout(() => {
-              setShowSuccessGif(false);
-              setSpeechStatus('idle');
-              if (autoPracticeActiveRef.current) {
-                nextRandomWord();
-                nextWordTimeoutRef.current = setTimeout(() => {
-                  autoPractice();
-                }, 2000);
-              }
-            }, 1200);
-          }
-        };
-
-        try {
-          recognition.start();
-        } catch (error) {
-          console.error('Error starting speech recognition:', error);
-          setSpeechStatus('error');
-          setListening(false);
-          clearTimeout(timeoutId);
-        }
-      });
-    };
-
-    // Start recording IMMEDIATELY — do not wait for the ~8MB MFCC cache fetch.
-    // Cache loads in parallel inside recordAndScoreWord. Waiting first made users
-    // speak before the mic was actually open.
-    runDtwPath().then((handled) => {
-      if (!handled) runAsrPath();
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional
-  }, [recognition, currentWord, currentLanguage, listening, playSound, updateWordStats, showScoreFlash, audioContext, asrScoreFromResults]);
 
   // Preload MFCC cache when language is set so the first mic tap isn't cold.
   useEffect(() => {
@@ -722,32 +481,6 @@ const App = () => {
     };
   }, []);
 
-  const speakWord = useCallback(() => {
-    if (!currentWord?.foreign) return;
-
-    const langCode = getLanguageCode(currentLanguage);
-    const text = getJapaneseSpeechText(currentWord, kanjiVariantIndexRef.current);
-
-    const runSpeak = (voices) => {
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = langCode;
-
-      const languageVoice = pickVoiceForLang(voices, langCode);
-      if (languageVoice) {
-        utterance.voice = languageVoice;
-        console.log('Using voice:', languageVoice.name, languageVoice.lang);
-      } else {
-        console.log('No specific voice found for', langCode, '(voices:', voices.length, ')');
-      }
-
-      utterance.rate = 0.9;
-      utterance.pitch = 1;
-      window.speechSynthesis.speak(utterance);
-    };
-
-    loadVoicesWhenReady().then(runSpeak);
-  }, [currentWord, currentLanguage]);
 
   // Add this effect to handle voice loading
   useEffect(() => {
@@ -797,7 +530,6 @@ const App = () => {
         return acc;
       }, {});
 
-      setWordStats(totalStats);
       setWordStatsMap(wordStatsMap);
       console.log('Total stats loaded:', totalStats);
     };
@@ -896,7 +628,6 @@ const App = () => {
           if (!result.ok) {
             showScoreFlash(0, false);
             playSound(failSound);
-            setWordStats((prev) => ({ ...prev, failures: prev.failures + 1 }));
             updateWordStats(wordNow.foreign, false, 0);
             setListening(false);
             setSpeechStatus('idle');
@@ -909,13 +640,11 @@ const App = () => {
             successHandledRef.current = true;
             playSound(successSound);
             setShowSuccessGif(true);
-            setWordStats((prev) => ({ ...prev, successes: prev.successes + 1 }));
             updateWordStats(wordNow.foreign, true, score / 100);
             setListening(false);
             return true;
           }
           playSound(failSound);
-          setWordStats((prev) => ({ ...prev, failures: prev.failures + 1 }));
           updateWordStats(wordNow.foreign, false, score / 100);
           setListening(false);
           setSpeechStatus('idle');
@@ -981,7 +710,6 @@ const App = () => {
               playSound(successSound);
               showScoreFlash(score, true);
               setShowSuccessGif(true);
-              setWordStats((prev) => ({ ...prev, successes: prev.successes + 1 }));
               updateWordStats(currentWordRef.current.foreign, true, score / 100);
               finish(true);
             }
@@ -997,7 +725,6 @@ const App = () => {
               console.log('Recognition ended without success');
               playSound(failSound);
               showScoreFlash(lastAsrScore, false);
-              setWordStats((prev) => ({ ...prev, failures: prev.failures + 1 }));
               updateWordStats(currentWordRef.current.foreign, false, lastAsrScore / 100);
               finish(false);
             }
@@ -1193,6 +920,10 @@ const App = () => {
               scoreFlash={scoreFlash}
               speakPrompt={speakPrompt}
               wordStats={currentWordStats}
+              onAutoToggle={toggleAutoPractice}
+              isAutoActive={isAutoPracticeActive}
+              onSkip={nextRandomWord}
+              onOpenMenu={() => setShowCategorySelector(true)}
             />
           ) : (
             <Flashcard
@@ -1209,138 +940,6 @@ const App = () => {
       <div className="speech-status">
         {speechStatus === 'processing' && <p>Scoring pronunciation (MFCC + DTW)…</p>}
         {speechStatus === 'error' && <p>Error occurred. Please try again.</p>}
-      </div>
-      <div className="button-container" style={{ position: 'relative', zIndex: 2 }}>
-        <button
-          type="button"
-          className={`nav-button ${isAutoPracticeActive ? 'active' : ''}`}
-          onClick={toggleAutoPractice}
-          aria-label={isAutoPracticeActive ? 'Stop auto practice' : 'Auto practice'}
-          title={isAutoPracticeActive ? 'Stop' : 'Auto'}
-        >
-          <img
-            src={isAutoPracticeActive ? iconStop : iconPlay}
-            alt=""
-            className="nav-button-icon"
-          />
-        </button>
-        <button
-          type="button"
-          className="nav-button"
-          onClick={nextRandomWord}
-          aria-label="Skip card"
-          title="Skip"
-          style={{ cursor: 'pointer', pointerEvents: 'auto' }}
-        >
-          <img src={iconSkip} alt="" className="nav-button-icon" />
-        </button>
-        <button
-          type="button"
-          className="nav-button"
-          onClick={speakWord}
-          aria-label="Play"
-          title="Play"
-          style={{ cursor: 'pointer', pointerEvents: 'auto' }}
-        >
-          <img
-            src={iconSound}
-            alt=""
-            className="nav-button-icon"
-          />
-        </button>
-        <button
-          type="button"
-          onClick={startListening}
-          disabled={listening}
-          className="nav-button"
-          aria-label={listening ? 'Listening' : 'Speak'}
-          title={listening ? 'Listening' : 'Speak'}
-          style={{ cursor: 'pointer', pointerEvents: 'auto' }}
-        >
-          <img src={iconMic} alt="" className="nav-button-icon" />
-        </button>
-        <button
-          type="button"
-          className="nav-button"
-          onClick={() => setShowCategorySelector(!showCategorySelector)}
-          aria-label="Categories"
-          title="Categories"
-        >
-          <img src={iconSettings} alt="" className="nav-button-icon" />
-        </button>
-      </div>
-      <div className="dark-mode-toggle" style={{ paddingTop: '10px' }}>
-        <label className="switch">
-          <input type="checkbox" checked={darkMode} onChange={toggleDarkMode} />
-          <span className="slider round">
-            <img src={darkMode ? moonIcon : sunIcon} alt="mode icon" className="mode-icon" />
-          </span>
-        </label>
-      </div>
-      <div className="stats-container">
-        <div className="stats">
-          <h3>Current</h3>
-          <table>
-            <tbody>
-              <tr>
-                <td>{currentLanguage === 'japanese' ? 'Kanji:' : 'Word:'}</td>
-                <td><strong>{currentWord?.foreign}</strong></td>
-              </tr>
-              <tr>
-                <td>Pass:</td>
-                <td><span className="success-text">{currentWordStats?.successes || 0}</span></td>
-              </tr>
-              <tr>
-                <td>Fail:</td>
-                <td><span className="failure-text">{currentWordStats?.failures || 0}</span></td>
-              </tr>
-              <tr>
-                <td>Rate:</td>
-                <td><strong>
-                  {currentWordStats ? 
-                    ((currentWordStats.successes / (currentWordStats.successes + currentWordStats.failures)) * 100).toFixed(2) : 0}%
-                </strong></td>
-              </tr>
-              {currentWordStats?.lastAttempt && (
-                <tr>
-                  <td>Last score:</td>
-                  <td><strong>
-                    {typeof currentWordStats.lastAttempt.similarity === 'number'
-                      ? Math.round(currentWordStats.lastAttempt.similarity * 100)
-                      : '—'}
-                  </strong></td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-
-        <div className="stats">
-          <h3>Overall</h3>
-          <table>
-            <tbody>
-              <tr>
-                <td>{currentLanguage === 'japanese' ? 'Kanji:' : 'Words:'}</td>
-                <td><strong>{words.length}</strong></td>
-              </tr>
-              <tr>
-                <td>Pass:</td>
-                <td><span className="success-text">{wordStats.successes}</span></td>
-              </tr>
-              <tr>
-                <td>Fail:</td>
-                <td><span className="failure-text">{wordStats.failures}</span></td>
-              </tr>
-              <tr>
-                <td>Rate:</td>
-                <td><strong>
-                  {wordStats.successes + wordStats.failures > 0 ? 
-                    ((wordStats.successes / (wordStats.successes + wordStats.failures)) * 100).toFixed(2) : 0}%
-                </strong></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
       </div>
     </div>
   );
